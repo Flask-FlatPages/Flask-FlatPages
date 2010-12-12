@@ -10,9 +10,9 @@ import flask
 
 
 class Page(object):
-    def __init__(self, path, meta, source):
+    def __init__(self, path, meta_yaml, source):
         self.path = path
-        self.meta = meta
+        self._meta_yaml = meta_yaml
         self.source = source
 
     @werkzeug.cached_property
@@ -24,6 +24,17 @@ class Page(object):
     # is what we want).
     def __html__(self):
         return self.html
+
+    @werkzeug.cached_property
+    def meta(self):
+        meta = yaml.safe_load(self._meta_yaml)
+        # YAML documents can be any type but we want a dict
+        # eg. yaml.safe_load('') -> None
+        #     yaml.safe_load('- 1\n- a') -> [1, 'a']
+        if not meta:
+            return {}
+        assert isinstance(meta, dict)
+        return meta
 
     def __getitem__(self, name):
         return self.meta[name]
@@ -107,14 +118,6 @@ class FlatPages(object):
         lines = iter(string.split(u'\n'))
         # Read lines until an empty line is encountered.
         meta = u'\n'.join(itertools.takewhile(unicode.strip, lines))
-        meta = yaml.safe_load(meta)
-        # YAML documents can be any type but we want a dict
-        # eg. yaml.safe_load('') -> None
-        #     yaml.safe_load('- 1\n- a') -> [1, 'a']
-        if not meta:
-            meta = {}
-        else:
-            assert isinstance(meta, dict)
         # The rest is the content. `lines` is an iterator so it continues
         # where `itertools.takewhile` left it.
         content = u'\n'.join(lines)
