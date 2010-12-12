@@ -29,17 +29,17 @@ class Page(object):
         return self.meta[name]
     
 
-class FlatPages(object):
-    
-    #: Relative to the app root
-    ROOT = 'pages'
+class FlatPages(object):    
+    extension = '.html'
+    encoding = 'utf8'
 
-    EXTENSION = '.html'
-    
-    ENCODING = 'utf8'
-
-    def __init__(self, app):
-        self.app = app
+    def __init__(self, app_or_directory):
+        if isinstance(app_or_directory, basestring):
+            # Assume a path to a directory.
+            self.root = unicode(app_or_directory)
+        else:
+            # Assume a Flask instance (app object).
+            self.root = os.path.join(app_or_directory.root_path, u'pages')
         self._file_cache = {}
         #: When loaded, a dict of unicode path: page object
         self._pages = None
@@ -83,11 +83,11 @@ class FlatPages(object):
                 full_name = os.path.join(directory, name)
                 if os.path.isdir(full_name):
                     _walk(full_name, path_prefix + (name,))
-                elif name.endswith(self.EXTENSION):
-                    name_without_extension = name[:-len(self.EXTENSION)]
+                elif name.endswith(self.extension):
+                    name_without_extension = name[:-len(self.extension)]
                     path = u'/'.join(path_prefix + (name_without_extension,))
                     self._load_file(path, full_name)
-        _walk(os.path.join(self.app.root_path, self.ROOT))
+        _walk(self.root)
     
     def _load_file(self, path, filename):
         mtime = os.path.getmtime(filename)
@@ -97,7 +97,7 @@ class FlatPages(object):
             page = cached[0]
         else:
             with open(filename) as fd:
-                content = fd.read().decode(self.ENCODING)
+                content = fd.read().decode(self.encoding)
             page = self._parse(content, path)
             self._file_cache[filename] = page, mtime
         self._pages[path] = page
