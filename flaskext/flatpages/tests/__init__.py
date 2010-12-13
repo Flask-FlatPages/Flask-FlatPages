@@ -26,7 +26,7 @@ def temp_directory():
 
 
 @contextmanager
-def temp_pages():
+def temp_pages(app=None):
     """This context manager gives a FlatPages object configured
     in a temporary directory with a copy of the test pages.
     
@@ -40,7 +40,7 @@ def temp_pages():
         # a race condition, but should be good enough for our purpose.
         os.rmdir(temp)
         shutil.copytree(source, temp)
-        app = Flask(__name__)
+        app = app or Flask(__name__)
         app.config['FLATPAGES_ROOT'] = temp
         yield FlatPages(app)
 
@@ -231,7 +231,7 @@ class TestFlatPages(unittest.TestCase):
             
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             with open(filename, 'w') as fd:
-                fd.write('\nrewriten')
+                fd.write('\nrewritten')
 
             pages.reset()
             
@@ -242,7 +242,66 @@ class TestFlatPages(unittest.TestCase):
             # modification date) are not parsed again.
             self.assert_(foo2 is foo)
             self.assert_(bar2 is not bar)
+            self.assert_(bar2.source != bar.source)
+
+    def assert_no_auto_reset(self, pages):
+        bar = pages.get('foo/bar')
+        self.assertEquals(bar.source, '')
+        
+        filename = os.path.join(pages.root, 'foo', 'bar.html')
+        with open(filename, 'w') as fd:
+            fd.write('\nrewritten')
+
+        # simulate a request (before_request functions are called)
+        with pages.app.test_request_context():
+            pages.app.preprocess_request()
+        
+        # not updated
+        bar2 = pages.get('foo/bar')
+        self.assertEquals(bar2.source, '')
+        self.assert_(bar2 is bar)
             
+    def assert_auto_reset(self, pages):
+        bar = pages.get('foo/bar')
+        self.assertEquals(bar.source, '')
+        
+        filename = os.path.join(pages.root, 'foo', 'bar.html')
+        with open(filename, 'w') as fd:
+            fd.write('\nrewritten')
+
+        # simulate a request (before_request functions are called)
+        # pages.reset() is not call explicitly
+        with pages.app.test_request_context():
+            pages.app.preprocess_request()
+        
+        # updated
+        bar2 = pages.get('foo/bar')
+        self.assertEquals(bar2.source, 'rewritten')
+        self.assert_(bar2 is not bar)
+    
+    def test_default_no_auto_reset(self):
+        with temp_pages() as pages:
+            self.assert_no_auto_reset(pages)
+
+    def test_debug_auto_reset(self):
+        app = Flask(__name__)
+        app.debug = True
+        with temp_pages(app) as pages:
+            self.assert_auto_reset(pages)
+
+    def test_configured_no_auto_reset(self):
+        app = Flask(__name__)
+        app.debug = True
+        app.config['FLATPAGES_AUTO_RESET'] = False
+        with temp_pages(app) as pages:
+            self.assert_no_auto_reset(pages)
+
+    def test_configured_auto_reset(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_AUTO_RESET'] = True
+        with temp_pages(app) as pages:
+            self.assert_auto_reset(pages)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -49,11 +49,22 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_DEFAULT_TEMPLATE', 'flatpage.html')
+        app.config.setdefault('FLATPAGES_AUTO_RESET', 'if debug')
         self.app = app
         
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
     
+        app.before_request(self._conditional_auto_reset)
+
+    def _conditional_auto_reset(self):
+        """Reset if configured to do so on new requests."""
+        auto = self.app.config['FLATPAGES_AUTO_RESET']
+        if auto == 'if debug':
+            auto = self.app.debug
+        if auto:
+            self.reset()
+        
     def reset(self):
         """Forget all pages.
         All pages will be reloaded next time they're accessed"""
