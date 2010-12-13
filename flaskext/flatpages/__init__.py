@@ -14,6 +14,9 @@ class Page(object):
         self.path = path
         self._meta_yaml = meta_yaml
         self.source = source
+    
+    def __repr__(self):
+        return '<Page %r>' % self.path
 
     @werkzeug.cached_property
     def html(self):
