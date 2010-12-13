@@ -53,24 +53,27 @@ class FlatPages(object):
         
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
-        #: When loaded, a dict of unicode path: page object
-        self._pages = None
     
     def reset(self):
         """Forget all pages.
         All pages will be reloaded next time they're accessed"""
-        self._pages = None
+        try:
+            # This will "unshadow" the cached_property. 
+            # The property will be re-executed on next access.
+            del self.__dict__['_pages']
+        except KeyError:
+            pass
     
     def __iter__(self):
         """Iterate on all `Page` objects."""
-        self._ensure_loaded()
         return self._pages.itervalues()
     
     def get(self, path, default=None):
         """Return the `Page` object at `path` or `default` if there is none."""
-        self._ensure_loaded()
+        # This may trigger the property. Do it outside of the try block.
+        pages = self._pages
         try:
-            return self._pages[path]
+            return pages[path]
         except KeyError:
             return default
     
@@ -99,11 +102,6 @@ class FlatPages(object):
         template = page.meta.get('template', default_template)
         return flask.render_template(template, page=page)
 
-    def _ensure_loaded(self):
-        """Make sure pages are loaded."""
-        if self._pages is None:
-            self._load_all()
-    
     @property
     def root(self):
         """Full path to the directory where pages are looked for.
@@ -114,8 +112,11 @@ class FlatPages(object):
         return os.path.join(self.app.root_path,
                             self.app.config['FLATPAGES_ROOT'])
 
-    def _load_all(self):
-        """Walk the page root directory an load all pages."""
+    @werkzeug.cached_property
+    def _pages(self):
+        """Walk the page root directory an return a dict of
+        unicode path: page object.
+        """
         def _walk(directory, path_prefix=()):
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
@@ -124,11 +125,12 @@ class FlatPages(object):
                 elif name.endswith(extension):
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension,))
-                    self._load_file(path, full_name)
+                    pages[path] = self._load_file(path, full_name)
         
-        self._pages = {}
         extension = self.app.config['FLATPAGES_EXTENSION']
+        pages = {}
         _walk(self.root)
+        return pages
     
     def _load_file(self, path, filename):
         mtime = os.path.getmtime(filename)
@@ -142,7 +144,6 @@ class FlatPages(object):
                     self.app.config['FLATPAGES_ENCODING'])
             page = self._parse(content, path)
             self._file_cache[filename] = page, mtime
-        self._pages[path] = page
         return page
     
     def _parse(self, string, path):
