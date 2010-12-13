@@ -21,9 +21,10 @@ def temp_directory():
     is deleted (with all it's content) at the end of the with block.
     """
     directory = tempfile.mkdtemp()
-    yield directory
-    shutil.rmtree(directory)
-
+    try:
+        yield directory
+    finally:
+        shutil.rmtree(directory)
 
 @contextmanager
 def temp_pages(app=None):
@@ -52,13 +53,23 @@ class TestTempDirectory(unittest.TestCase):
         # should be removed now
         assert not os.path.exists(temp)
             
+    def test_exception(self):
+        try:
+            with temp_directory() as temp:
+                assert os.path.isdir(temp)
+                1/0
+        except ZeroDivisionError:
+            pass
+        else:
+            assert False, 'Exception did not propagate'
+        assert not os.path.exists(temp)
+            
     def test_writing(self):
         with temp_directory() as temp:
             filename = os.path.join(temp, 'foo')
             with open(filename, 'w') as fd:
                 fd.write('foo')
             assert os.path.isfile(filename)
-        # should be removed now
         assert not os.path.exists(temp)
         assert not os.path.exists(filename)
 
