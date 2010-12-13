@@ -25,7 +25,7 @@ def temp_directory():
 
 
 @contextmanager
-def test_pages(source='pages', **app_config):
+def temp_pages():
     """This context manager gives a FlatPages object configured
     in a temporary directory with a copy of the test pages.
     
@@ -33,14 +33,13 @@ def test_pages(source='pages', **app_config):
     worrying about undoing our changes.
     """
     with temp_directory() as temp:
-        source = os.path.join(os.path.dirname(__file__), source)
+        source = os.path.join(os.path.dirname(__file__), 'pages')
         # Remove the destination dir as copytree wants it not to exist.
         # Doing so kind of defeats the purpose of tempfile as it introduces
         # a race condition, but should be good enough for our purpose.
         os.rmdir(temp)
         shutil.copytree(source, temp)
         app = Flask(__name__)
-        app.config.update(app_config)
         app.config['FLATPAGES_ROOT'] = temp
         yield FlatPages(app)
 
@@ -65,50 +64,46 @@ class TestTempDirectory(unittest.TestCase):
 
 class TestFlatPages(unittest.TestCase):
     def test_iter(self):
-        with test_pages() as pages:
-            paths = set(page.path for page in pages)
-            self.assertEquals(paths, set([
-                'foo', 'foo/bar', 'foo/lorem/ipsum', 'hello']))
+        pages = FlatPages(Flask(__name__))
+        self.assertEquals(
+            set(page.path for page in pages),
+            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'hello'])
+        )
 
     def test_get(self):
-        with test_pages() as pages:
-            self.assertEquals(pages.get('foo/bar').path, 'foo/bar')
-            self.assertEquals(pages.get('nonexistent'), None)
-            self.assertEquals(pages.get('nonexistent', 42), 42)
+        pages = FlatPages(Flask(__name__))
+        self.assertEquals(pages.get('foo/bar').path, 'foo/bar')
+        self.assertEquals(pages.get('nonexistent'), None)
+        self.assertEquals(pages.get('nonexistent', 42), 42)
 
     def test_get_or_404(self):
-        with test_pages() as pages:
-            self.assertEquals(pages.get_or_404('foo/bar').path, 'foo/bar')
-            self.assertRaises(NotFound, pages.get_or_404, 'nonexistent')
+        pages = FlatPages(Flask(__name__))
+        self.assertEquals(pages.get_or_404('foo/bar').path, 'foo/bar')
+        self.assertRaises(NotFound, pages.get_or_404, 'nonexistent')
 
     def test_consistency(self):
-        with test_pages() as pages:
-            for page in pages:
-                assert pages.get(page.path) is page
-
-    def test_consistency(self):
-        with test_pages() as pages:
-            for page in pages:
-                assert pages.get(page.path) is page
+        pages = FlatPages(Flask(__name__))
+        for page in pages:
+            assert pages.get(page.path) is page
 
     def test_yaml_meta(self):
-        with test_pages() as pages:
-            foo = pages.get('foo')
-            self.assertEquals(foo.meta, {
-                'title': 'Foo',
-                'created': datetime.date(2010, 12, 11),
-                'versions': [3.14, 42]
-            })
-            self.assertEquals(foo['title'], 'Foo')
-            self.assertEquals(foo['created'], datetime.date(2010, 12, 11))
-            self.assertEquals(foo['versions'], [3.14, 42])
-            self.assertRaises(KeyError, lambda: foo['nonexistent'])
+        pages = FlatPages(Flask(__name__))
+        foo = pages.get('foo')
+        self.assertEquals(foo.meta, {
+            'title': 'Foo',
+            'created': datetime.date(2010, 12, 11),
+            'versions': [3.14, 42]
+        })
+        self.assertEquals(foo['title'], 'Foo')
+        self.assertEquals(foo['created'], datetime.date(2010, 12, 11))
+        self.assertEquals(foo['versions'], [3.14, 42])
+        self.assertRaises(KeyError, lambda: foo['nonexistent'])
 
     def test_markdown(self):
-        with test_pages() as pages:
-            foo = pages.get('foo')
-            self.assertEquals(foo.source, 'Foo *bar*\n')
-            self.assertEquals(foo.html, '<p>Foo <em>bar</em></p>')
+        pages = FlatPages(Flask(__name__))
+        foo = pages.get('foo')
+        self.assertEquals(foo.source, 'Foo *bar*\n')
+        self.assertEquals(foo.html, '<p>Foo <em>bar</em></p>')
 
 
     def _unicode(self, pages):
@@ -120,27 +115,33 @@ class TestFlatPages(unittest.TestCase):
         self.assertEquals(hello.html, u'<p>Hello, <em>世界</em>!</p>')
 
     def test_unicode(self):
-        with test_pages() as pages:
-            self._unicode(pages)
+        pages = FlatPages(Flask(__name__))
+        self._unicode(pages)
 
     def test_other_encoding(self):
-        config = dict(FLATPAGES_ENCODING='shift_jis')
-        with test_pages('pages_shift_jis', **config) as pages:
-            self._unicode(pages)
+        app = Flask(__name__)
+        app.config['FLATPAGES_ENCODING'] = 'shift_jis'
+        app.config['FLATPAGES_ROOT'] = 'pages_shift_jis'
+        pages = FlatPages(app)
+        self._unicode(pages)
 
     def test_other_extension(self):
-        with test_pages(FLATPAGES_EXTENSION='.txt') as pages:
-            paths = set(page.path for page in pages)
-            self.assertEquals(paths, set(['not_a_page', 'foo/42/not_a_page']))
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = '.txt'
+        pages = FlatPages(app)
+        self.assertEquals(
+            set(page.path for page in pages),
+            set(['not_a_page', 'foo/42/not_a_page'])
+        )
 
     def test_lazy_loading(self):
-        with test_pages() as pages:
+        with temp_pages() as pages:
             bar = pages.get('foo/bar')
             # bar.html is normally empty
             self.assertEquals(bar.meta, {})
             self.assertEquals(bar.source, '')
             
-        with test_pages() as pages:
+        with temp_pages() as pages:
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             # write as pages is already constructed
             with open(filename, 'a') as fd:
@@ -151,7 +152,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEquals(bar.source, 'c')
 
     def test_reloading(self):
-        with test_pages() as pages:
+        with temp_pages() as pages:
             bar = pages.get('foo/bar')
             # bar.html is normally empty
             self.assertEquals(bar.meta, {})
@@ -205,7 +206,7 @@ class TestFlatPages(unittest.TestCase):
             self.assert_(bar5 is None)
 
     def test_caching(self):
-        with test_pages() as pages:
+        with temp_pages() as pages:
             foo = pages.get('foo')
             bar = pages.get('foo/bar')
             
