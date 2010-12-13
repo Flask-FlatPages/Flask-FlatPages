@@ -19,7 +19,7 @@ setup(
     long_description=__doc__,
     packages=['flaskext'],
     namespace_packages=['flaskext'],
-    test_suite='flaskext.flatpages.tests',
+    test_suite='test_flatpages',
     zip_safe=False,
     platforms='any',
     install_requires=[
