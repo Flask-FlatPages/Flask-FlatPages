@@ -23,7 +23,7 @@ class Page(object):
         return markdown.markdown(self.source)
 
     # Used by jinja when directly printing this object in a template.
-    # Jinja assumes that the return value is safe and needs to escaping (which
+    # Jinja assumes that the return value is safe and needs no escaping (which
     # is what we want).
     def __html__(self):
         return self.html
