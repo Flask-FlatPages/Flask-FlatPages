@@ -25,7 +25,7 @@ def temp_directory():
 
 
 @contextmanager
-def test_pages(source='test_pages', **app_config):
+def test_pages(source='pages', **app_config):
     """This context manager gives a FlatPages object configured
     in a temporary directory with a copy of the test pages.
     
@@ -125,7 +125,7 @@ class TestFlatPages(unittest.TestCase):
 
     def test_other_encoding(self):
         config = dict(FLATPAGES_ENCODING='shift_jis')
-        with test_pages('test_pages_shift_jis', **config) as pages:
+        with test_pages('pages_shift_jis', **config) as pages:
             self._unicode(pages)
 
     def test_other_extension(self):
