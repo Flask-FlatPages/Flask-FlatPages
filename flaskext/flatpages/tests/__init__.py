@@ -9,6 +9,7 @@ import os.path
 import datetime
 from contextlib import contextmanager
 
+import jinja2
 from werkzeug.exceptions import NotFound
 from flask import Flask
 from flaskext.flatpages import FlatPages
@@ -90,11 +91,11 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         foo = pages.get('foo')
         self.assertEquals(foo.meta, {
-            'title': 'Foo',
+            'title': 'Foo > bar',
             'created': datetime.date(2010, 12, 11),
             'versions': [3.14, 42]
         })
-        self.assertEquals(foo['title'], 'Foo')
+        self.assertEquals(foo['title'], 'Foo > bar')
         self.assertEquals(foo['created'], datetime.date(2010, 12, 11))
         self.assertEquals(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
@@ -105,10 +106,10 @@ class TestFlatPages(unittest.TestCase):
         self.assertEquals(foo.source, 'Foo *bar*\n')
         self.assertEquals(foo.html, '<p>Foo <em>bar</em></p>')
 
-
     def _unicode(self, pages):
         hello = pages.get('hello')
-        self.assertEquals(hello.meta, {'title': u'世界'})
+        self.assertEquals(hello.meta, {'title': u'世界',
+                                       'template': 'article.html'})
         self.assertEquals(hello['title'], u'世界')
         self.assertEquals(hello.source, u'Hello, *世界*!\n')
         # Markdow
@@ -133,6 +134,24 @@ class TestFlatPages(unittest.TestCase):
             set(page.path for page in pages),
             set(['not_a_page', 'foo/42/not_a_page'])
         )
+
+    def test_render(self):
+        app = Flask(__name__)
+        app.jinja_env.loader = jinja2.DictLoader({
+            'flatpage.html': '<h1>{{ page.title }}</h1>\n{{ page }}',
+            'article.html': '<article>{{ page }}</article>',
+        })
+        pages = FlatPages(app)
+        with app.test_request_context(): # needed for templating
+            self.assertEquals(
+                pages.render('foo'),
+                # The content is correctly escaped but not the HTML
+                '<h1>Foo &gt; bar</h1>\n<p>Foo <em>bar</em></p>'
+            )
+            self.assertEquals(
+                pages.render('hello'),
+                u'<article><p>Hello, <em>世界</em>!</p></article>'
+            )
 
     def test_lazy_loading(self):
         with temp_pages() as pages:
