@@ -44,16 +44,13 @@ class Page(object):
     
 
 class FlatPages(object):    
-    extension = '.html'
-    encoding = 'utf8'
-
-    def __init__(self, app_or_directory):
-        if isinstance(app_or_directory, basestring):
-            # Assume a path to a directory.
-            self.root = unicode(app_or_directory)
-        else:
-            # Assume a Flask instance (app object).
-            self.root = os.path.join(app_or_directory.root_path, u'pages')
+    def __init__(self, app):
+        app.config.setdefault('FLATPAGES_ROOT', 'pages')
+        app.config.setdefault('FLATPAGES_EXTENSION', '.html')
+        app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
+        self.app = app
+        
+        #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
         #: When loaded, a dict of unicode path: page object
         self._pages = None
@@ -88,19 +85,31 @@ class FlatPages(object):
         """Make sure pages are loaded."""
         if self._pages is None:
             self._load_all()
+    
+    @property
+    def root(self):
+        """Full path to the directory where pages are looked for.
+        
+        It is the `FLATPAGES_ROOT` config value, interpreted as relative to
+        the app root directory.
+        """
+        return os.path.join(self.app.root_path,
+                            self.app.config['FLATPAGES_ROOT'])
 
     def _load_all(self):
         """Walk the page root directory an load all pages."""
-        self._pages = {}
         def _walk(directory, path_prefix=()):
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
                 if os.path.isdir(full_name):
                     _walk(full_name, path_prefix + (name,))
-                elif name.endswith(self.extension):
-                    name_without_extension = name[:-len(self.extension)]
+                elif name.endswith(extension):
+                    name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension,))
                     self._load_file(path, full_name)
+        
+        self._pages = {}
+        extension = self.app.config['FLATPAGES_EXTENSION']
         _walk(self.root)
     
     def _load_file(self, path, filename):
@@ -111,7 +120,8 @@ class FlatPages(object):
             page = cached[0]
         else:
             with open(filename) as fd:
-                content = fd.read().decode(self.encoding)
+                content = fd.read().decode(
+                    self.app.config['FLATPAGES_ENCODING'])
             page = self._parse(content, path)
             self._file_cache[filename] = page, mtime
         self._pages[path] = page

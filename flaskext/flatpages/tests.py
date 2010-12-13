@@ -25,7 +25,7 @@ def temp_directory():
 
 
 @contextmanager
-def test_pages(source='test_pages'):
+def test_pages(source='test_pages', **app_config):
     """This context manager gives a FlatPages object configured
     in a temporary directory with a copy of the test pages.
     
@@ -39,7 +39,10 @@ def test_pages(source='test_pages'):
         # a race condition, but should be good enough for our purpose.
         os.rmdir(temp)
         shutil.copytree(source, temp)
-        yield FlatPages(temp)
+        app = Flask(__name__)
+        app.config.update(app_config)
+        app.config['FLATPAGES_ROOT'] = temp
+        yield FlatPages(app)
 
 
 class TestTempDirectory(unittest.TestCase):
@@ -121,13 +124,12 @@ class TestFlatPages(unittest.TestCase):
             self._unicode(pages)
 
     def test_other_encoding(self):
-        with test_pages('test_pages_shift_jis') as pages:
-            pages.encoding = 'shift_jis'
+        config = dict(FLATPAGES_ENCODING='shift_jis')
+        with test_pages('test_pages_shift_jis', **config) as pages:
             self._unicode(pages)
 
     def test_other_extension(self):
-        with test_pages() as pages:
-            pages.extension = '.txt'
+        with test_pages(FLATPAGES_EXTENSION='.txt') as pages:
             paths = set(page.path for page in pages)
             self.assertEquals(paths, set(['not_a_page', 'foo/42/not_a_page']))
 
