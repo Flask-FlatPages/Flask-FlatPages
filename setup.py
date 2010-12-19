@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name='Flask-FlatPages',
-    version='0.1',
+    version='0.1dev',
     url='http://exyr.org/Flask-FlatPages/',
     license='BSD',
     author='Simon Sapin',
