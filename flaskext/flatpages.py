@@ -9,6 +9,31 @@ import werkzeug
 import flask
 
 
+def pygmented_markdown(text):
+    """Render Markdown to HTML with the Codhilite extension
+    if Pygments is available.
+    
+    See http://www.freewisdom.org/projects/python-markdown/CodeHilite
+    """
+    try:
+        import pygments
+    except ImportError:
+        extensions = []
+    else:
+        extensions = ['codehilite']
+    return markdown.markdown(text, extensions)
+
+
+def pygments_style_defs(style='default'):
+    """Return the CSS definitions for the Codhilite Markdown plugin.
+    
+    Only available in Pygments is.
+    """
+    import pygments.formatters
+    formater = pygments.formatters.HtmlFormatter(style=style)
+    return formater.get_style_defs('.codehilite')    
+
+
 class Page(object):
     def __init__(self, path, meta_yaml, source, html_renderer):
         self.path = path
@@ -50,7 +75,7 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_DEFAULT_TEMPLATE', 'flatpage.html')
-        app.config.setdefault('FLATPAGES_HTML_RENDERER', markdown.markdown)
+        app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_AUTO_RESET', 'if debug')
         self.app = app
         
