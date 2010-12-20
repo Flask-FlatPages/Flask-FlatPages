@@ -137,6 +137,14 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(app)
         self._unicode(pages)
 
+    def test_other_html_renderer(self):
+        pages = FlatPages(Flask(__name__))
+        pages.app.config['FLATPAGES_HTML_RENDERER'] = unicode.upper
+        hello = pages.get('hello')
+        self.assertEquals(hello.source, u'Hello, *世界*!\n')
+        # Markdow
+        self.assertEquals(hello.html, u'HELLO, *世界*!\n')
+
     def test_other_extension(self):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSION'] = '.txt'

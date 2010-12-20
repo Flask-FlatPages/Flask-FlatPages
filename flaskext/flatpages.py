@@ -10,17 +10,18 @@ import flask
 
 
 class Page(object):
-    def __init__(self, path, meta_yaml, source):
+    def __init__(self, path, meta_yaml, source, html_renderer):
         self.path = path
         self._meta_yaml = meta_yaml
         self.source = source
+        self.html_renderer = html_renderer
     
     def __repr__(self):
         return '<Page %r>' % self.path
 
     @werkzeug.cached_property
     def html(self):
-        return markdown.markdown(self.source)
+        return self.html_renderer(self.source)
 
     # Used by jinja when directly printing this object in a template.
     # Jinja assumes that the return value is safe and needs no escaping (which
@@ -49,6 +50,7 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_DEFAULT_TEMPLATE', 'flatpage.html')
+        app.config.setdefault('FLATPAGES_HTML_RENDERER', markdown.markdown)
         app.config.setdefault('FLATPAGES_AUTO_RESET', 'if debug')
         self.app = app
         
@@ -165,6 +167,9 @@ class FlatPages(object):
         # where `itertools.takewhile` left it.
         content = u'\n'.join(lines)
 
-        return Page(path, meta, content)
+        html_renderer = self.app.config['FLATPAGES_HTML_RENDERER']
+        if not callable(html_renderer):
+            html_renderer = import_string(html_renderer)
+        return Page(path, meta, content, html_renderer)
     
 
