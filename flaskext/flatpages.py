@@ -74,7 +74,6 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_ROOT', 'pages')
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
-        app.config.setdefault('FLATPAGES_DEFAULT_TEMPLATE', 'flatpage.html')
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_AUTO_RESET', 'if debug')
         self.app = app
@@ -123,23 +122,6 @@ class FlatPages(object):
             flask.abort(404)
         return page
     
-    def render(self, path):
-        """Render a template with the page at `path`. Abort with a 404 error on
-        non-existent pages. The template name is taken from the page's
-        `template` metadata and defaults to `FlatPages.default_template`.
-        
-        Can be used as follows::
-
-            app.add_url_rule('/<path:path>/', 'flatpage', pages.render)
-        
-        Warning: such an URL rule should be declared last so that is does not
-        shadow more specific rules.
-        """
-        page = self.get_or_404(path)
-        default_template = self.app.config['FLATPAGES_DEFAULT_TEMPLATE']
-        template = page.meta.get('template', default_template)
-        return flask.render_template(template, page=page)
-
     @property
     def root(self):
         """Full path to the directory where pages are looked for.

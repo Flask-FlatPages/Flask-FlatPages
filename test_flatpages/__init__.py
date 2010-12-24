@@ -154,24 +154,6 @@ class TestFlatPages(unittest.TestCase):
             set(['not_a_page', 'foo/42/not_a_page'])
         )
 
-    def test_render(self):
-        app = Flask(__name__)
-        app.jinja_env.loader = jinja2.DictLoader({
-            'flatpage.html': '<h1>{{ page.title }}</h1>\n{{ page }}',
-            'article.html': '<article>{{ page }}</article>',
-        })
-        pages = FlatPages(app)
-        with app.test_request_context(): # needed for templating
-            self.assertEquals(
-                pages.render('foo'),
-                # The content is correctly escaped but not the HTML
-                '<h1>Foo &gt; bar</h1>\n<p>Foo <em>bar</em></p>'
-            )
-            self.assertEquals(
-                pages.render('hello'),
-                u'<article><p>Hello, <em>世界</em>!</p></article>'
-            )
-
     def test_lazy_loading(self):
         with temp_pages() as pages:
             bar = pages.get('foo/bar')
