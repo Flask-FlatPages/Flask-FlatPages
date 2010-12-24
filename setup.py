@@ -11,7 +11,7 @@ from setuptools import setup
 setup(
     name='Flask-FlatPages',
     version='0.1dev',
-    url='http://exyr.org/Flask-FlatPages/',
+    url='http://packages.python.org/Flask-FlatPages/',
     license='BSD',
     author='Simon Sapin',
     author_email='simon.sapin@exyr.org',

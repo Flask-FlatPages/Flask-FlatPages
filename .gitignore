@@ -1,3 +1,5 @@
 *.py[co]
 *.egg-info
+/dist
 /env*
+/docs/_build

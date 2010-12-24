@@ -1,4 +1,11 @@
 # coding: utf8
+"""
+    Tests for Flask-FlatPages
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyright: (c) 2010 by Simon Sapin.
+    :license: BSD, see LICENSE for more details.
+"""
 
 from __future__ import with_statement
 
@@ -114,7 +121,7 @@ class TestFlatPages(unittest.TestCase):
     def test_markdown(self):
         pages = FlatPages(Flask(__name__))
         foo = pages.get('foo')
-        self.assertEquals(foo.source, 'Foo *bar*\n')
+        self.assertEquals(foo.body, 'Foo *bar*\n')
         self.assertEquals(foo.html, '<p>Foo <em>bar</em></p>')
 
     def _unicode(self, pages):
@@ -122,7 +129,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEquals(hello.meta, {'title': u'世界',
                                        'template': 'article.html'})
         self.assertEquals(hello['title'], u'世界')
-        self.assertEquals(hello.source, u'Hello, *世界*!\n')
+        self.assertEquals(hello.body, u'Hello, *世界*!\n')
         # Markdow
         self.assertEquals(hello.html, u'<p>Hello, <em>世界</em>!</p>')
 
@@ -141,7 +148,7 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         pages.app.config['FLATPAGES_HTML_RENDERER'] = unicode.upper
         hello = pages.get('hello')
-        self.assertEquals(hello.source, u'Hello, *世界*!\n')
+        self.assertEquals(hello.body, u'Hello, *世界*!\n')
         # Markdow
         self.assertEquals(hello.html, u'HELLO, *世界*!\n')
 
@@ -159,7 +166,7 @@ class TestFlatPages(unittest.TestCase):
             bar = pages.get('foo/bar')
             # bar.html is normally empty
             self.assertEquals(bar.meta, {})
-            self.assertEquals(bar.source, '')
+            self.assertEquals(bar.body, '')
             
         with temp_pages() as pages:
             filename = os.path.join(pages.root, 'foo', 'bar.html')
@@ -169,14 +176,14 @@ class TestFlatPages(unittest.TestCase):
             bar = pages.get('foo/bar')
             # bar was just loaded from the disk
             self.assertEquals(bar.meta, {'a': 'b'})
-            self.assertEquals(bar.source, 'c')
+            self.assertEquals(bar.body, 'c')
 
     def test_reloading(self):
         with temp_pages() as pages:
             bar = pages.get('foo/bar')
             # bar.html is normally empty
             self.assertEquals(bar.meta, {})
-            self.assertEquals(bar.source, '')
+            self.assertEquals(bar.body, '')
             
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             # rewrite already loaded page
@@ -188,11 +195,11 @@ class TestFlatPages(unittest.TestCase):
             bar2 = pages.get('foo/bar')
             # the disk is not hit again until requested
             self.assertEquals(bar2.meta, {})
-            self.assertEquals(bar2.source, '')
+            self.assertEquals(bar2.body, '')
             self.assert_(bar2 is bar)
             
             # request reloading
-            pages.reset()
+            pages.reload()
             
             # write again
             with open(filename, 'w') as fd:
@@ -208,7 +215,7 @@ class TestFlatPages(unittest.TestCase):
             # All pages are read at once when any is used
             bar3 = pages.get('foo/bar')
             self.assertEquals(bar3.meta, {})
-            self.assertEquals(bar3.source, 'second rewrite') # not third
+            self.assertEquals(bar3.body, 'second rewrite') # not third
             # Page objects are not reused when a file is re-read.
             self.assert_(bar3 is not bar2)
             
@@ -217,10 +224,10 @@ class TestFlatPages(unittest.TestCase):
 
             bar4 = pages.get('foo/bar')
             self.assertEquals(bar4.meta, {})
-            self.assertEquals(bar4.source, 'second rewrite')
+            self.assertEquals(bar4.body, 'second rewrite')
             self.assert_(bar4 is bar3)
             
-            pages.reset()
+            pages.reload()
 
             bar5 = pages.get('foo/bar')
             self.assert_(bar5 is None)
@@ -234,7 +241,7 @@ class TestFlatPages(unittest.TestCase):
             with open(filename, 'w') as fd:
                 fd.write('\nrewritten')
 
-            pages.reset()
+            pages.reload()
             
             foo2 = pages.get('foo')
             bar2 = pages.get('foo/bar')
@@ -243,11 +250,11 @@ class TestFlatPages(unittest.TestCase):
             # modification date) are not parsed again.
             self.assert_(foo2 is foo)
             self.assert_(bar2 is not bar)
-            self.assert_(bar2.source != bar.source)
+            self.assert_(bar2.body != bar.body)
 
     def assert_no_auto_reset(self, pages):
         bar = pages.get('foo/bar')
-        self.assertEquals(bar.source, '')
+        self.assertEquals(bar.body, '')
         
         filename = os.path.join(pages.root, 'foo', 'bar.html')
         with open(filename, 'w') as fd:
@@ -259,25 +266,25 @@ class TestFlatPages(unittest.TestCase):
         
         # not updated
         bar2 = pages.get('foo/bar')
-        self.assertEquals(bar2.source, '')
+        self.assertEquals(bar2.body, '')
         self.assert_(bar2 is bar)
             
     def assert_auto_reset(self, pages):
         bar = pages.get('foo/bar')
-        self.assertEquals(bar.source, '')
+        self.assertEquals(bar.body, '')
         
         filename = os.path.join(pages.root, 'foo', 'bar.html')
         with open(filename, 'w') as fd:
             fd.write('\nrewritten')
 
         # simulate a request (before_request functions are called)
-        # pages.reset() is not call explicitly
+        # pages.reload() is not call explicitly
         with pages.app.test_request_context():
             pages.app.preprocess_request()
         
         # updated
         bar2 = pages.get('foo/bar')
-        self.assertEquals(bar2.source, 'rewritten')
+        self.assertEquals(bar2.body, 'rewritten')
         self.assert_(bar2 is not bar)
     
     def test_default_no_auto_reset(self):
@@ -293,13 +300,13 @@ class TestFlatPages(unittest.TestCase):
     def test_configured_no_auto_reset(self):
         app = Flask(__name__)
         app.debug = True
-        app.config['FLATPAGES_AUTO_RESET'] = False
+        app.config['FLATPAGES_AUTO_RELOAD'] = False
         with temp_pages(app) as pages:
             self.assert_no_auto_reset(pages)
 
     def test_configured_auto_reset(self):
         app = Flask(__name__)
-        app.config['FLATPAGES_AUTO_RESET'] = True
+        app.config['FLATPAGES_AUTO_RELOAD'] = True
         with temp_pages(app) as pages:
             self.assert_auto_reset(pages)
 

@@ -1,3 +1,15 @@
+# coding: utf8
+"""
+    flaskext.flatpages
+    ~~~~~~~~~~~~~~~~~~
+
+    Flask-FlatPages provides a collections of pages to your Flask application.
+    Pages are built from “flat” text files as opposed to a relational database.
+
+    :copyright: (c) 2010 by Simon Sapin.
+    :license: BSD, see LICENSE for more details.
+"""
+
 from __future__ import with_statement
 
 import os.path
@@ -10,10 +22,11 @@ import flask
 
 
 def pygmented_markdown(text):
-    """Render Markdown to HTML with the Codhilite extension
-    if Pygments is available.
+    """Render Markdown text to HTML. Uses the `Codehilite`_ extension
+    if `Pygments`_ is available.
     
-    See http://www.freewisdom.org/projects/python-markdown/CodeHilite
+    .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
+    .. _Pygments: http://pygments.org/
     """
     try:
         import pygments
@@ -25,9 +38,15 @@ def pygmented_markdown(text):
 
 
 def pygments_style_defs(style='default'):
-    """Return the CSS definitions for the Codhilite Markdown plugin.
+    """:return: the CSS definitions for the `Codehilite`_ Markdown plugin.
+
+    :param style: The Pygments `style`_ to use.
     
-    Only available in Pygments is.
+    Only available if `Pygments`_ is.
+        
+    .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
+    .. _Pygments: http://pygments.org/
+    .. _style: http://pygments.org/docs/styles/
     """
     import pygments.formatters
     formater = pygments.formatters.HtmlFormatter(style=style)
@@ -35,10 +54,12 @@ def pygments_style_defs(style='default'):
 
 
 class Page(object):
-    def __init__(self, path, meta_yaml, source, html_renderer):
+    def __init__(self, path, meta_yaml, body, html_renderer):
+        #: Path this pages was obtained from, as in ``pages.get(path)``.
         self.path = path
+        #: Content of the pages.
+        self.body = body
         self._meta_yaml = meta_yaml
-        self.source = source
         self.html_renderer = html_renderer
     
     def __repr__(self):
@@ -46,16 +67,19 @@ class Page(object):
 
     @werkzeug.cached_property
     def html(self):
-        return self.html_renderer(self.source)
+        """The content of the page, rendered as HTML by the configured renderer.
+        """
+        return self.html_renderer(self.body)
 
-    # Used by jinja when directly printing this object in a template.
-    # Jinja assumes that the return value is safe and needs no escaping (which
-    # is what we want).
     def __html__(self):
+        """In a template, ``{{ page }}`` is equivalent to
+        ``{{ page.html|escape }}``.
+        """
         return self.html
 
     @werkzeug.cached_property
     def meta(self):
+        """A dict of metadata parsed as YAML from the header of the file."""
         meta = yaml.safe_load(self._meta_yaml)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None
@@ -66,16 +90,27 @@ class Page(object):
         return meta
 
     def __getitem__(self, name):
+        """Shortcut for accessing metadata.
+        
+        ``page['title']`` or, in a template, ``{{ page.title }}`` are
+        equivalent to ``page.meta['title']``.
+        """
         return self.meta[name]
     
 
-class FlatPages(object):    
+class FlatPages(object):
+    """
+    A collections of :class:`Page` objects.
+    
+    :param app: your application
+    :type app: Flask instance
+    """
     def __init__(self, app):
         app.config.setdefault('FLATPAGES_ROOT', 'pages')
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
-        app.config.setdefault('FLATPAGES_AUTO_RESET', 'if debug')
+        app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
         self.app = app
         
         #: dict of filename: (page object, mtime when loaded)
@@ -85,13 +120,13 @@ class FlatPages(object):
 
     def _conditional_auto_reset(self):
         """Reset if configured to do so on new requests."""
-        auto = self.app.config['FLATPAGES_AUTO_RESET']
+        auto = self.app.config['FLATPAGES_AUTO_RELOAD']
         if auto == 'if debug':
             auto = self.app.debug
         if auto:
-            self.reset()
+            self.reload()
         
-    def reset(self):
+    def reload(self):
         """Forget all pages.
         All pages will be reloaded next time they're accessed"""
         try:
@@ -102,11 +137,14 @@ class FlatPages(object):
             pass
     
     def __iter__(self):
-        """Iterate on all `Page` objects."""
+        """Iterate on all :class:`Page` objects."""
         return self._pages.itervalues()
     
     def get(self, path, default=None):
-        """Return the `Page` object at `path` or `default` if there is none."""
+        """
+        :Return: the :class:`Page` object at ``path``, or ``default``
+                 if there is none.
+        """
         # This may trigger the property. Do it outside of the try block.
         pages = self._pages
         try:
@@ -115,8 +153,10 @@ class FlatPages(object):
             return default
     
     def get_or_404(self, path):
-        """Return the `Page` object at `path` or abort the request
-        with a 404 error."""
+        """:Return: the :class:`Page` object at ``path``.
+        :raises: :class:`NotFound` if the pages does not exist.
+                 This is caught by Flask and triggers a 404 error.
+        """
         page = self.get(path)
         if not page:
             flask.abort(404)
