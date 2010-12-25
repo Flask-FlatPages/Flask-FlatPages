@@ -1,0 +1,8 @@
+Flask-FlatPages
+---------------
+
+Provides flat static pages to a Flask application, based on text files
+as opposed to a relationnal database.
+
+
+See documentation: http://packages.python.org/Flask-FlatPages

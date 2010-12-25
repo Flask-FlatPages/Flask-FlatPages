@@ -4,6 +4,13 @@ Flask-FlatPages
 
 Provides flat static pages to a Flask application, based on text files
 as opposed to a relationnal database.
+
+Links
+`````
+
+* `documentation <http://packages.python.org/Flask-FlatPages>`_
+* `development version
+  <http://github.com/SimonSapin/Flask-FlatPages/zipball/master#egg=Flask-FlatPages-dev>`_
 """
 
 from setuptools import setup
@@ -11,7 +18,7 @@ from setuptools import setup
 setup(
     name='Flask-FlatPages',
     version='0.1dev',
-    url='http://packages.python.org/Flask-FlatPages/',
+    url='https://github.com/SimonSapin/Flask-FlatPages',
     license='BSD',
     author='Simon Sapin',
     author_email='simon.sapin@exyr.org',
