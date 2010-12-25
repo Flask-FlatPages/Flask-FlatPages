@@ -116,7 +116,7 @@ Then, pages are not loaded again unless you explicitly ask for it with
 
 This design was decided with `Flask-Static`_ in mind but should work even if
 you don’t use it: you already restart your production server on code changes,
-you just have to do it on page content change too. This can makes sense if
+you just have to do it on page content change too. This can make sense if
 the pages are deployed alongside the code in version control.
 
 .. _Flask-Static: http://packages.python.org/Flask-Static/

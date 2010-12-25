@@ -73,7 +73,7 @@ class Page(object):
 
     def __html__(self):
         """In a template, ``{{ page }}`` is equivalent to
-        ``{{ page.html|escape }}``.
+        ``{{ page.html|safe }}``.
         """
         return self.html
 
