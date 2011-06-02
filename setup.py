@@ -13,7 +13,7 @@ Links
   <http://github.com/SimonSapin/Flask-FlatPages/zipball/master#egg=Flask-FlatPages-dev>`_
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='Flask-FlatPages',
@@ -24,9 +24,9 @@ setup(
     author_email='simon.sapin@exyr.org',
     description='Provides flat static pages to a Flask application',
     long_description=__doc__,
-    packages=['flaskext'],
+    packages=find_packages(),
     namespace_packages=['flaskext'],
-    test_suite='test_flatpages',
+    test_suite='flaskext.flatpages.tests',
     zip_safe=False,
     platforms='any',
     install_requires=[
