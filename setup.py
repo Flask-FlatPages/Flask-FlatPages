@@ -26,6 +26,8 @@ setup(
     long_description=__doc__,
     packages=find_packages(),
     namespace_packages=['flaskext'],
+    # test pages
+    package_data={'': ['pages*/*.*', 'pages/*/*.*', 'pages/*/*/*.*']},
     test_suite='flaskext.flatpages.tests',
     zip_safe=False,
     platforms='any',
