@@ -193,4 +193,16 @@ API
 
 .. autofunction:: pygments_style_defs
 
+Changelog
+---------
+
+Version 0.2, released on 2011-06-02
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bugfix and cosmetic release. Tests are now installed alongside the code.
+
+Version 0.1, released on 2011-02-06
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First public release.
 
