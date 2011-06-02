@@ -24,7 +24,7 @@ import flask
 def pygmented_markdown(text):
     """Render Markdown text to HTML. Uses the `Codehilite`_ extension
     if `Pygments`_ is available.
-    
+
     .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
@@ -41,16 +41,16 @@ def pygments_style_defs(style='default'):
     """:return: the CSS definitions for the `Codehilite`_ Markdown plugin.
 
     :param style: The Pygments `style`_ to use.
-    
+
     Only available if `Pygments`_ is.
-        
+
     .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     .. _style: http://pygments.org/docs/styles/
     """
     import pygments.formatters
     formater = pygments.formatters.HtmlFormatter(style=style)
-    return formater.get_style_defs('.codehilite')    
+    return formater.get_style_defs('.codehilite')
 
 
 class Page(object):
@@ -61,7 +61,7 @@ class Page(object):
         self.body = body
         self._meta_yaml = meta_yaml
         self.html_renderer = html_renderer
-    
+
     def __repr__(self):
         return '<Page %r>' % self.path
 
@@ -91,17 +91,17 @@ class Page(object):
 
     def __getitem__(self, name):
         """Shortcut for accessing metadata.
-        
+
         ``page['title']`` or, in a template, ``{{ page.title }}`` are
         equivalent to ``page.meta['title']``.
         """
         return self.meta[name]
-    
+
 
 class FlatPages(object):
     """
     A collections of :class:`Page` objects.
-    
+
     :param app: your application
     :type app: Flask instance
     """
@@ -112,10 +112,10 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
         self.app = app
-        
+
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
-    
+
         app.before_request(self._conditional_auto_reset)
 
     def _conditional_auto_reset(self):
@@ -125,21 +125,21 @@ class FlatPages(object):
             auto = self.app.debug
         if auto:
             self.reload()
-        
+
     def reload(self):
         """Forget all pages.
         All pages will be reloaded next time they're accessed"""
         try:
-            # This will "unshadow" the cached_property. 
+            # This will "unshadow" the cached_property.
             # The property will be re-executed on next access.
             del self.__dict__['_pages']
         except KeyError:
             pass
-    
+
     def __iter__(self):
         """Iterate on all :class:`Page` objects."""
         return self._pages.itervalues()
-    
+
     def get(self, path, default=None):
         """
         :Return: the :class:`Page` object at ``path``, or ``default``
@@ -151,7 +151,7 @@ class FlatPages(object):
             return pages[path]
         except KeyError:
             return default
-    
+
     def get_or_404(self, path):
         """:Return: the :class:`Page` object at ``path``.
         :raises: :class:`NotFound` if the pages does not exist.
@@ -161,11 +161,11 @@ class FlatPages(object):
         if not page:
             flask.abort(404)
         return page
-    
+
     @property
     def root(self):
         """Full path to the directory where pages are looked for.
-        
+
         It is the `FLATPAGES_ROOT` config value, interpreted as relative to
         the app root directory.
         """
@@ -186,12 +186,12 @@ class FlatPages(object):
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension,))
                     pages[path] = self._load_file(path, full_name)
-        
+
         extension = self.app.config['FLATPAGES_EXTENSION']
         pages = {}
         _walk(self.root)
         return pages
-    
+
     def _load_file(self, path, filename):
         mtime = os.path.getmtime(filename)
         cached = self._file_cache.get(filename)
@@ -205,7 +205,7 @@ class FlatPages(object):
             page = self._parse(content, path)
             self._file_cache[filename] = page, mtime
         return page
-    
+
     def _parse(self, string, path):
         lines = iter(string.split(u'\n'))
         # Read lines until an empty line is encountered.
@@ -218,5 +218,3 @@ class FlatPages(object):
         if not callable(html_renderer):
             html_renderer = werkzeug.import_string(html_renderer)
         return Page(path, meta, content, html_renderer)
-    
-
