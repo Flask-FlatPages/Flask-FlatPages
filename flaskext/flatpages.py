@@ -216,7 +216,7 @@ class FlatPages(object):
 
         html_renderer = self.app.config['FLATPAGES_HTML_RENDERER']
         if not callable(html_renderer):
-            html_renderer = import_string(html_renderer)
+            html_renderer = werkzeug.import_string(html_renderer)
         return Page(path, meta, content, html_renderer)
     
 

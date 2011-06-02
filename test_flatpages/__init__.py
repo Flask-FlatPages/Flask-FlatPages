@@ -145,12 +145,13 @@ class TestFlatPages(unittest.TestCase):
         self._unicode(pages)
 
     def test_other_html_renderer(self):
-        pages = FlatPages(Flask(__name__))
-        pages.app.config['FLATPAGES_HTML_RENDERER'] = unicode.upper
-        hello = pages.get('hello')
-        self.assertEquals(hello.body, u'Hello, *世界*!\n')
-        # Markdow
-        self.assertEquals(hello.html, u'HELLO, *世界*!\n')
+        for renderer in (unicode.upper, 'string.upper'):
+            pages = FlatPages(Flask(__name__))
+            pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
+            hello = pages.get('hello')
+            self.assertEquals(hello.body, u'Hello, *世界*!\n')
+            # Upper-case, markdown not interpreted
+            self.assertEquals(hello.html, u'HELLO, *世界*!\n')
 
     def test_other_extension(self):
         app = Flask(__name__)
