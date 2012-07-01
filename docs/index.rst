@@ -28,7 +28,18 @@ after configuring the application::
 
     from flask import Flask
     from flaskext.flatpages import FlatPages
-    
+
+    app = Flask(__name__)
+    app.config.from_pyfile('mysettings.cfg')
+    pages = FlatPages(app)
+
+you can also pass the Flask application object later, by calling
+:meth:`.FlatPages.init_app`.::
+
+    pages = FlatPages()
+
+    def create_app():
+
     app = Flask(__name__)
     app.config.from_pyfile('mysettings.cfg')
     pages = FlatPages(app)
@@ -76,9 +87,9 @@ page body::
 
     title: Hello
     published: 2010-12-22
-    
+
     Hello, *World*!
-    
+
     Lorem ipsum dolor sit amet, …
 
 The body format defaults to `Markdown`_ with `Pygments`_ baked in if available,
@@ -145,7 +156,7 @@ API
     Example usage::
 
         pages = FlatPages(app)
-        
+
         @app.route('/')
         def index():
             # Articles are pages with a publication date
@@ -169,13 +180,13 @@ API
         # hello.html
         title: Hello
         published: 2010-12-22
-        
+
         Hello, *World*!
-        
+
         Lorem ipsum dolor sit amet, …
-        
+
     ::
-    
+
         >>> page = pages.get('hello')
         >>> page.meta # PyYAML converts YYYY-MM-DD to a date object
         {'title': u'Hello', 'published': datetime.date(2010, 12, 22)}
@@ -188,7 +199,7 @@ API
 
     .. automethod:: __getitem__
     .. automethod:: __html__
-    
+
 .. autofunction:: pygmented_markdown
 
 .. autofunction:: pygments_style_defs
