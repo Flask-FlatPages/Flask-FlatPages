@@ -105,16 +105,30 @@ class FlatPages(object):
     :param app: your application
     :type app: Flask instance
     """
-    def __init__(self, app):
+    def __init__(self, app=None):
+
+        #: dict of filename: (page object, mtime when loaded)
+        self._file_cache = {}
+
+        if app:
+            self.init_app(app)
+
+
+    def init_app(self, app):
+        """ Used to initialize an application, useful for
+        passing an app later and app factory patterns.
+
+        :param app: your application
+        :type app: Flask instance
+        """
+
         app.config.setdefault('FLATPAGES_ROOT', 'pages')
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
-        self.app = app
 
-        #: dict of filename: (page object, mtime when loaded)
-        self._file_cache = {}
+        self.app = app
 
         app.before_request(self._conditional_auto_reset)
 
