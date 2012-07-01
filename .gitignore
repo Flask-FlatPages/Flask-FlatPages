@@ -3,3 +3,4 @@
 /dist
 /env*
 /docs/_build
+/.tox
