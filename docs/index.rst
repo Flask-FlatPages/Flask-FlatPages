@@ -38,11 +38,12 @@ you can also pass the Flask application object later, by calling
 
     pages = FlatPages()
 
-    def create_app():
+    def create_app(config='mysettings.cfg'):
+        app = Flask(__name__)
+        app.config.from_pyfile(config)
+        pages.init_app(app)
+        return app
 
-    app = Flask(__name__)
-    app.config.from_pyfile('mysettings.cfg')
-    pages = FlatPages(app)
 
 Flask-FlatPages accepts the following configuration values. All of them
 are optional.
