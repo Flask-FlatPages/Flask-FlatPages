@@ -43,7 +43,7 @@ after configuring the application::
     pages = FlatPages(app)
 
 you can also pass the Flask application object later, by calling
-:meth:`.FlatPages.init_app`.::
+:meth:`~.FlatPages.init_app`::
 
     pages = FlatPages()
 
@@ -161,7 +161,7 @@ API
 .. module:: flask_flatpages
 
 .. autoclass:: FlatPages
-    :members: get, get_or_404, __iter__, reload
+    :members: init_app, get, get_or_404, __iter__, reload
 
     Example usage::
 
@@ -217,12 +217,28 @@ API
 Changelog
 ---------
 
-Version 0.2, released on 2011-06-02
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Version 0.3
+~~~~~~~~~~~
+
+Released on 2012-07-03
+
+* Add :meth:`.FlatPages.init_app`
+* Do not use namespace packages anymore: rename the package from
+  ``flaskext.flatpages`` to ``flask_flatpages``
+* Add configuration files for testing with tox and Travis.
+
+
+Version 0.2
+~~~~~~~~~~~
+
+Released on 2011-06-02
 
 Bugfix and cosmetic release. Tests are now installed alongside the code.
 
-Version 0.1, released on 2011-02-06
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Version 0.1
+~~~~~~~~~~~
+
+Released on 2011-02-06.
 
 First public release.

@@ -102,8 +102,10 @@ class FlatPages(object):
     """
     A collections of :class:`Page` objects.
 
-    :param app: your application
+    :param app: your application. Can be omited if you call
+                :meth:`init_app` later.
     :type app: Flask instance
+
     """
     def __init__(self, app=None):
 
@@ -120,6 +122,7 @@ class FlatPages(object):
 
         :param app: your application
         :type app: Flask instance
+
         """
 
         app.config.setdefault('FLATPAGES_ROOT', 'pages')

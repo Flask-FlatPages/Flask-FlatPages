@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Flask-FlatPages',
-    version='0.2', # also change this in docs/conf.py
+    version='0.3', # also change this in docs/conf.py
     url='https://github.com/SimonSapin/Flask-FlatPages',
     license='BSD',
     author='Simon Sapin',

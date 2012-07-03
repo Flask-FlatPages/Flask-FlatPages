@@ -51,7 +51,7 @@ copyright = u'2010, Simon Sapin'
 #
 # The short X.Y version.
 #version = '0.1'
-version = '0.2'
+version = '0.3'
 # The full version, including alpha/beta/rc tags.
 #release = '0.1dev'
 release = version
