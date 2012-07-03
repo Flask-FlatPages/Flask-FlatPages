@@ -19,7 +19,7 @@ from contextlib import contextmanager
 import jinja2
 from werkzeug.exceptions import NotFound
 from flask import Flask
-from flaskext.flatpages import FlatPages
+from flask_flatpages import FlatPages
 
 
 @contextmanager
@@ -37,7 +37,7 @@ def temp_directory():
 def temp_pages(app=None):
     """This context manager gives a FlatPages object configured
     in a temporary directory with a copy of the test pages.
-    
+
     Using a temporary copy allows us to safely write and remove stuff without
     worrying about undoing our changes.
     """
@@ -59,7 +59,7 @@ class TestTempDirectory(unittest.TestCase):
             assert os.path.isdir(temp)
         # should be removed now
         assert not os.path.exists(temp)
-            
+
     def test_exception(self):
         try:
             with temp_directory() as temp:
@@ -70,7 +70,7 @@ class TestTempDirectory(unittest.TestCase):
         else:
             assert False, 'Exception did not propagate'
         assert not os.path.exists(temp)
-            
+
     def test_writing(self):
         with temp_directory() as temp:
             filename = os.path.join(temp, 'foo')
@@ -168,7 +168,7 @@ class TestFlatPages(unittest.TestCase):
             # bar.html is normally empty
             self.assertEquals(bar.meta, {})
             self.assertEquals(bar.body, '')
-            
+
         with temp_pages() as pages:
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             # write as pages is already constructed
@@ -185,7 +185,7 @@ class TestFlatPages(unittest.TestCase):
             # bar.html is normally empty
             self.assertEquals(bar.meta, {})
             self.assertEquals(bar.body, '')
-            
+
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             # rewrite already loaded page
             with open(filename, 'w') as fd:
@@ -198,14 +198,14 @@ class TestFlatPages(unittest.TestCase):
             self.assertEquals(bar2.meta, {})
             self.assertEquals(bar2.body, '')
             self.assert_(bar2 is bar)
-            
+
             # request reloading
             pages.reload()
-            
+
             # write again
             with open(filename, 'w') as fd:
                 fd.write('\nsecond rewrite')
-            
+
             # get another page
             pages.get('hello')
 
@@ -219,7 +219,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEquals(bar3.body, 'second rewrite') # not third
             # Page objects are not reused when a file is re-read.
             self.assert_(bar3 is not bar2)
-            
+
             # Removing does not trigger reloading either
             os.remove(filename)
 
@@ -227,7 +227,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEquals(bar4.meta, {})
             self.assertEquals(bar4.body, 'second rewrite')
             self.assert_(bar4 is bar3)
-            
+
             pages.reload()
 
             bar5 = pages.get('foo/bar')
@@ -237,13 +237,13 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages() as pages:
             foo = pages.get('foo')
             bar = pages.get('foo/bar')
-            
+
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             with open(filename, 'w') as fd:
                 fd.write('\nrewritten')
 
             pages.reload()
-            
+
             foo2 = pages.get('foo')
             bar2 = pages.get('foo/bar')
 
@@ -256,7 +256,7 @@ class TestFlatPages(unittest.TestCase):
     def assert_no_auto_reset(self, pages):
         bar = pages.get('foo/bar')
         self.assertEquals(bar.body, '')
-        
+
         filename = os.path.join(pages.root, 'foo', 'bar.html')
         with open(filename, 'w') as fd:
             fd.write('\nrewritten')
@@ -264,16 +264,16 @@ class TestFlatPages(unittest.TestCase):
         # simulate a request (before_request functions are called)
         with pages.app.test_request_context():
             pages.app.preprocess_request()
-        
+
         # not updated
         bar2 = pages.get('foo/bar')
         self.assertEquals(bar2.body, '')
         self.assert_(bar2 is bar)
-            
+
     def assert_auto_reset(self, pages):
         bar = pages.get('foo/bar')
         self.assertEquals(bar.body, '')
-        
+
         filename = os.path.join(pages.root, 'foo', 'bar.html')
         with open(filename, 'w') as fd:
             fd.write('\nrewritten')
@@ -282,12 +282,12 @@ class TestFlatPages(unittest.TestCase):
         # pages.reload() is not call explicitly
         with pages.app.test_request_context():
             pages.app.preprocess_request()
-        
+
         # updated
         bar2 = pages.get('foo/bar')
         self.assertEquals(bar2.body, 'rewritten')
         self.assert_(bar2 is not bar)
-    
+
     def test_default_no_auto_reset(self):
         with temp_pages() as pages:
             self.assert_no_auto_reset(pages)
@@ -314,4 +314,3 @@ class TestFlatPages(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

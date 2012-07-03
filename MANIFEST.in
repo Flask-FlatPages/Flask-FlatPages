@@ -4,6 +4,5 @@ recursive-exclude docs *.pyc
 recursive-exclude docs *.pyo
 prune docs/_build
 prune docs/_themes/.git
-recursive-include flaskext/flatpages/tests/pages *
-recursive-include flaskext/flatpages/tests/pages_shift_jis *
-
+recursive-include flask_flatpages/pages *
+recursive-include flask_flatpages/pages_shift_jis *

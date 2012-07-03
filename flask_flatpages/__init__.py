@@ -1,6 +1,6 @@
 # coding: utf8
 """
-    flaskext.flatpages
+    flas_flatpages
     ~~~~~~~~~~~~~~~~~~
 
     Flask-FlatPages provides a collections of pages to your Flask application.
@@ -158,6 +158,7 @@ class FlatPages(object):
         """
         :Return: the :class:`Page` object at ``path``, or ``default``
                  if there is none.
+
         """
         # This may trigger the property. Do it outside of the try block.
         pages = self._pages
@@ -170,6 +171,7 @@ class FlatPages(object):
         """:Return: the :class:`Page` object at ``path``.
         :raises: :class:`NotFound` if the pages does not exist.
                  This is caught by Flask and triggers a 404 error.
+
         """
         page = self.get(path)
         if not page:

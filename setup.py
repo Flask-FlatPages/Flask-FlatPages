@@ -25,10 +25,9 @@ setup(
     description='Provides flat static pages to a Flask application',
     long_description=__doc__,
     packages=find_packages(),
-    namespace_packages=['flaskext'],
     # test pages
     package_data={'': ['pages*/*.*', 'pages/*/*.*', 'pages/*/*/*.*']},
-    test_suite='flaskext.flatpages.tests',
+    test_suite='flask_flatpages.tests',
     zip_safe=False,
     platforms='any',
     install_requires=[
