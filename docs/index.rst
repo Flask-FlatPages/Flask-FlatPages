@@ -4,7 +4,16 @@ Flask-FlatPages
 Flask-FlatPages provides a collections of pages to your `Flask`_ application.
 Pages are built from “flat” text files as opposed to a relational database.
 
+* BSD licensed
+* Latest documentation `on python.org`_
+* Source, issues and pull requests `on Github`_
+* Releases `on PyPI`_
+
 .. _Flask: http://flask.pocoo.org/
+.. _on python.org: http://packages.python.org/Flask-FlatPages/
+.. _on Github: https://github.com/SimonSapin/Flask-FlatPages/
+.. _on PyPI: http://pypi.python.org/pypi/Flask-FlatPages
+
 
 Installation
 ------------
@@ -27,7 +36,7 @@ To get started all you need to do is to instantiate a :class:`FlatPages` object
 after configuring the application::
 
     from flask import Flask
-    from flaskext.flatpages import FlatPages
+    from flask_flatpages import FlatPages
 
     app = Flask(__name__)
     app.config.from_pyfile('mysettings.cfg')
@@ -126,12 +135,12 @@ Then, pages are not loaded again unless you explicitly ask for it with
 :meth:`.FlatPages.reload`, or on new requests depending on the configuration.
 (See ``FLATPAGES_AUTO_RELOAD``.)
 
-This design was decided with `Flask-Static`_ in mind but should work even if
+This design was decided with `Frozen-Flask`_ in mind but should work even if
 you don’t use it: you already restart your production server on code changes,
 you just have to do it on page content change too. This can make sense if
 the pages are deployed alongside the code in version control.
 
-.. _Flask-Static: http://packages.python.org/Flask-Static/
+.. _Frozen-Flask: http://packages.python.org/Frozen-Flask/
 
 If you have many pages and loading takes a long time, you can force it at
 initialization time so that it’s done by the time the first request is served::
@@ -149,7 +158,7 @@ until needed, and not done again if the file did not change.
 API
 ---
 
-.. module:: flaskext.flatpages
+.. module:: flask_flatpages
 
 .. autoclass:: FlatPages
     :members: get, get_or_404, __iter__, reload
@@ -217,4 +226,3 @@ Version 0.1, released on 2011-02-06
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First public release.
-
