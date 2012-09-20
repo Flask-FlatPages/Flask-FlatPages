@@ -86,7 +86,9 @@ class Page(object):
         #     yaml.safe_load('- 1\n- a') -> [1, 'a']
         if not meta:
             return {}
-        assert isinstance(meta, dict)
+        if not isinstance(meta, dict):
+            raise Exception("Excpecting a valid dict in meta <%(_meta_yaml)s> for page at <%(path)s>" % 
+                self.__dict__)        
         return meta
 
     def __getitem__(self, name):
