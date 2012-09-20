@@ -87,8 +87,8 @@ class Page(object):
         if not meta:
             return {}
         if not isinstance(meta, dict):
-            raise Exception("Excpecting a valid dict in meta <%(_meta_yaml)s> for page at <%(path)s>" % 
-                self.__dict__)        
+            raise ValueError("Excpected a dict in metadata for '%s', got %s"
+                % (self.path, type(meta).__name__))
         return meta
 
     def __getitem__(self, name):
