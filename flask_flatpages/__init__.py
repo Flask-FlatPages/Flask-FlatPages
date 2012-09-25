@@ -1,6 +1,6 @@
 # coding: utf8
 """
-    flas_flatpages
+    flask_flatpages
     ~~~~~~~~~~~~~~~~~~
 
     Flask-FlatPages provides a collections of pages to your Flask application.
