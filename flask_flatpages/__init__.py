@@ -210,7 +210,8 @@ class FlatPages(object):
 
         extension = self.app.config['FLATPAGES_EXTENSION']
         pages = {}
-        _walk(self.root)
+        # Fail if the root is a non-ASCII byte string. Use Unicode.
+        _walk(unicode(self.root))
         return pages
 
     def _load_file(self, path, filename):

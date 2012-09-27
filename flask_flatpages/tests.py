@@ -311,6 +311,19 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages(app) as pages:
             self.assert_auto_reset(pages)
 
+    def test_unicode_filenames(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            self.assertEquals(
+                set(p.path for p in pages),
+                set(['foo/bar', 'foo/lorem/ipsum', 'foo', 'hello']))
+            os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
+            open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
+            pages.reload()
+            self.assertEquals(
+                set(p.path for p in pages),
+                set(['foo/bar', 'foo', 'hello', u'Unïcôdé']))
+
 
 if __name__ == '__main__':
     unittest.main()
