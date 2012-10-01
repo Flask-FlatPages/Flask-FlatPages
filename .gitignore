@@ -4,3 +4,4 @@
 /env*
 /docs/_build
 /.tox
+/.coverage
