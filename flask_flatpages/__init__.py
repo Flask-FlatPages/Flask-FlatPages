@@ -21,6 +21,9 @@ import werkzeug
 import flask
 
 
+VERSION = '0.4'
+
+
 def pygmented_markdown(text):
     """Render Markdown text to HTML. Uses the `Codehilite`_ extension
     if `Pygments`_ is available.

@@ -1,34 +1,23 @@
-"""
-Flask-FlatPages
----------------
-
-Provides flat static pages to a Flask_ application, based on text files
-as opposed to a relationnal database.
-
-* BSD licensed
-* Latest documentation `on python.org`_
-* Source, issues and pull requests `on Github`_
-* Releases `on PyPI`_
-* Install with ``pip install Flask-FlatPages``
-
-.. _Flask: http://flask.pocoo.org/
-.. _on python.org: http://packages.python.org/Flask-FlatPages/
-.. _on Github: https://github.com/SimonSapin/Flask-FlatPages/
-.. _on PyPI: http://pypi.python.org/pypi/Flask-FlatPages
-
-"""
-
+import re
+import os.path
 from setuptools import setup, find_packages
+
+
+ROOT = os.path.dirname(__file__)
+README = open(os.path.join(ROOT, 'README')).read()
+INIT_PY = open(os.path.join(ROOT, 'flask_flatpages', '__init__.py')).read()
+VERSION = re.search("VERSION = '([^']+)'", INIT_PY).group(1)
+
 
 setup(
     name='Flask-FlatPages',
-    version='0.3', # also change this in docs/conf.py
+    version=VERSION,
     url='https://github.com/SimonSapin/Flask-FlatPages',
     license='BSD',
     author='Simon Sapin',
     author_email='simon.sapin@exyr.org',
     description='Provides flat static pages to a Flask application',
-    long_description=__doc__,
+    long_description=README,
     packages=find_packages(),
     # test pages
     package_data={'': ['pages*/*.*', 'pages/*/*.*', 'pages/*/*/*.*']},
