@@ -1,0 +1,56 @@
+Developer’s How To
+==================
+
+Tools
+-----
+
+Optinal, for testing:
+
+    $ pip install pytest pytest-cov
+
+For releasing:
+
+    $ pip install tox Sphinx Sphinx-PyPI-upload
+
+
+Running tests
+-------------
+
+Either one of:
+
+    $ python -m flask_flatpages.tests
+    $ py.test
+    $ py.test --cov flask_flatpages --cov-report term-missing
+
+pytest gives debugging help, integration with coverage, etc.
+Other testing frameworks should work too.
+
+
+Making a new release
+--------------------
+
+* Check that tests pass in all supported Python versions (2.5, 2.6 and 2.7;
+  PyPY if you like.) tox can do this automatically, assuming that the
+  interpreters are installed:
+
+      $ tox
+
+* Bump the version number in flask_flatpages/__init__.py
+* Update the docs and changelog in docs/index.rst
+* Rebuild the docs, check that _build/html/index.html looks good:
+
+      $ python setup.py build_sphinx
+
+* Upload the docs to PyPI:
+
+      $ python setup.py
+
+* Make and upload the release archive:
+
+      $ python setup.py sdist upload upload_sphinx
+
+* Tag the release and push to GitHub:
+
+      $ git tag v0.X  # Same version number as in flask_flatpages/__init__.py
+      $ git push
+      $ git push --tags
