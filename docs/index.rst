@@ -217,6 +217,14 @@ API
 Changelog
 ---------
 
+Version 0.4
+~~~~~~~~~~~
+
+Not released yet.
+
+* Fix a bug with non-ASCII filenames.
+
+
 Version 0.3
 ~~~~~~~~~~~
 

@@ -150,7 +150,10 @@ class FlatPages(object):
 
     def reload(self):
         """Forget all pages.
-        All pages will be reloaded next time they're accessed"""
+
+        All pages will be reloaded next time they're accessed
+
+        """
         try:
             # This will "unshadow" the cached_property.
             # The property will be re-executed on next access.
@@ -163,9 +166,8 @@ class FlatPages(object):
         return self._pages.itervalues()
 
     def get(self, path, default=None):
-        """
-        :Return: the :class:`Page` object at ``path``, or ``default``
-                 if there is none.
+        """Returns the :class:`Page` object at ``path``, or ``default``
+        if there is no such page.
 
         """
         # This may trigger the property. Do it outside of the try block.
@@ -176,9 +178,9 @@ class FlatPages(object):
             return default
 
     def get_or_404(self, path):
-        """:Return: the :class:`Page` object at ``path``.
-        :raises: :class:`NotFound` if the pages does not exist.
-                 This is caught by Flask and triggers a 404 error.
+        """Returns the :class:`Page` object at ``path``,
+        or raise :class:`NotFound` if there is no such page.
+        This is caught by Flask and triggers a 404 error.
 
         """
         page = self.get(path)
@@ -192,6 +194,7 @@ class FlatPages(object):
 
         It is the `FLATPAGES_ROOT` config value, interpreted as relative to
         the app root directory.
+
         """
         return os.path.join(self.app.root_path,
                             self.app.config['FLATPAGES_ROOT'])
@@ -200,6 +203,7 @@ class FlatPages(object):
     def _pages(self):
         """Walk the page root directory an return a dict of
         unicode path: page object.
+
         """
         def _walk(directory, path_prefix=()):
             for name in os.listdir(directory):
