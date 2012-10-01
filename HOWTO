@@ -29,6 +29,9 @@ Other testing frameworks should work too.
 Making a new release
 --------------------
 
+* Update check MANIFEST.in and package_data in setup.py if non-Python files
+  were added.
+* Update install_requires in setup.py if dependencies changed.
 * Check that tests pass in all supported Python versions (2.5, 2.6 and 2.7;
   PyPY if you like.) tox can do this automatically, assuming that the
   interpreters are installed:
