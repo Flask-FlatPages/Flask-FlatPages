@@ -1,4 +1,5 @@
 import re
+import sys
 import os.path
 from setuptools import setup, find_packages
 
@@ -27,7 +28,11 @@ setup(
     install_requires=[
         'Flask',
         'PyYAML',
-        'Markdown',
+        # Markdown 2.2.0 is broken on Python 2.5:
+        # https://github.com/waylan/Python-Markdown/issues/113
+        # Change this back to just "Markdown" when a fix for this
+        # is released on PyPI.
+        'Markdown' if sys.version_info >= (2, 6) else 'Markdown==2.1.1',
     ],
     classifiers=[
         'Environment :: Web Environment',
