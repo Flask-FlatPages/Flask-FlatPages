@@ -24,19 +24,22 @@ import flask
 VERSION = '0.4'
 
 
-def pygmented_markdown(text):
+def pygmented_markdown(text,md_ext):
     """Render Markdown text to HTML. Uses the `Codehilite`_ extension
     if `Pygments`_ is available.
 
     .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
-    try:
-        import pygments
-    except ImportError:
-        extensions = []
-    else:
-        extensions = ['codehilite']
+    md_ext = dict(md_ext.items()+{'codehilite':'pygments'}.items())
+    extensions = []
+    for key, value in md_ext.iteritems():
+      try:
+          exec("import "+value)
+      except ImportError:
+          extensions = []
+      else:
+          extensions = extensions + [key]
     return markdown.markdown(text, extensions)
 
 
@@ -57,13 +60,14 @@ def pygments_style_defs(style='default'):
 
 
 class Page(object):
-    def __init__(self, path, meta_yaml, body, html_renderer):
+    def __init__(self, path, meta_yaml, body, html_renderer, md_extend):
         #: Path this pages was obtained from, as in ``pages.get(path)``.
         self.path = path
         #: Content of the pages.
         self.body = body
         self._meta_yaml = meta_yaml
         self.html_renderer = html_renderer
+        self.md_extend = md_extend
 
     def __repr__(self):
         return '<Page %r>' % self.path
@@ -72,7 +76,7 @@ class Page(object):
     def html(self):
         """The content of the page, rendered as HTML by the configured renderer.
         """
-        return self.html_renderer(self.body)
+        return self.html_renderer(self.body, self.md_extend)
 
     def __html__(self):
         """In a template, ``{{ page }}`` is equivalent to
@@ -135,6 +139,7 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
+        app.config.setdefault('FLATPAGES_MD_OTHER_EXTENTION', {})
 
         self.app = app
 
@@ -244,6 +249,7 @@ class FlatPages(object):
         content = u'\n'.join(lines)
 
         html_renderer = self.app.config['FLATPAGES_HTML_RENDERER']
+        md_extend = self.app.config['FLATPAGES_MD_OTHER_EXTENTION']
         if not callable(html_renderer):
             html_renderer = werkzeug.import_string(html_renderer)
-        return Page(path, meta, content, html_renderer)
+        return Page(path, meta, content, html_renderer, md_extend)
