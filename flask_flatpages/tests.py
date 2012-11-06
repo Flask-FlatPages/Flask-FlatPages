@@ -19,7 +19,7 @@ from contextlib import contextmanager
 import jinja2
 from werkzeug.exceptions import NotFound
 from flask import Flask
-from flask_flatpages import FlatPages
+from flask_flatpages import FlatPages, pygmented_markdown
 
 
 @contextmanager
@@ -147,7 +147,7 @@ class TestFlatPages(unittest.TestCase):
     def test_other_html_renderer(self):
         for renderer in (unicode.upper, 'string.upper'):
             pages = FlatPages(Flask(__name__))
-            pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
+            pages.app.config['FLATPAGES_EXTENSION_RENDERER'] = {'.html': renderer}
             hello = pages.get('hello')
             self.assertEquals(hello.body, u'Hello, *世界*!\n')
             # Upper-case, markdown not interpreted
@@ -155,7 +155,7 @@ class TestFlatPages(unittest.TestCase):
 
     def test_other_extension(self):
         app = Flask(__name__)
-        app.config['FLATPAGES_EXTENSION'] = '.txt'
+        app.config['FLATPAGES_EXTENSION_RENDERER'] = {'.txt': pygmented_markdown}
         pages = FlatPages(app)
         self.assertEquals(
             set(page.path for page in pages),
@@ -324,6 +324,24 @@ class TestFlatPages(unittest.TestCase):
                 set(p.path for p in pages),
                 set(['foo/bar', 'foo', 'hello', u'Unïcôdé']))
 
+    def test_multiple_renderers(self):
+        def json_renderer(text):
+            return 'ignored'
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION_RENDERER'] = {
+            '.json': json_renderer,
+            '.html': pygmented_markdown,
+            '.txt': 'flask_flatpages.pygmented_markdown'}
+        pages = FlatPages(app)
+
+        test_page = pages.get('multi_renderer')
+        self.assertEquals(test_page.html, 'ignored')
+
+        foo = pages.get('foo')
+        self.assertEquals(foo.html, '<p>Foo <em>bar</em></p>')
+
+        txt_page = pages.get('not_a_page')
+        self.assertEquals(txt_page.html, '')
 
 if __name__ == '__main__':
     unittest.main()
