@@ -131,10 +131,9 @@ class FlatPages(object):
         """
 
         app.config.setdefault('FLATPAGES_ROOT', 'pages')
-        app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
-        app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
+        app.config.setdefault('FLATPAGES_EXTENSION_RENDERER', {'.html': pygmented_markdown})
 
         self.app = app
 
@@ -210,18 +209,20 @@ class FlatPages(object):
                 full_name = os.path.join(directory, name)
                 if os.path.isdir(full_name):
                     _walk(full_name, path_prefix + (name,))
-                elif name.endswith(extension):
-                    name_without_extension = name[:-len(extension)]
-                    path = u'/'.join(path_prefix + (name_without_extension,))
-                    pages[path] = self._load_file(path, full_name)
+                else:
+                    for extension in extensions:
+                        if name.endswith(extension):
+                            name_without_extension = name[:-len(extension)]
+                            path = u'/'.join(path_prefix + (name_without_extension,))
+                            pages[path] = self._load_file(path, full_name, extension)
 
-        extension = self.app.config['FLATPAGES_EXTENSION']
+        extensions = self.app.config['FLATPAGES_EXTENSION_RENDERER'].keys()
         pages = {}
         # Fail if the root is a non-ASCII byte string. Use Unicode.
         _walk(unicode(self.root))
         return pages
 
-    def _load_file(self, path, filename):
+    def _load_file(self, path, filename, extension):
         mtime = os.path.getmtime(filename)
         cached = self._file_cache.get(filename)
         if cached and cached[1] == mtime:
@@ -231,11 +232,11 @@ class FlatPages(object):
             with open(filename) as fd:
                 content = fd.read().decode(
                     self.app.config['FLATPAGES_ENCODING'])
-            page = self._parse(content, path)
+            page = self._parse(content, path, extension)
             self._file_cache[filename] = page, mtime
         return page
 
-    def _parse(self, string, path):
+    def _parse(self, string, path, extension):
         lines = iter(string.split(u'\n'))
         # Read lines until an empty line is encountered.
         meta = u'\n'.join(itertools.takewhile(unicode.strip, lines))
@@ -243,7 +244,7 @@ class FlatPages(object):
         # where `itertools.takewhile` left it.
         content = u'\n'.join(lines)
 
-        html_renderer = self.app.config['FLATPAGES_HTML_RENDERER']
+        html_renderer = self.app.config['FLATPAGES_EXTENSION_RENDERER'][extension]
         if not callable(html_renderer):
             html_renderer = werkzeug.import_string(html_renderer)
         return Page(path, meta, content, html_renderer)
