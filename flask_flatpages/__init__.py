@@ -31,12 +31,16 @@ def pygmented_markdown(text):
     .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
+    
+    extensions = ['extra']
+    
     try:
         import pygments
     except ImportError:
-        extensions = []
+        pass
     else:
-        extensions = ['codehilite']
+        extensions.append('codehilite')
+        
     return markdown.markdown(text, extensions)
 
 
