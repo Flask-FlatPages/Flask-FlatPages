@@ -393,15 +393,25 @@ class TestPageSet(unittest.TestCase):
 
     def test_filter(self):
         pages = FlatPages(Flask(__name__))
+
         simple = pages.filter(title='Three')[0]
         self.assertEquals(simple.title, 'Three')
+
         dt = datetime.datetime.strptime('2009-05-11', '%Y-%m-%d').date()
         multi = pages.filter(title='One', created=dt)[0]
         self.assertEquals(multi.title, 'One')
-        condition = pages.filter(title__isnull=False)
+
+        isnull = pages.filter(title__isnull=False)
         self.assertEquals(
-            set(p.title for p in condition),
+            set(p.title for p in isnull),
             set(['One', u'世界', 'Two', 'Foo > bar', 'Three']))
+
+        cont1 = pages.filter(tags__contains='politics')[0]
+        self.assertEquals(cont1.title, 'One')
+        cont2 = pages.filter(tags__contains='real life')[0]
+        self.assertEquals(cont2.title, 'Three')
+        missing = pages.filter(tags__contains='tag')
+        self.assertEquals(missing, [])
 
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
