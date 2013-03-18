@@ -15,6 +15,7 @@ from __future__ import with_statement
 import inspect
 import itertools
 import os
+import datetime
 
 import flask
 import markdown
@@ -107,6 +108,10 @@ class Page(object):
         """
         return self.meta[name]
 
+    def __getattr__(self, name):
+        """Shortcut for accessing metadata with an attribute."""
+        return self.meta[name]
+
     def __html__(self):
         """In a template, ``{{ page }}`` is equivalent to
         ``{{ page.html|safe }}``.
@@ -141,6 +146,74 @@ class Page(object):
                 (self.path, type(meta).__name__)
             )
         return meta
+
+
+class PageSet(list):
+    """A page container that allows to filter and order pages."""
+
+    FILTERS = {
+        '': lambda p,f,v: p.meta.get(f) == v,
+        'isnull': lambda p,f,v: bool(p.meta.get(f) == None) == v,
+    }
+    MINDATE = datetime.date(datetime.MINYEAR, 1, 1)
+
+    def order_by(self, key):
+        """Returns pages sorted by ``key``.
+
+        This naively works only with dates so far.
+        """
+        pages = self
+        if key[0] == '-':
+            rev = True
+            key = key[1:]
+        else:
+            rev = False
+
+        def get_meta(page):
+            return page[key] if key in page.meta else self.MINDATE
+
+        return sorted(pages, reverse=rev, key=get_meta)
+
+    def filter(self, negate=False, *args, **kwargs):
+        """Returns pages matching the specified filters.
+
+        So far it only works on the metadata fields, not the body.
+
+        The syntax follows Django's conventions, where operators are
+        indicated using '__' (``meta_field_name``__``operator``=``value``).
+        >>> pages.filter(created__isnull=False)
+
+        Unlike Django, however, additional kwargs are joined using
+        OR instead of AND.
+        This would return pages where the 'created' field exists
+        *OR* the title is 'Hello'.
+        >>> pages.filter(created__isnull=False, title='Hello')
+
+        If you want to AND, just chain multiple filter()s together.
+        >>> pages.filter(created__isnull=False).filter(title='Hello')
+        """
+        filters = []
+        filtered = PageSet()
+        for field, value in kwargs.iteritems():
+            try:
+                field_name, condition = field.split('__', 1)
+            except ValueError:
+                field_name = field
+                condition = ''
+            filters.append((field_name, condition, value))
+        for page in self:
+            for filt in filters:
+                field, cond, val = filt
+                try:
+                    result = self.FILTERS[cond](page, field, val)
+                except KeyError:
+                    pass
+                else:
+                    if negate:
+                        result = not result
+                    if result and page not in filtered:
+                        filtered.append(page)
+        return filtered
 
 
 class FlatPages(object):
@@ -230,6 +303,18 @@ class FlatPages(object):
             del self.__dict__['_pages']
         except KeyError:
             pass
+
+    def order_by(self, key):
+        #TODO: Implement caching
+        return PageSet(self._pages.itervalues()).order_by(key)
+
+    def filter(self, *args, **kwargs):
+        #TODO: Implement caching
+        return PageSet(self._pages.itervalues()).filter(*args, **kwargs)
+
+    def exclude(self, *args, **kwargs):
+        """A negated filter."""
+        return self.filter(negate=True, *args, **kwargs)
 
     @property
     def root(self):

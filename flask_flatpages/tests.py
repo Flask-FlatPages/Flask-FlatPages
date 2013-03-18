@@ -95,7 +95,8 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEquals(
             set(page.path for page in pages),
-            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
+            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello',
+                'order/one', 'order/two', 'order/three'])
         )
 
     def test_get(self):
@@ -367,17 +368,47 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages(app) as pages:
             self.assertEquals(
                 set(p.path for p in pages),
-                set(['foo/bar',
-                     'foo/lorem/ipsum',
-                     'foo',
-                     'headerid',
-                     'hello']))
+                set(['foo/bar', 'foo/lorem/ipsum', 'foo', 'headerid', 'hello',
+                    'order/one', 'order/two', 'order/three']))
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
             self.assertEquals(
-                set(safe_unicode(p.path for p in pages)),
-                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
+                set(p.path for p in pages),
+                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé',
+                    'order/one', 'order/two', 'order/three']))
+
+
+class TestPageSet(unittest.TestCase):
+    def test_order_by(self):
+        pages = FlatPages(Flask(__name__))
+        asc = pages.order_by('created')
+        self.assertEquals(
+            [p.path for p in asc[3:]],
+            ['order/one', 'foo', 'order/two', u'order/three'])
+        desc = pages.order_by('-created')
+        self.assertEquals(
+            [p.path for p in desc[:4]],
+            ['order/three', 'order/two', 'foo', u'order/one'])
+
+    def test_filter(self):
+        pages = FlatPages(Flask(__name__))
+        simple = pages.filter(title='Three')[0]
+        self.assertEquals(simple.title, 'Three')
+        dt = datetime.datetime.strptime('2009-05-11', '%Y-%m-%d').date()
+        multi = pages.filter(title='One', created=dt)[0]
+        self.assertEquals(multi.title, 'One')
+        condition = pages.filter(title__isnull=False)
+        self.assertEquals(
+            set(p.title for p in condition),
+            set(['One', u'世界', 'Two', 'Foo > bar', 'Three']))
+
+    def test_chaining(self):
+        pages = FlatPages(Flask(__name__))
+        chain = pages.filter(title__isnull=False).order_by('-created')
+        self.assertEquals(
+            set(p.title for p in chain),
+            set(['Three', 'Two', 'Foo > bar', 'One', u'世界']))
 
 
 if __name__ == '__main__':
