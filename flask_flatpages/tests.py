@@ -410,8 +410,17 @@ class TestPageSet(unittest.TestCase):
         self.assertEquals(cont1.title, 'One')
         cont2 = pages.filter(tags__contains='real life')[0]
         self.assertEquals(cont2.title, 'Three')
+        num = pages.filter(tags__contains=183)[0]
+        self.assertEquals(num.title, 'Three')
         missing = pages.filter(tags__contains='tag')
         self.assertEquals(missing, [])
+
+        iexact = pages.filter(title__iexact='thReE')[0]
+        self.assertEquals(iexact.title, 'Three')
+        icont = pages.filter(tags__icontains='FUnny')[0]
+        self.assertEquals(icont.title, 'One')
+        missing2 = pages.filter(tags__icontains=183)
+        self.assertEquals(missing2, [])
 
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
