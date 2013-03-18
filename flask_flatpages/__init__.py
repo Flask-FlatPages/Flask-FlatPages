@@ -197,6 +197,10 @@ class PageSet(list):
             except ValueError:
                 field_name = field
                 condition = 'exact'
+            else:
+                # workaround for reserved word
+                if condition == 'in':
+                    condition = 'in_'
             _filters.append((field_name, condition, value))
         for page in self:
             for filt in _filters:

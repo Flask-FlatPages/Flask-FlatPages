@@ -423,6 +423,11 @@ class TestPageSet(unittest.TestCase):
         self.assertEquals(missing2, [])
         self.assertRaises(ValueError, pages.filter, title__noop=True)
 
+        filt_in = pages.filter(title__in=['One', 'Two', 'Three'])
+        self.assertEquals(
+            set(p.title for p in filt_in),
+            set(['One', 'Two', 'Three']))
+
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
         chain = pages.filter(title__isnull=False).order_by('-created')

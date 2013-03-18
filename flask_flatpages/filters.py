@@ -9,6 +9,9 @@ def isnull(page, field, value):
 def contains(page, field, value):
     return value in page.meta.get(field, [])
 
+def in_(page, field, value):
+    return page.meta.get(field) in value
+
 def iexact(page, field, value):
     """Case-insensitive exact()."""
     try:
