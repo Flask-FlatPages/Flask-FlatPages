@@ -27,6 +27,8 @@ try:
 except ImportError:
     PygmentsHtmlFormatter = None
 
+import filters
+
 
 VERSION = '0.5'
 
@@ -151,10 +153,6 @@ class Page(object):
 class PageSet(list):
     """A page container that allows to filter and order pages."""
 
-    FILTERS = {
-        '': lambda p,f,v: p.meta.get(f) == v,
-        'isnull': lambda p,f,v: bool(p.meta.get(f) == None) == v,
-    }
     MINDATE = datetime.date(datetime.MINYEAR, 1, 1)
 
     def order_by(self, key):
@@ -162,7 +160,6 @@ class PageSet(list):
 
         This naively works only with dates so far.
         """
-        pages = self
         if key[0] == '-':
             rev = True
             key = key[1:]
@@ -172,7 +169,7 @@ class PageSet(list):
         def get_meta(page):
             return page[key] if key in page.meta else self.MINDATE
 
-        return sorted(pages, reverse=rev, key=get_meta)
+        return sorted(self, reverse=rev, key=get_meta)
 
     def filter(self, negate=False, *args, **kwargs):
         """Returns pages matching the specified filters.
@@ -192,21 +189,21 @@ class PageSet(list):
         If you want to AND, just chain multiple filter()s together.
         >>> pages.filter(created__isnull=False).filter(title='Hello')
         """
-        filters = []
+        _filters = []
         filtered = PageSet()
         for field, value in kwargs.iteritems():
             try:
                 field_name, condition = field.split('__', 1)
             except ValueError:
                 field_name = field
-                condition = ''
-            filters.append((field_name, condition, value))
+                condition = 'exact'
+            _filters.append((field_name, condition, value))
         for page in self:
-            for filt in filters:
+            for filt in _filters:
                 field, cond, val = filt
                 try:
-                    result = self.FILTERS[cond](page, field, val)
-                except KeyError:
+                    result = getattr(filters, cond)(page, field, val)
+                except (AttributeError, TypeError):
                     pass
                 else:
                     if negate:
