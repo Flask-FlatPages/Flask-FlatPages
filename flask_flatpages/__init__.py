@@ -204,7 +204,7 @@ class PageSet(list):
                 try:
                     result = getattr(filters, cond)(page, field, val)
                 except (AttributeError, TypeError):
-                    pass
+                    raise ValueError("Unknown operator '%s'" % cond)
                 else:
                     if negate:
                         result = not result

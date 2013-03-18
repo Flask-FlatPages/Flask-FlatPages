@@ -421,6 +421,7 @@ class TestPageSet(unittest.TestCase):
         self.assertEquals(icont.title, 'One')
         missing2 = pages.filter(tags__icontains=183)
         self.assertEquals(missing2, [])
+        self.assertRaises(ValueError, pages.filter, title__noop=True)
 
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
