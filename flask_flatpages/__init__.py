@@ -169,7 +169,7 @@ class PageSet(list):
         def get_meta(page):
             return page[key] if key in page.meta else self.MINDATE
 
-        return sorted(self, reverse=rev, key=get_meta)
+        return PageSet(sorted(self, reverse=rev, key=get_meta))
 
     def filter(self, negate=False, *args, **kwargs):
         """Returns pages matching the specified filters.
