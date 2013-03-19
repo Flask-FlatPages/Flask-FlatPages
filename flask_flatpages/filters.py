@@ -1,21 +1,21 @@
 # coding: utf8
 
 def exact(page, field, value):
-    return page.meta.get(field) == value
+    return getattr(page, field) == value
 
 def isnull(page, field, value):
-    return (page.meta.get(field) == None) == value
+    return (getattr(page, field) == None) == value
 
 def contains(page, field, value):
-    return value in page.meta.get(field, [])
+    return value in (getattr(page, field) or [])
 
 def in_(page, field, value):
-    return page.meta.get(field) in value
+    return getattr(page, field) in (value or [])
 
 def iexact(page, field, value):
     """Case-insensitive exact()."""
     try:
-        res = page.meta.get(field).lower() == value.lower()
+        res = getattr(page, field).lower() == value.lower()
     except AttributeError:
         return False
     else:
@@ -24,7 +24,12 @@ def iexact(page, field, value):
 def icontains(page, field, value):
     """Case-insensitive contains()."""
     try:
-        res = value.lower() in (val.lower() for val in page.meta.get(field, []))
+        _field = getattr(page, field)
+        if isinstance(_field, (str, unicode)):
+            res = value.lower() in _field.lower()
+        else:
+            res = value.lower() in (
+                    val.lower() for val in (getattr(page, field) or []))
     except AttributeError:
         return False
     else:

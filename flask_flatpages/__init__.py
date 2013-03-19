@@ -21,13 +21,12 @@ import flask
 import markdown
 import yaml
 import werkzeug
+import filters
 
 try:
     from pygments.formatters import HtmlFormatter as PygmentsHtmlFormatter
 except ImportError:
     PygmentsHtmlFormatter = None
-
-import filters
 
 
 VERSION = '0.5'
