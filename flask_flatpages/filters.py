@@ -34,3 +34,18 @@ def icontains(page, field, value):
         return False
     else:
         return res
+
+def startswith(page, field, value):
+    _field = getattr(page, field)
+    if isinstance(_field, (str, unicode)):
+        return _field.startswith(value)
+    return False
+
+def istartswith(page, field, value):
+    res = False
+    try:
+        _field = getattr(page, field)
+        res = _field.lower().startswith(value.lower())
+    except AttributeError:
+        pass
+    return res

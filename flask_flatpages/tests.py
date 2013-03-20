@@ -428,6 +428,22 @@ class TestPageSet(unittest.TestCase):
             set(p.title for p in filt_in),
             set(['One', 'Two', 'Three']))
 
+        body = pages.filter(body__icontains='foo')[0]
+        self.assertEquals(body.title, 'Foo > bar')
+
+        sw = pages.filter(title__startswith='T')
+        self.assertEquals(
+            set(p.title for p in sw),
+            set(['Two', 'Three']))
+
+        isw = pages.filter(body__istartswith='page')
+        self.assertEquals(
+            set(p.title for p in isw),
+            set(['One', 'Two', 'Three']))
+
+        bsw = pages.filter(tags__startswith='article')
+        self.assertEquals(bsw, [])
+
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
         chain = pages.filter(title__isnull=False).order_by('-created')
