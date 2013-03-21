@@ -12,7 +12,6 @@
 
 from __future__ import with_statement
 
-import inspect
 import itertools
 import os
 
@@ -24,40 +23,26 @@ import werkzeug
 try:
     from pygments.formatters import HtmlFormatter as PygmentsHtmlFormatter
 except ImportError:
-    PygmentsHtmlFormatter = None
+    pass
 
 
 VERSION = '0.5'
 
 
-def pygmented_markdown(text, flatpages=None):
-    """Render Markdown text to HTML.
+def pygmented_markdown(text):
+    """Render Markdown text to HTML. Uses the `Codehilite`_ extension if
+    `Pygments`_ is available.
 
-    Uses the `CodeHilite`_ extension only if `Pygments`_ is available. But if
-    `Pygments`_ no available removes "codehilite" from list of possible
-    extensions.
+    Other extensions can be added with the ``FLATPAGES_MARKDOWN_EXTENSIONS``
+    setting.
 
-    If you need other extensions to use setup them to
-    ``FLATPAGES_MARKDOWN_EXTENSIONS`` list setting. Later whole
-    :class:`FlatPages` instance would be passed to your
-    ``FLATPAGES_HTML_RENDERER`` function as second argument.
-
-    .. _CodeHilite:
-       http://www.freewisdom.org/projects/python-markdown/CodeHilite
+    .. _CodeHilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
-    extensions = flatpages.config('markdown_extensions') if flatpages else []
+    extensions = getattr(pygmented_markdown, 'markdown_extensions', [])
 
-    if PygmentsHtmlFormatter is None:
-        original_extensions = extensions
-        extensions = []
-
-        for extension in original_extensions:
-            if extension.startswith('codehilite'):
-                continue
-            extensions.append(extension)
-    elif not extensions:
-        extensions = ['codehilite']
+    if 'PygmentsHtmlFormatter' in globals():
+        extensions += ['codehilite']
 
     return markdown.markdown(text, extensions)
 
@@ -186,6 +171,9 @@ class FlatPages(object):
             config_key = 'FLATPAGES_%s' % key.upper()
             app.config.setdefault(config_key, value)
 
+        app.config['FLATPAGES_HTML_RENDERER'].markdown_extensions = \
+                            app.config.get('FLATPAGES_MARKDOWN_EXTENSIONS', [])
+
         # Register function to forget all pages if necessary
         app.before_request(self._conditional_auto_reset)
 
@@ -308,38 +296,4 @@ class FlatPages(object):
         if not callable(html_renderer):
             html_renderer = werkzeug.import_string(html_renderer)
 
-        html_renderer = self._smart_html_renderer(html_renderer)
         return Page(path, meta, content, html_renderer)
-
-    def _smart_html_renderer(self, html_renderer):
-        """As of 0.4 version we support passing :class:`FlatPages` instance to
-        HTML renderer function.
-
-        So we need to inspect function args spec and if it supports two
-        arguments, pass ``self`` instance there.
-
-        .. versionadded:: 0.4
-        """
-        def wrapper(body):
-            """Simple wrapper to inspect HTML renderer function and if it has
-            two arguments and second argument named ``extensions``, pass
-            ``FLATPAGES_MARKDOWN_EXTENSIONS`` as second argument to function.
-            """
-            try:
-                spec = inspect.getargspec(html_renderer)
-            except TypeError:
-                return html_renderer(body)
-
-            # Named tuple available only in Python 2.6+, before raw tuple used
-            spec_args = spec[0] if not hasattr(spec, 'args') else spec.args
-
-            if len(spec_args) == 1:
-                return html_renderer(body)
-            elif len(spec_args) == 2:
-                return html_renderer(body, self)
-
-            raise ValueError(
-                'HTML renderer function {!r} not supported by Flask-FlatPages,'
-                ' wrong number of arguments.'.format(html_renderer)
-            )
-        return wrapper
