@@ -36,7 +36,7 @@ def pygmented_markdown(text):
     except ImportError:
         extensions = []
     else:
-        extensions = ['codehilite', 'headerid']
+        extensions = ['codehilite(guess_lang=False)', 'headerid']
     return markdown.markdown(text, extensions)
 
 
