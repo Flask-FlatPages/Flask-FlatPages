@@ -330,9 +330,12 @@ class FlatPages(object):
             except TypeError:
                 return html_renderer(body)
 
-            if len(spec.args) == 1:
+            # Named tuple available only in Python 2.6+, before raw tuple used
+            spec_args = spec[0] if not hasattr(spec, 'args') else spec.args
+
+            if len(spec_args) == 1:
                 return html_renderer(body)
-            elif len(spec.args) == 2 and spec.args[1] == 'extensions':
+            elif len(spec_args) == 2 and spec_args[1] == 'extensions':
                 return html_renderer(body, self.config('markdown_extensions'))
 
             raise ValueError(
