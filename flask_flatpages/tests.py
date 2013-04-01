@@ -9,17 +9,21 @@
 
 from __future__ import with_statement
 
-import unittest
-import tempfile
-import shutil
-import os.path
 import datetime
+import os
+import shutil
+import sys
+import tempfile
+import unicodedata
+import unittest
+
 from contextlib import contextmanager
 
 import jinja2
-from werkzeug.exceptions import NotFound
+
 from flask import Flask
 from flask_flatpages import FlatPages
+from werkzeug.exceptions import NotFound
 
 
 @contextmanager
@@ -32,6 +36,7 @@ def temp_directory():
         yield directory
     finally:
         shutil.rmtree(directory)
+
 
 @contextmanager
 def temp_pages(app=None):
@@ -86,7 +91,7 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEquals(
             set(page.path for page in pages),
-            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'hello'])
+            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
         )
 
     def test_get(self):
@@ -153,6 +158,39 @@ class TestFlatPages(unittest.TestCase):
             # Upper-case, markdown not interpreted
             self.assertEquals(hello.html, u'HELLO, *世界*!\n')
 
+    def test_markdown_extensions(self):
+        pages = FlatPages(Flask(__name__))
+
+        hello = pages.get('headerid')
+        self.assertEquals(
+            hello.html,
+            u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
+        )
+
+        pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = []
+        pages.reload()
+        pages._file_cache = {}
+
+        hello = pages.get('headerid')
+        self.assertEquals(
+            hello.html,
+            u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
+        )
+
+        pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+            'codehilite', 'headerid'
+        ]
+        pages.reload()
+        pages._file_cache = {}
+
+        hello = pages.get('headerid')
+        self.assertEquals(
+            hello.html,
+            u'<h1 id="page-header">Page Header</h1>\n'
+            u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            u'<p>Text</p>'
+        )
+
     def test_other_extension(self):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSION'] = '.txt'
@@ -216,7 +254,7 @@ class TestFlatPages(unittest.TestCase):
             # All pages are read at once when any is used
             bar3 = pages.get('foo/bar')
             self.assertEquals(bar3.meta, {})
-            self.assertEquals(bar3.body, 'second rewrite') # not third
+            self.assertEquals(bar3.body, 'second rewrite')  # not third
             # Page objects are not reused when a file is re-read.
             self.assert_(bar3 is not bar2)
 
@@ -312,17 +350,27 @@ class TestFlatPages(unittest.TestCase):
             self.assert_auto_reset(pages)
 
     def test_unicode_filenames(self):
+        def safe_unicode(sequence):
+            if sys.platform != 'darwin':
+                return sequence
+            return map(lambda item: unicodedata.normalize('NFC', item),
+                       sequence)
+
         app = Flask(__name__)
         with temp_pages(app) as pages:
             self.assertEquals(
                 set(p.path for p in pages),
-                set(['foo/bar', 'foo/lorem/ipsum', 'foo', 'hello']))
+                set(['foo/bar',
+                     'foo/lorem/ipsum',
+                     'foo',
+                     'headerid',
+                     'hello']))
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
             self.assertEquals(
-                set(p.path for p in pages),
-                set(['foo/bar', 'foo', 'hello', u'Unïcôdé']))
+                set(safe_unicode(p.path for p in pages)),
+                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
 
 
 if __name__ == '__main__':
