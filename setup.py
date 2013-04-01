@@ -1,6 +1,7 @@
+import os
 import re
 import sys
-import os.path
+
 from setuptools import setup, find_packages
 
 
