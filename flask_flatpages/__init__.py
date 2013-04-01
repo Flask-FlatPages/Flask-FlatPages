@@ -27,7 +27,7 @@ except ImportError:
     PygmentsHtmlFormatter = None
 
 
-VERSION = '0.5'
+VERSION = '0.4'
 
 
 def pygmented_markdown(text, extensions=None):
