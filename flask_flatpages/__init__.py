@@ -22,7 +22,7 @@ import yaml
 import werkzeug
 
 try:
-    from pygments.formatter import HtmlFormatter as PygmentsHtmlFormatter
+    from pygments.formatters import HtmlFormatter as PygmentsHtmlFormatter
 except ImportError:
     PygmentsHtmlFormatter = None
 
@@ -74,8 +74,8 @@ def pygments_style_defs(style='default'):
     .. _Pygments: http://pygments.org/
     .. _style: http://pygments.org/docs/styles/
     """
-    formater = PygmentsHtmlFormatter(style=style)
-    return formater.get_style_defs('.codehilite')
+    formatter = PygmentsHtmlFormatter(style=style)
+    return formatter.get_style_defs('.codehilite')
 
 
 class Page(object):
@@ -243,7 +243,7 @@ class FlatPages(object):
     def _conditional_auto_reset(self):
         """Reset if configured to do so on new requests.
         """
-        auto = self.app.config['FLATPAGES_AUTO_RELOAD']
+        auto = self.config('auto_reload')
         if auto == 'if debug':
             auto = self.app.debug
         if auto:

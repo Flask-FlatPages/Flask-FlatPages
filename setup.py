@@ -35,6 +35,10 @@ setup(
         # is released on PyPI.
         'Markdown' if sys.version_info >= (2, 6) else 'Markdown==2.1.1',
     ],
+    tests_require=['Pygments'],
+    extras_require={
+        'tests': ['Pygments'],
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

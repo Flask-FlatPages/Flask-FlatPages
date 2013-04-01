@@ -6,7 +6,4 @@ python:
   - "2.7"
   - "pypy"
 
-install:
-  - pip install --use-mirrors -e .
-
-script: python -m flask_flatpages.tests
+script: python setup.py test

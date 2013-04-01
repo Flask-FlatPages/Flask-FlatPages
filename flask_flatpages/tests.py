@@ -22,7 +22,7 @@ from contextlib import contextmanager
 import jinja2
 
 from flask import Flask
-from flask_flatpages import FlatPages
+from flask_flatpages import FlatPages, pygments_style_defs
 from werkzeug.exceptions import NotFound
 
 
@@ -87,6 +87,10 @@ class TestTempDirectory(unittest.TestCase):
 
 
 class TestFlatPages(unittest.TestCase):
+    def test_pygments_style_defs(self):
+        styles = pygments_style_defs()
+        self.assertTrue(styles.startswith('.codehilite'))
+
     def test_iter(self):
         pages = FlatPages(Flask(__name__))
         self.assertEquals(
