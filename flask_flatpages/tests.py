@@ -154,7 +154,10 @@ class TestFlatPages(unittest.TestCase):
         self._unicode(pages)
 
     def test_other_html_renderer(self):
-        for renderer in (unicode.upper, 'string.upper'):
+        def hello_renderer(body, pages):
+            return pages.get('hello').body.upper()
+
+        for renderer in (unicode.upper, 'string.upper', hello_renderer):
             pages = FlatPages(Flask(__name__))
             pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
             hello = pages.get('hello')

@@ -30,7 +30,7 @@ except ImportError:
 VERSION = '0.4'
 
 
-def pygmented_markdown(text, extensions=None):
+def pygmented_markdown(text, flatpages=None):
     """Render Markdown text to HTML.
 
     Uses the `CodeHilite`_ extension only if `Pygments`_ is available. But if
@@ -38,15 +38,15 @@ def pygmented_markdown(text, extensions=None):
     extensions.
 
     If you need other extensions to use setup them to
-    ``FLATPAGES_MARKDOWN_EXTENSIONS`` list setting. Later these extensions
-    would be passed to your ``FLATPAGES_HTML_RENDERER`` function as second
-    argument.
+    ``FLATPAGES_MARKDOWN_EXTENSIONS`` list setting. Later whole
+    :class:`FlatPages` instance would be passed to your
+    ``FLATPAGES_HTML_RENDERER`` function as second argument.
 
     .. _CodeHilite:
        http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
-    extensions = extensions or []
+    extensions = flatpages.config('markdown_extensions') if flatpages else []
 
     if PygmentsHtmlFormatter is None:
         original_extensions = extensions
@@ -312,11 +312,11 @@ class FlatPages(object):
         return Page(path, meta, content, html_renderer)
 
     def _smart_html_renderer(self, html_renderer):
-        """As of 0.5 version we support passing custom Markdown extensions to
-        default HTML renderer function.
+        """As of 0.4 version we support passing :class:`FlatPages` instance to
+        HTML renderer function.
 
-        So we need to inspect this function and if it supports two arguments
-        pass ``FLATPAGES_MARKDOWN_EXTENSIONS`` there.
+        So we need to inspect function args spec and if it supports two
+        arguments, pass ``self`` instance there.
 
         .. versionadded:: 0.4
         """
@@ -335,8 +335,8 @@ class FlatPages(object):
 
             if len(spec_args) == 1:
                 return html_renderer(body)
-            elif len(spec_args) == 2 and spec_args[1] == 'extensions':
-                return html_renderer(body, self.config('markdown_extensions'))
+            elif len(spec_args) == 2:
+                return html_renderer(body, self)
 
             raise ValueError(
                 'HTML renderer function {!r} not supported by Flask-FlatPages,'
