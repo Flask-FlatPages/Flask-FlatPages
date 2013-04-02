@@ -252,7 +252,7 @@ Changelog
 Version 0.5
 ~~~~~~~~~~~
 
-Released on 2013-04-01
+Released on 2013-04-02
 
 * Change behavior of passing ``FLATPAGES_MARKDOWN_EXTENSIONS`` to renderer
   function, now whole :class:`FlatPages` instance passed as second argument,
