@@ -74,6 +74,13 @@ are optional.
     page, and return its HTML rendering as a unicode string. Defaults to
     :func:`~.pygmented_markdown`.
 
+    .. versionchanged:: 0.5
+
+    Renderer function can take not only unicode body, but also
+    :class:`FlatPages` instance. This usable for implementing more robust
+    renderers which could depends to other installed Flask extensions, config
+    values etc.
+
 ``FLATPAGES_MARKDOWN_EXTENSIONS``
     .. versionadded:: 0.4
 
@@ -241,6 +248,16 @@ API
 
 Changelog
 ---------
+
+Version 0.5
+~~~~~~~~~~~
+
+Released on 2013-04-01
+
+* Change behavior of passing ``FLATPAGES_MARKDOWN_EXTENSIONS`` to renderer
+  function, now whole :class:`FlatPages` instance passed as second argument,
+  this helps user provide more robust renderer functions.
+
 
 Version 0.4
 ~~~~~~~~~~~
