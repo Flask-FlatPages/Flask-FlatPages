@@ -384,7 +384,7 @@ class TestPageList(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         asc = pages.order_by('created')
         self.assertEquals(
-            [p.path for p in asc[3:]],
+            [p.path for p in asc[4:]],
             ['order/one', 'foo', 'order/two', u'order/three'])
         desc = pages.order_by('-created')
         self.assertEquals(
@@ -451,7 +451,7 @@ class TestPageList(unittest.TestCase):
                 created__exists=True).order_by('-created')
         self.assertEquals(
             set(p.title for p in chain),
-            set(['Three', 'Two', 'Foo > bar', 'One', u'世界']))
+            set(['Three', 'Two', 'Foo > bar', 'One']))
 
 
 if __name__ == '__main__':

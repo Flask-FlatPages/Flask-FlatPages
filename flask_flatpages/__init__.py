@@ -111,7 +111,7 @@ class Page(object):
 
     def __getattr__(self, name):
         """Shortcut for accessing metadata with an attribute."""
-        return self.meta[name]
+        return self.meta.get(name)
 
     def __html__(self):
         """In a template, ``{{ page }}`` is equivalent to
