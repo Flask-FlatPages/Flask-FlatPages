@@ -149,7 +149,7 @@ class Page(object):
         return meta
 
 
-class PageSet(list):
+class PageList(list):
     """A page container that allows to filter and order pages."""
 
     MINDATE = datetime.date(datetime.MINYEAR, 1, 1)
@@ -168,7 +168,7 @@ class PageSet(list):
         def get_meta(page):
             return page[key] if key in page.meta else self.MINDATE
 
-        return PageSet(sorted(self, reverse=rev, key=get_meta))
+        return PageList(sorted(self, reverse=rev, key=get_meta))
 
     def filter(self, negate=False, *args, **kwargs):
         """Returns pages matching the specified filters.
@@ -189,7 +189,7 @@ class PageSet(list):
         >>> pages.filter(created__isnull=False).filter(title='Hello')
         """
         _filters = []
-        filtered = PageSet()
+        filtered = PageList()
         for field, value in kwargs.iteritems():
             try:
                 field_name, condition = field.split('__', 1)
@@ -306,11 +306,11 @@ class FlatPages(object):
 
     def order_by(self, key):
         #TODO: Implement caching
-        return PageSet(self._pages.itervalues()).order_by(key)
+        return PageList(self._pages.itervalues()).order_by(key)
 
     def filter(self, *args, **kwargs):
         #TODO: Implement caching
-        return PageSet(self._pages.itervalues()).filter(*args, **kwargs)
+        return PageList(self._pages.itervalues()).filter(*args, **kwargs)
 
     def exclude(self, *args, **kwargs):
         """A negated filter."""

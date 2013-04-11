@@ -379,7 +379,7 @@ class TestFlatPages(unittest.TestCase):
                     'order/one', 'order/two', 'order/three']))
 
 
-class TestPageSet(unittest.TestCase):
+class TestPageList(unittest.TestCase):
     def test_order_by(self):
         pages = FlatPages(Flask(__name__))
         asc = pages.order_by('created')
