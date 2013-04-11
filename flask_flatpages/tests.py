@@ -95,7 +95,8 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEquals(
             set(page.path for page in pages),
-            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
+            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello',
+                'order/one', 'order/two', 'order/three'])
         )
 
     def test_get(self):
@@ -367,17 +368,90 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages(app) as pages:
             self.assertEquals(
                 set(p.path for p in pages),
-                set(['foo/bar',
-                     'foo/lorem/ipsum',
-                     'foo',
-                     'headerid',
-                     'hello']))
+                set(['foo/bar', 'foo/lorem/ipsum', 'foo', 'headerid', 'hello',
+                    'order/one', 'order/two', 'order/three']))
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
             self.assertEquals(
-                set(safe_unicode(p.path for p in pages)),
-                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
+                set(p.path for p in pages),
+                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé',
+                    'order/one', 'order/two', 'order/three']))
+
+
+class TestPageList(unittest.TestCase):
+    def test_order_by(self):
+        pages = FlatPages(Flask(__name__))
+        asc = pages.order_by('created')
+        self.assertEquals(
+            [p.path for p in asc[4:]],
+            ['order/one', 'foo', 'order/two', u'order/three'])
+        desc = pages.order_by('-created')
+        self.assertEquals(
+            [p.path for p in desc[:4]],
+            ['order/three', 'order/two', 'foo', u'order/one'])
+
+    def test_filter(self):
+        pages = FlatPages(Flask(__name__))
+
+        simple = pages.filter(title='Three')[0]
+        self.assertEquals(simple.title, 'Three')
+
+        dt = datetime.datetime.strptime('2009-05-11', '%Y-%m-%d').date()
+        multi = pages.filter(title='One', created=dt)[0]
+        self.assertEquals(multi.title, 'One')
+
+        exists = pages.filter(title__exists=True)
+        self.assertEquals(
+            set(p.title for p in exists),
+            set(['One', u'世界', 'Two', 'Foo > bar', 'Three',
+                'Markdown Header ID extension']))
+
+        cont1 = pages.filter(tags__contains='politics')[0]
+        self.assertEquals(cont1.title, 'One')
+        cont2 = pages.filter(tags__contains='real life')[0]
+        self.assertEquals(cont2.title, 'Three')
+        num = pages.filter(tags__contains=183)[0]
+        self.assertEquals(num.title, 'Three')
+        missing = pages.filter(tags__contains='tag')
+        self.assertEquals(missing, [])
+
+        iexact = pages.filter(title__iexact='thReE')[0]
+        self.assertEquals(iexact.title, 'Three')
+        icont = pages.filter(tags__icontains='FUnny')[0]
+        self.assertEquals(icont.title, 'One')
+        missing2 = pages.filter(tags__icontains=183)
+        self.assertEquals(missing2, [])
+        self.assertRaises(ValueError, pages.filter, title__noop=True)
+
+        filt_in = pages.filter(title__in=['One', 'Two', 'Three'])
+        self.assertEquals(
+            set(p.title for p in filt_in),
+            set(['One', 'Two', 'Three']))
+
+        body = pages.filter(body__icontains='foo')[0]
+        self.assertEquals(body.title, 'Foo > bar')
+
+        sw = pages.filter(title__startswith='T')
+        self.assertEquals(
+            set(p.title for p in sw),
+            set(['Two', 'Three']))
+
+        isw = pages.filter(body__istartswith='page')
+        self.assertEquals(
+            set(p.title for p in isw),
+            set(['One', 'Two', 'Three']))
+
+        bsw = pages.filter(tags__startswith='article')
+        self.assertEquals(bsw, [])
+
+    def test_chaining(self):
+        pages = FlatPages(Flask(__name__))
+        chain = pages.filter(title__exists=True).filter(
+                created__exists=True).order_by('-created')
+        self.assertEquals(
+            set(p.title for p in chain),
+            set(['Three', 'Two', 'Foo > bar', 'One']))
 
 
 if __name__ == '__main__':
