@@ -19,8 +19,6 @@ import unittest
 
 from contextlib import contextmanager
 
-import jinja2
-
 from flask import Flask
 from flask_flatpages import FlatPages, pygments_style_defs
 from werkzeug.exceptions import NotFound
@@ -154,7 +152,7 @@ class TestFlatPages(unittest.TestCase):
         self._unicode(pages)
 
     def test_other_html_renderer(self):
-        def hello_renderer(body, pages):
+        def hello_renderer(body):
             return pages.get('hello').body.upper()
 
         for renderer in (unicode.upper, 'string.upper', hello_renderer):
@@ -184,7 +182,7 @@ class TestFlatPages(unittest.TestCase):
             u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
         )
 
-        pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+        pages.app.config['FLATPAGES_HTML_RENDERER'].markdown_extensions = [
             'codehilite', 'headerid'
         ]
         pages.reload()
