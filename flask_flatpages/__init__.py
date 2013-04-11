@@ -173,20 +173,18 @@ class PageList(list):
     def filter(self, negate=False, *args, **kwargs):
         """Returns pages matching the specified filters.
 
-        So far it only works on the metadata fields, not the body.
-
         The syntax follows Django's conventions, where operators are
         indicated using '__' (``meta_field_name``__``operator``=``value``).
-        >>> pages.filter(created__isnull=False)
+        >>> pages.filter(created__exists=True)
 
         Unlike Django, however, additional kwargs are joined using
         OR instead of AND.
         This would return pages where the 'created' field exists
         *OR* the title is 'Hello'.
-        >>> pages.filter(created__isnull=False, title='Hello')
+        >>> pages.filter(created__exists=True, title='Hello')
 
         If you want to AND, just chain multiple filter()s together.
-        >>> pages.filter(created__isnull=False).filter(title='Hello')
+        >>> pages.filter(created__exists=True).filter(title='Hello')
         """
         _filters = []
         filtered = PageList()
