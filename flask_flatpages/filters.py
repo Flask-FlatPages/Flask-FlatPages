@@ -3,8 +3,8 @@
 def exact(page, field, value):
     return getattr(page, field) == value
 
-def isnull(page, field, value):
-    return (getattr(page, field) == None) == value
+def exists(page, field, value):
+    return (getattr(page, field) != None) == value
 
 def contains(page, field, value):
     return value in (getattr(page, field) or [])
