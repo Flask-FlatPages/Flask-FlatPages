@@ -95,7 +95,7 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEquals(
             set(page.path for page in pages),
-            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
+            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello', '2012-08-09-foo-bar'])
         )
 
     def test_get(self):
@@ -125,6 +125,42 @@ class TestFlatPages(unittest.TestCase):
         self.assertEquals(foo['title'], 'Foo > bar')
         self.assertEquals(foo['created'], datetime.date(2010, 12, 11))
         self.assertEquals(foo['versions'], [3.14, 42])
+        self.assertRaises(KeyError, lambda: foo['nonexistent'])
+
+    def test_yaml_and_path_info_meta(self):
+
+        def name_parser(name):
+            #parses name in "yyyy-mm-dd-name-of-file-format"
+            info = {}
+            try:
+                year, month, day = name.split('-')[:3]
+                info['year'] = year
+                info['month'] = month
+                info['day'] = day
+                info['date'] = datetime.date(int(year), int(month), int(day))
+            except Exception:
+                return None
+
+            return info
+
+        pages = FlatPages(Flask(__name__), path_info_callback=name_parser)
+        foo = pages.get('2012-08-09-foo-bar')
+        self.assertEquals(foo.meta, {
+            'title': 'Foo > bar',
+            'created': datetime.date(2010, 12, 11),
+            'versions': [3.14, 42],
+            'year': '2012',
+            'month': '08',
+            'day': '09',
+            'date': datetime.date(2012, 8, 9)
+        })
+        self.assertEquals(foo['title'], 'Foo > bar')
+        self.assertEquals(foo['created'], datetime.date(2010, 12, 11))
+        self.assertEquals(foo['versions'], [3.14, 42])
+        self.assertEquals(foo['year'], '2012')
+        self.assertEquals(foo['month'], '08')
+        self.assertEquals(foo['day'], '09')
+        self.assertEquals(foo['date'], datetime.date(2012, 8, 9))
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
 
     def test_markdown(self):
@@ -371,13 +407,14 @@ class TestFlatPages(unittest.TestCase):
                      'foo/lorem/ipsum',
                      'foo',
                      'headerid',
-                     'hello']))
+                     'hello',
+                     '2012-08-09-foo-bar']))
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
             self.assertEquals(
                 set(safe_unicode(p.path for p in pages)),
-                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
+                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé', u'2012-08-09-foo-bar']))
 
 
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ class Page(object):
 
     Main purpose to render pages content with ``html_renderer`` function.
     """
-    def __init__(self, path, meta_yaml, body, html_renderer):
+    def __init__(self, path, meta_yaml, body, html_renderer, path_info=None):
         """
         Initialize Page instance.
 
@@ -98,6 +98,7 @@ class Page(object):
         self._meta_yaml = meta_yaml
         self.body = body
         self.html_renderer = html_renderer
+        self.path_info = path_info
 
     def __getitem__(self, name):
         """Shortcut for accessing metadata.
@@ -129,17 +130,24 @@ class Page(object):
     def meta(self):
         """A dict of metadata parsed as YAML from the header of the file.
         """
+        path_info = self.path_info
         meta = yaml.safe_load(self._meta_yaml)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None
         #     yaml.safe_load('- 1\n- a') -> [1, 'a']
-        if not meta:
+        if not meta and not path_info:
             return {}
+
         if not isinstance(meta, dict):
             raise ValueError(
                 "Excpected a dict in metadata for '%s', got %s" %
                 (self.path, type(meta).__name__)
             )
+
+        if path_info:
+            for key, value in path_info.iteritems():
+                meta[key] = value
+
         return meta
 
 
@@ -156,7 +164,7 @@ class FlatPages(object):
         ('auto_reload', 'if debug'),
     )
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, path_info_callback=None):
         """Initialize FlatPages extension.
 
         :param app: your application. Can be omited if you call
@@ -167,14 +175,14 @@ class FlatPages(object):
         self._file_cache = {}
 
         if app:
-            self.init_app(app)
+            self.init_app(app, path_info_callback)
 
     def __iter__(self):
         """Iterate on all :class:`Page` objects.
         """
         return self._pages.itervalues()
 
-    def init_app(self, app):
+    def init_app(self, app, path_info_callback=None):
         """Used to initialize an application, useful for passing an app later
         and app factory patterns.
 
@@ -185,6 +193,9 @@ class FlatPages(object):
         for key, value in self.default_config:
             config_key = 'FLATPAGES_%s' % key.upper()
             app.config.setdefault(config_key, value)
+
+        # 
+        self.path_info = path_info_callback
 
         # Register function to forget all pages if necessary
         app.before_request(self._conditional_auto_reset)
@@ -249,7 +260,7 @@ class FlatPages(object):
         if auto:
             self.reload()
 
-    def _load_file(self, path, filename):
+    def _load_file(self, path, filename, name_without_extension):
         """Load file from file system and put it to cached dict as
         :class:`Path` and `mtime` tuple.
         """
@@ -260,7 +271,7 @@ class FlatPages(object):
         else:
             with open(filename) as fd:
                 content = fd.read().decode(self.config('encoding'))
-            page = self._parse(content, path)
+            page = self._parse(content, path, name_without_extension)
             self._file_cache[filename] = page, mtime
         return page
 
@@ -281,7 +292,7 @@ class FlatPages(object):
                 elif name.endswith(extension):
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
-                    pages[path] = self._load_file(path, full_name)
+                    pages[path] = self._load_file(path, full_name, name_without_extension)
 
         extension = self.config('extension')
         pages = {}
@@ -291,7 +302,7 @@ class FlatPages(object):
 
         return pages
 
-    def _parse(self, string, path):
+    def _parse(self, string, path, name_without_extension):
         """Parse flatpage file with reading meta data and body from it.
 
         :return: initialized :class:`Page` instance.
@@ -309,7 +320,12 @@ class FlatPages(object):
             html_renderer = werkzeug.import_string(html_renderer)
 
         html_renderer = self._smart_html_renderer(html_renderer)
-        return Page(path, meta, content, html_renderer)
+        if not self.path_info:
+            return Page(path, meta, content, html_renderer)
+        
+        path_info = self.path_info(name_without_extension)
+        return Page(path, meta, content, html_renderer, path_info)
+
 
     def _smart_html_renderer(self, html_renderer):
         """As of 0.4 version we support passing :class:`FlatPages` instance to
