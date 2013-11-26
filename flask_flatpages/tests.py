@@ -15,7 +15,11 @@ import shutil
 import sys
 import tempfile
 import unicodedata
-import unittest
+if sys.version < '2.7':
+    import unittest2 as unittest
+else:
+    import unittest
+
 
 
 from contextlib import contextmanager
