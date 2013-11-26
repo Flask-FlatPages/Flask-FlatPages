@@ -11,6 +11,7 @@
 """
 
 from __future__ import with_statement
+from __future__ import unicode_literals
 
 import inspect
 import itertools
@@ -29,6 +30,16 @@ except ImportError:
 
 VERSION = '0.5'
 
+#helper function to handle unicode conversion for both 
+#python 2.x and 3.x
+import sys
+PY_VERSION = sys.version
+if PY_VERSION < '3' :
+    def u(x):
+        return unicode(x)
+else:
+    def u(x):
+        return str(x)
 
 def pygmented_markdown(text, flatpages=None):
     """Render Markdown text to HTML.
@@ -172,7 +183,10 @@ class FlatPages(object):
     def __iter__(self):
         """Iterate on all :class:`Page` objects.
         """
-        return self._pages.itervalues()
+        try:
+            return self._pages.itervalues()
+        except AttributeError:
+            return iter(self._pages.values())
 
     def init_app(self, app):
         """Used to initialize an application, useful for passing an app later
@@ -258,8 +272,12 @@ class FlatPages(object):
         if cached and cached[1] == mtime:
             page = cached[0]
         else:
-            with open(filename) as fd:
-                content = fd.read().decode(self.config('encoding'))
+            if PY_VERSION < '3':
+                with open(filename) as fd:
+                    content = fd.read().decode(self.config('encoding'))
+            else:
+                with open(filename, encoding=self.config('encoding')) as fd:
+                    content = fd.read()
             page = self._parse(content, path)
             self._file_cache[filename] = page, mtime
         return page
@@ -287,7 +305,7 @@ class FlatPages(object):
         pages = {}
 
         # Fail if the root is a non-ASCII byte string. Use Unicode.
-        _walk(unicode(self.root))
+        _walk(u(self.root))
 
         return pages
 
@@ -298,7 +316,10 @@ class FlatPages(object):
         """
         lines = iter(string.split(u'\n'))
         # Read lines until an empty line is encountered.
-        meta = u'\n'.join(itertools.takewhile(unicode.strip, lines))
+        if PY_VERSION < '3':
+            meta = u'\n'.join(itertools.takewhile(unicode.strip, lines))
+        else:
+            meta = '\n'.join(itertools.takewhile(str.strip, lines))
         # The rest is the content. `lines` is an iterator so it continues
         # where `itertools.takewhile` left it.
         content = u'\n'.join(lines)
