@@ -17,6 +17,7 @@ import tempfile
 import unicodedata
 import unittest
 
+
 from contextlib import contextmanager
 
 import jinja2
@@ -154,12 +155,16 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(app)
         self._unicode(pages)
 
-    @unittest.skipIf(sys.version >= '3', "test is only for python 2.x")
     def test_other_html_renderer(self):
         def hello_renderer(body, pages):
             return pages.get('hello').body.upper()
+
+        if sys.version < '3':
+            renderers = (unicode.upper, 'string.upper', hello_renderer)
+        else:
+            renderers = (str.upper, hello_renderer)
         
-        for renderer in (unicode.upper, 'string.upper', hello_renderer):
+        for renderer in (renderers):
             pages = FlatPages(Flask(__name__))
             pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
             hello = pages.get('hello')
@@ -167,19 +172,6 @@ class TestFlatPages(unittest.TestCase):
             # Upper-case, markdown not interpreted
             self.assertEqual(hello.html, u'HELLO, *世界*!\n')
     
-    @unittest.skipIf(sys.version < '3', "test is only for python 3.x")
-    def test_other_html_renderer(self):
-        def hello_renderer(body, pages):
-            return pages.get('hello').body.upper()
-        
-        for renderer in (str.upper, hello_renderer):
-            pages = FlatPages(Flask(__name__))
-            pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
-            hello = pages.get('hello')
-            self.assertEqual(hello.body, u'Hello, *世界*!\n')
-            # Upper-case, markdown not interpreted
-            self.assertEqual(hello.html, u'HELLO, *世界*!\n')
-
     def test_markdown_extensions(self):
         pages = FlatPages(Flask(__name__))
 
