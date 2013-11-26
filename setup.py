@@ -7,7 +7,12 @@ from setuptools import setup, find_packages
 
 ROOT = os.path.dirname(__file__)
 README = open(os.path.join(ROOT, 'README')).read()
-INIT_PY = open(os.path.join(ROOT, 'flask_flatpages', '__init__.py')).read()
+if sys.version < '3':
+    INIT_PY = open(os.path.join(ROOT, 'flask_flatpages', '__init__.py')).read()
+else:
+    INIT_PY = open(os.path.join(ROOT, 'flask_flatpages',
+                                '__init__.py'),encoding='utf-8').read()
+
 VERSION = re.search("VERSION = '([^']+)'", INIT_PY).group(1)
 
 
