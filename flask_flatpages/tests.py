@@ -26,6 +26,7 @@ from flask_flatpages import FlatPages, pygments_style_defs
 from werkzeug.exceptions import NotFound
 
 
+
 @contextmanager
 def temp_directory():
     """This context manager gives the path to a new temporary directory that
@@ -93,20 +94,20 @@ class TestFlatPages(unittest.TestCase):
 
     def test_iter(self):
         pages = FlatPages(Flask(__name__))
-        self.assertEquals(
+        self.assertEqual(
             set(page.path for page in pages),
             set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
         )
 
     def test_get(self):
         pages = FlatPages(Flask(__name__))
-        self.assertEquals(pages.get('foo/bar').path, 'foo/bar')
-        self.assertEquals(pages.get('nonexistent'), None)
-        self.assertEquals(pages.get('nonexistent', 42), 42)
+        self.assertEqual(pages.get('foo/bar').path, 'foo/bar')
+        self.assertEqual(pages.get('nonexistent'), None)
+        self.assertEqual(pages.get('nonexistent', 42), 42)
 
     def test_get_or_404(self):
         pages = FlatPages(Flask(__name__))
-        self.assertEquals(pages.get_or_404('foo/bar').path, 'foo/bar')
+        self.assertEqual(pages.get_or_404('foo/bar').path, 'foo/bar')
         self.assertRaises(NotFound, pages.get_or_404, 'nonexistent')
 
     def test_consistency(self):
@@ -117,30 +118,30 @@ class TestFlatPages(unittest.TestCase):
     def test_yaml_meta(self):
         pages = FlatPages(Flask(__name__))
         foo = pages.get('foo')
-        self.assertEquals(foo.meta, {
+        self.assertEqual(foo.meta, {
             'title': 'Foo > bar',
             'created': datetime.date(2010, 12, 11),
             'versions': [3.14, 42]
         })
-        self.assertEquals(foo['title'], 'Foo > bar')
-        self.assertEquals(foo['created'], datetime.date(2010, 12, 11))
-        self.assertEquals(foo['versions'], [3.14, 42])
+        self.assertEqual(foo['title'], 'Foo > bar')
+        self.assertEqual(foo['created'], datetime.date(2010, 12, 11))
+        self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
 
     def test_markdown(self):
         pages = FlatPages(Flask(__name__))
         foo = pages.get('foo')
-        self.assertEquals(foo.body, 'Foo *bar*\n')
-        self.assertEquals(foo.html, '<p>Foo <em>bar</em></p>')
+        self.assertEqual(foo.body, 'Foo *bar*\n')
+        self.assertEqual(foo.html, '<p>Foo <em>bar</em></p>')
 
     def _unicode(self, pages):
         hello = pages.get('hello')
-        self.assertEquals(hello.meta, {'title': u'世界',
+        self.assertEqual(hello.meta, {'title': u'世界',
                                        'template': 'article.html'})
-        self.assertEquals(hello['title'], u'世界')
-        self.assertEquals(hello.body, u'Hello, *世界*!\n')
+        self.assertEqual(hello['title'], u'世界')
+        self.assertEqual(hello.body, u'Hello, *世界*!\n')
         # Markdow
-        self.assertEquals(hello.html, u'<p>Hello, <em>世界</em>!</p>')
+        self.assertEqual(hello.html, u'<p>Hello, <em>世界</em>!</p>')
 
     def test_unicode(self):
         pages = FlatPages(Flask(__name__))
@@ -153,23 +154,37 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(app)
         self._unicode(pages)
 
+    @unittest.skipIf(sys.version >= '3', "test is only for python 2.x")
     def test_other_html_renderer(self):
         def hello_renderer(body, pages):
             return pages.get('hello').body.upper()
-
+        
         for renderer in (unicode.upper, 'string.upper', hello_renderer):
             pages = FlatPages(Flask(__name__))
             pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
             hello = pages.get('hello')
-            self.assertEquals(hello.body, u'Hello, *世界*!\n')
+            self.assertEqual(hello.body, u'Hello, *世界*!\n')
             # Upper-case, markdown not interpreted
-            self.assertEquals(hello.html, u'HELLO, *世界*!\n')
+            self.assertEqual(hello.html, u'HELLO, *世界*!\n')
+    
+    @unittest.skipIf(sys.version < '3', "test is only for python 3.x")
+    def test_other_html_renderer(self):
+        def hello_renderer(body, pages):
+            return pages.get('hello').body.upper()
+        
+        for renderer in (str.upper, hello_renderer):
+            pages = FlatPages(Flask(__name__))
+            pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
+            hello = pages.get('hello')
+            self.assertEqual(hello.body, u'Hello, *世界*!\n')
+            # Upper-case, markdown not interpreted
+            self.assertEqual(hello.html, u'HELLO, *世界*!\n')
 
     def test_markdown_extensions(self):
         pages = FlatPages(Flask(__name__))
 
         hello = pages.get('headerid')
-        self.assertEquals(
+        self.assertEqual(
             hello.html,
             u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
         )
@@ -179,7 +194,7 @@ class TestFlatPages(unittest.TestCase):
         pages._file_cache = {}
 
         hello = pages.get('headerid')
-        self.assertEquals(
+        self.assertEqual(
             hello.html,
             u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
         )
@@ -191,7 +206,7 @@ class TestFlatPages(unittest.TestCase):
         pages._file_cache = {}
 
         hello = pages.get('headerid')
-        self.assertEquals(
+        self.assertEqual(
             hello.html,
             u'<h1 id="page-header">Page Header</h1>\n'
             u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
@@ -202,7 +217,7 @@ class TestFlatPages(unittest.TestCase):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSION'] = '.txt'
         pages = FlatPages(app)
-        self.assertEquals(
+        self.assertEqual(
             set(page.path for page in pages),
             set(['not_a_page', 'foo/42/not_a_page'])
         )
@@ -211,8 +226,8 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages() as pages:
             bar = pages.get('foo/bar')
             # bar.html is normally empty
-            self.assertEquals(bar.meta, {})
-            self.assertEquals(bar.body, '')
+            self.assertEqual(bar.meta, {})
+            self.assertEqual(bar.body, '')
 
         with temp_pages() as pages:
             filename = os.path.join(pages.root, 'foo', 'bar.html')
@@ -221,15 +236,15 @@ class TestFlatPages(unittest.TestCase):
                 fd.write('a: b\n\nc')
             bar = pages.get('foo/bar')
             # bar was just loaded from the disk
-            self.assertEquals(bar.meta, {'a': 'b'})
-            self.assertEquals(bar.body, 'c')
+            self.assertEqual(bar.meta, {'a': 'b'})
+            self.assertEqual(bar.body, 'c')
 
     def test_reloading(self):
         with temp_pages() as pages:
             bar = pages.get('foo/bar')
             # bar.html is normally empty
-            self.assertEquals(bar.meta, {})
-            self.assertEquals(bar.body, '')
+            self.assertEqual(bar.meta, {})
+            self.assertEqual(bar.body, '')
 
             filename = os.path.join(pages.root, 'foo', 'bar.html')
             # rewrite already loaded page
@@ -240,9 +255,9 @@ class TestFlatPages(unittest.TestCase):
 
             bar2 = pages.get('foo/bar')
             # the disk is not hit again until requested
-            self.assertEquals(bar2.meta, {})
-            self.assertEquals(bar2.body, '')
-            self.assert_(bar2 is bar)
+            self.assertEqual(bar2.meta, {})
+            self.assertEqual(bar2.body, '')
+            self.assertTrue(bar2 is bar)
 
             # request reloading
             pages.reload()
@@ -260,23 +275,23 @@ class TestFlatPages(unittest.TestCase):
 
             # All pages are read at once when any is used
             bar3 = pages.get('foo/bar')
-            self.assertEquals(bar3.meta, {})
-            self.assertEquals(bar3.body, 'second rewrite')  # not third
+            self.assertEqual(bar3.meta, {})
+            self.assertEqual(bar3.body, 'second rewrite')  # not third
             # Page objects are not reused when a file is re-read.
-            self.assert_(bar3 is not bar2)
+            self.assertTrue(bar3 is not bar2)
 
             # Removing does not trigger reloading either
             os.remove(filename)
 
             bar4 = pages.get('foo/bar')
-            self.assertEquals(bar4.meta, {})
-            self.assertEquals(bar4.body, 'second rewrite')
-            self.assert_(bar4 is bar3)
+            self.assertEqual(bar4.meta, {})
+            self.assertEqual(bar4.body, 'second rewrite')
+            self.assertTrue(bar4 is bar3)
 
             pages.reload()
 
             bar5 = pages.get('foo/bar')
-            self.assert_(bar5 is None)
+            self.assertTrue(bar5 is None)
 
     def test_caching(self):
         with temp_pages() as pages:
@@ -294,13 +309,13 @@ class TestFlatPages(unittest.TestCase):
 
             # Page objects are cached and unmodified files (according to the
             # modification date) are not parsed again.
-            self.assert_(foo2 is foo)
-            self.assert_(bar2 is not bar)
-            self.assert_(bar2.body != bar.body)
+            self.assertTrue(foo2 is foo)
+            self.assertTrue(bar2 is not bar)
+            self.assertTrue(bar2.body != bar.body)
 
     def assert_no_auto_reset(self, pages):
         bar = pages.get('foo/bar')
-        self.assertEquals(bar.body, '')
+        self.assertEqual(bar.body, '')
 
         filename = os.path.join(pages.root, 'foo', 'bar.html')
         with open(filename, 'w') as fd:
@@ -312,12 +327,12 @@ class TestFlatPages(unittest.TestCase):
 
         # not updated
         bar2 = pages.get('foo/bar')
-        self.assertEquals(bar2.body, '')
-        self.assert_(bar2 is bar)
+        self.assertEqual(bar2.body, '')
+        self.assertTrue(bar2 is bar)
 
     def assert_auto_reset(self, pages):
         bar = pages.get('foo/bar')
-        self.assertEquals(bar.body, '')
+        self.assertEqual(bar.body, '')
 
         filename = os.path.join(pages.root, 'foo', 'bar.html')
         with open(filename, 'w') as fd:
@@ -330,8 +345,8 @@ class TestFlatPages(unittest.TestCase):
 
         # updated
         bar2 = pages.get('foo/bar')
-        self.assertEquals(bar2.body, 'rewritten')
-        self.assert_(bar2 is not bar)
+        self.assertEqual(bar2.body, 'rewritten')
+        self.assertTrue(bar2 is not bar)
 
     def test_default_no_auto_reset(self):
         with temp_pages() as pages:
@@ -365,7 +380,7 @@ class TestFlatPages(unittest.TestCase):
 
         app = Flask(__name__)
         with temp_pages(app) as pages:
-            self.assertEquals(
+            self.assertEqual(
                 set(p.path for p in pages),
                 set(['foo/bar',
                      'foo/lorem/ipsum',
@@ -375,7 +390,7 @@ class TestFlatPages(unittest.TestCase):
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
-            self.assertEquals(
+            self.assertEqual(
                 set(safe_unicode(p.path for p in pages)),
                 set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
 
