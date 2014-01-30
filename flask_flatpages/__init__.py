@@ -123,7 +123,7 @@ class Page(object):
         """The content of the page, rendered as HTML by the configured
         renderer.
         """
-        return self.html_renderer(self.body)
+        return self.html_renderer(self.body, self)
 
     @werkzeug.cached_property
     def meta(self):
@@ -320,7 +320,7 @@ class FlatPages(object):
 
         .. versionadded:: 0.4
         """
-        def wrapper(body):
+        def wrapper(body, page):
             """Simple wrapper to inspect HTML renderer function and if it has
             two arguments and second argument named ``extensions``, pass
             ``FLATPAGES_MARKDOWN_EXTENSIONS`` as second argument to function.
@@ -337,6 +337,8 @@ class FlatPages(object):
                 return html_renderer(body)
             elif len(spec_args) == 2:
                 return html_renderer(body, self)
+            elif len(spec_args) == 3:
+                return html_renderer(body, self, page)
 
             raise ValueError(
                 'HTML renderer function {!r} not supported by Flask-FlatPages,'
