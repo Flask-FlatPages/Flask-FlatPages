@@ -2,6 +2,12 @@
 Flask-FlatPages
 ===============
 
+.. image:: https://secure.travis-ci.org/SimonSapin/Flask-FlatPages.png?branch=master
+    :target: https://travis-ci.org/SimonSapin/Flask-FlatPages
+
+.. image:: https://pypip.in/v/Flask-FlatPages/badge.png
+    :target: https://pypi.python.org/pypi/Flask-FlatPages
+
 Provides flat static pages to a Flask_ application, based on text files
 as opposed to a relationnal database.
 
