@@ -282,6 +282,24 @@ class FlatPages(object):
             self._file_cache[filename] = page, mtime
         return page
 
+    def load_subs(self, path):
+        """Load all files (recursively) in a sub-directory.
+            :path: is a relative path from inside ``FLATPAGES_ROOT``.
+        """
+        subs = []
+        extension = self.config('extension') 
+        subdir = os.path.join(self.root, path)
+    
+        for name in os.listdir(subdir):
+            full_name = os.path.join(subdir, name)    
+            if os.path.isdir(full_name):            
+                self.load_subs(full_name)
+            else:
+                no_ext = full_name[:-len(extension)]
+                page = self._load_file(no_ext, full_name)
+                subs.append(page)
+        return subs
+
     @werkzeug.cached_property
     def _pages(self):
         """Walk the page root directory an return a dict of unicode path:
