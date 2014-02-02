@@ -7,7 +7,12 @@ from setuptools import setup, find_packages
 
 ROOT = os.path.dirname(__file__)
 README = open(os.path.join(ROOT, 'README')).read()
-INIT_PY = open(os.path.join(ROOT, 'flask_flatpages', '__init__.py')).read()
+if sys.version < '3':
+    INIT_PY = open(os.path.join(ROOT, 'flask_flatpages', '__init__.py')).read()
+else:
+    INIT_PY = open(os.path.join(ROOT, 'flask_flatpages',
+                                '__init__.py'),encoding='utf-8').read()
+
 VERSION = re.search("VERSION = '([^']+)'", INIT_PY).group(1)
 
 
@@ -29,11 +34,7 @@ setup(
     install_requires=[
         'Flask',
         'PyYAML',
-        # Markdown 2.2.0 is broken on Python 2.5:
-        # https://github.com/waylan/Python-Markdown/issues/113
-        # Change this back to just "Markdown" when a fix for this
-        # is released on PyPI.
-        'Markdown' if sys.version_info >= (2, 6) else 'Markdown==2.1.1',
+        'Markdown' 
     ],
     tests_require=['Pygments'],
     extras_require={
@@ -48,8 +49,9 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
     ]
 )
