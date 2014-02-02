@@ -2,18 +2,15 @@ import os
 import re
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
-ROOT = os.path.dirname(__file__)
-README = open(os.path.join(ROOT, 'README')).read()
-if sys.version < '3':
-    INIT_PY = open(os.path.join(ROOT, 'flask_flatpages', '__init__.py')).read()
-else:
-    INIT_PY = open(os.path.join(ROOT, 'flask_flatpages',
-                                '__init__.py'),encoding='utf-8').read()
+DIRNAME = os.path.abspath(os.path.dirname(__file__))
+rel = lambda *parts: os.path.abspath(os.path.join(DIRNAME, *parts))
 
-VERSION = re.search("VERSION = '([^']+)'", INIT_PY).group(1)
+README = open(rel('README.rst')).read()
+INIT_PY = open(rel('flask_flatpages', '__init__.py')).read()
+VERSION = re.search("__version__ = '([^']+)'", INIT_PY).group(1)
 
 
 setup(
@@ -25,20 +22,19 @@ setup(
     author_email='simon.sapin@exyr.org',
     description='Provides flat static pages to a Flask application',
     long_description=README,
-    packages=find_packages(),
-    # test pages
-    package_data={'': ['pages*/*.*', 'pages/*/*.*', 'pages/*/*/*.*']},
-    test_suite='flask_flatpages.tests',
+    packages=[
+        'flask_flatpages'
+    ],
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'Flask',
-        'PyYAML',
-        'Markdown' 
+        'Flask>=0.8',
+        'PyYAML>=3.10',
+        'Markdown>=2.3.1'
     ],
-    tests_require=['Pygments'],
+    tests_require=['Pygments>=1.6'],
     extras_require={
-        'tests': ['Pygments'],
+        'tests': ['Pygments>=1.6'],
     },
     classifiers=[
         'Environment :: Web Environment',
@@ -53,5 +49,6 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: Implementation :: PyPy',
     ]
 )
