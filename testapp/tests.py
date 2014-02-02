@@ -7,9 +7,8 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import with_statement
-
 import datetime
+import operator
 import os
 import shutil
 import sys
@@ -17,16 +16,11 @@ import tempfile
 import unicodedata
 import unittest
 
-
-
 from contextlib import contextmanager
 
-import jinja2
-
 from flask import Flask
-from flask_flatpages import FlatPages, pygments_style_defs
+from flask.ext.flatpages import FlatPages, compat, pygments_style_defs
 from werkzeug.exceptions import NotFound
-
 
 
 @contextmanager
@@ -139,10 +133,10 @@ class TestFlatPages(unittest.TestCase):
     def _unicode(self, pages):
         hello = pages.get('hello')
         self.assertEqual(hello.meta, {'title': u'世界',
-                                       'template': 'article.html'})
+                                      'template': 'article.html'})
         self.assertEqual(hello['title'], u'世界')
         self.assertEqual(hello.body, u'Hello, *世界*!\n')
-        # Markdow
+        # Markdown
         self.assertEqual(hello.html, u'<p>Hello, <em>世界</em>!</p>')
 
     def test_unicode(self):
@@ -157,14 +151,23 @@ class TestFlatPages(unittest.TestCase):
         self._unicode(pages)
 
     def test_other_html_renderer(self):
-        def hello_renderer(body, pages):
+        def body_renderer(body):
+            return body.upper()
+
+        def page_renderer(body, pages, page):
+            return page.body.upper()
+
+        def pages_renderer(body, pages):
             return pages.get('hello').body.upper()
 
-        if sys.version < '3':
-            renderers = (unicode.upper, 'string.upper', hello_renderer)
-        else:
-            renderers = (str.upper, hello_renderer)
-        
+        renderers = filter(None, (
+            operator.methodcaller('upper'),
+            'string.upper' if not compat.IS_PY3 else None,
+            body_renderer,
+            page_renderer,
+            pages_renderer
+        ))
+
         for renderer in (renderers):
             pages = FlatPages(Flask(__name__))
             pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
@@ -172,7 +175,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(hello.body, u'Hello, *世界*!\n')
             # Upper-case, markdown not interpreted
             self.assertEqual(hello.html, u'HELLO, *世界*!\n')
-    
+
     def test_markdown_extensions(self):
         pages = FlatPages(Flask(__name__))
 
