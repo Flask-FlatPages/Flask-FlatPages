@@ -1,52 +1,42 @@
+==================
 Developer’s How To
 ==================
 
 Tools
------
+=====
 
-Optinal, for testing:
+Optional, for testing:
 
-    $ pip install pytest pytest-cov
+    $ pip install -r testapp/requirements.txt
 
 For releasing:
 
-    $ pip install tox Sphinx Sphinx-PyPI-upload
-
+    $ pip install Sphinx Sphinx-PyPI-upload tox
 
 Running tests
--------------
+=============
 
-Either one of:
+Just:
 
-    $ python -m flask_flatpages.tests
-    $ py.test
-    $ py.test --cov flask_flatpages --cov-report term-missing
-
-pytest gives debugging help, integration with coverage, etc.
-Other testing frameworks should work too.
-
+    $ make -C testapp/ test
 
 Making a new release
---------------------
+====================
 
 * Update check MANIFEST.in and package_data in setup.py if non-Python files
   were added.
 * Update install_requires in setup.py if dependencies changed.
-* Check that tests pass in all supported Python versions (2.5, 2.6 and 2.7;
+* Check that tests pass in all supported Python versions (2.6, 2.7 and 3.3;
   PyPY if you like.) tox can do this automatically, assuming that the
   interpreters are installed:
 
       $ tox
 
-* Bump the version number in flask_flatpages/__init__.py
+* Bump the version number in flask_flatpages.py
 * Update the docs and changelog in docs/index.rst
 * Rebuild the docs, check that _build/html/index.html looks good:
 
       $ python setup.py build_sphinx
-
-* Upload the docs to PyPI:
-
-      $ python setup.py
 
 * Make and upload the release archive:
 
@@ -54,6 +44,6 @@ Making a new release
 
 * Tag the release and push to GitHub:
 
-      $ git tag v0.X  # Same version number as in flask_flatpages/__init__.py
+      $ git tag v0.X  # Same version number as in flask_flatpages.py
       $ git push
       $ git push --tags

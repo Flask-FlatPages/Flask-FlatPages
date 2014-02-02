@@ -1,5 +1,6 @@
+===============
 Flask-FlatPages
----------------
+===============
 
 Provides flat static pages to a Flask_ application, based on text files
 as opposed to a relationnal database.
