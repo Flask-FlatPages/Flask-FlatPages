@@ -1,9 +1,24 @@
 language: python
-
 python:
-  - "2.5"
-  - "2.6"
-  - "2.7"
-  - "pypy"
-
-script: python setup.py test
+  - 2.6
+  - 2.7
+  - 3.3
+  - pypy
+env:
+  - FLASK_VERSION=0.8
+  - FLASK_VERSION=0.9
+  - FLASK_VERSION=0.10.1
+install:
+  - pip install -r testapp/requirements.txt
+  - pip install -I Flask==$FLASK_VERSION
+  -
+script:
+  - PYTHONPATH=. make -C testapp/ test
+matrix:
+  allow_failures:
+    - python: pypy
+  exclude:
+    - python: 3.3
+      env: FLASK_VERSION=0.8
+    - python: 3.3
+      env: FLASK_VERSION=0.9

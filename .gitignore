@@ -1,8 +1,11 @@
 *.py[co]
 *.egg
 *.egg-info
+
+/build
 /dist
-/env*
 /docs/_build
 /.tox
-/.coverage
+
+env*
+.coverage
