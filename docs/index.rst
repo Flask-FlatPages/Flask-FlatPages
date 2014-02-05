@@ -91,6 +91,16 @@ are optional.
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
     for more details.  The default is to reload in ``DEBUG`` mode only.
 
+Please note that multiple FlatPages instances can be configured by using a
+name for the FlatPages instance at initializaton time:
+
+.. code-block:: python
+
+   flatpages = FlatPages(name="blog")
+
+To configure this instance, you must use modified configuration keys, by adding
+the uppercase name to the configuration variable names: ``FLATPAGES_BLOG_*``
+
 How it works
 ------------
 
