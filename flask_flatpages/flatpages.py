@@ -34,13 +34,27 @@ class FlatPages(object):
         ('auto_reload', 'if debug'),
     )
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, name=None):
         """Initialize FlatPages extension.
 
         :param app: Your application. Can be omited if you call
                     :meth:`init_app` later.
         :type app: Flask instance
+        :param name: The name for this flatpages instance. Used for looking
+                    up config values using
+                        'FLATPAGES_%s_%s' % (name.upper(), key)
+                    By default behaviour, no name is used, so configuration is
+                    done by specifying config values using
+                        'FLATPAGES_%s' % (key)
+                    Typically, you only need to set this parameter if you
+                    want to use multiple FlatPages instances within the same
+                    Flask application.
+        :type name: string
         """
+        if name is None:
+            self.config_prefix = 'FLATPAGES'
+        else:
+            self.config_prefix = '_'.join(('FLATPAGES', name.upper()))
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
 
@@ -57,7 +71,7 @@ class FlatPages(object):
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
-        return self.app.config['FLATPAGES_%s' % key.upper()]
+        return self.app.config['_'.join((self.config_prefix, key.upper()))]
 
     def get(self, path, default=None):
         """Returns the :class:`Page` object at ``path``, or ``default`` if
@@ -88,7 +102,7 @@ class FlatPages(object):
         """
         # Store default config to application
         for key, value in self.default_config:
-            config_key = 'FLATPAGES_%s' % key.upper()
+            config_key = '_'.join((self.config_prefix, key.upper()))
             app.config.setdefault(config_key, value)
 
         # Register function to forget all pages if necessary
@@ -115,8 +129,8 @@ class FlatPages(object):
     def root(self):
         """Full path to the directory where pages are looked for.
 
-        It is the `FLATPAGES_ROOT` config value, interpreted as relative to
-        the app root directory.
+        It is the `FLATPAGES_%(name)s_ROOT` config value, interpreted as
+        relative to the app root directory.
         """
         root_dir = os.path.join(self.app.root_path, self.config('root'))
         return force_unicode(root_dir)
@@ -161,7 +175,7 @@ class FlatPages(object):
         """
         def _walk(directory, path_prefix=()):
             """Walk over directory and find all possible flatpages, files which
-            ended with ``FLATPAGES_EXTENSION`` value.
+            ended with ``FLATPAGES_%(name)s_EXTENSION`` value.
             """
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
