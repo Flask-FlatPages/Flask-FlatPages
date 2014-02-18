@@ -13,9 +13,10 @@ from werkzeug.utils import cached_property
 
 
 class Page(object):
-    """Simple class to store all necessary information about flatpage.
+    """Simple class to store all necessary information about a flatpage.
 
-    Main purpose to render pages content with ``html_renderer`` function.
+    Main purpose is to render the page's content with a ``html_renderer``
+    function.
     """
     def __init__(self, path, meta, body, html_renderer):
         """

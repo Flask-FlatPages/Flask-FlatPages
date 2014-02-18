@@ -9,7 +9,7 @@ Flask-FlatPages
     :target: https://pypi.python.org/pypi/Flask-FlatPages
 
 Provides flat static pages to a Flask_ application, based on text files
-as opposed to a relationnal database.
+as opposed to a relational database.
 
 * BSD licensed
 * Latest documentation `on python.org`_
