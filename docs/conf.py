@@ -51,9 +51,9 @@ copyright = u'2010, Simon Sapin'
 #
 # The full version, including alpha/beta/rc tags.
 #release = '0.1dev'
-release = re.search("VERSION = '([^']+)'", open(os.path.join(
-    os.path.dirname(__file__), '..', 'flask_flatpages', '__init__.py'
-)).read()).group(1)
+release = re.search("__version__ = '([^']+)'", open(os.path.join(
+    os.path.dirname(__file__), '..', 'flask_flatpages', '__init__.py'))
+    .read()).group(1)
 
 # The short X.Y version.
 #version = '0.1'
