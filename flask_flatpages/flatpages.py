@@ -37,18 +37,18 @@ class FlatPages(object):
     def __init__(self, app=None, name=None):
         """Initialize FlatPages extension.
 
-        :param app: Your application. Can be omited if you call
+        :param app: Your application. Can be omitted if you call
                     :meth:`init_app` later.
-        :type app: Flask instance
-        :param name: The name for this flatpages instance. Used for looking
+        :type app: A :class:`~flask.Flask` instance
+        :param name: The name for this FlatPages instance. Used for looking
                     up config values using
                         'FLATPAGES_%s_%s' % (name.upper(), key)
                     By default behaviour, no name is used, so configuration is
                     done by specifying config values using
                         'FLATPAGES_%s' % (key)
                     Typically, you only need to set this parameter if you
-                    want to use multiple FlatPages instances within the same
-                    Flask application.
+                    want to use multiple :class:`FlatPages instances within the
+                    same Flask application.
         :type name: string
         """
         if name is None:
@@ -98,7 +98,7 @@ class FlatPages(object):
         and app factory patterns.
 
         :param app: your application
-        :type app: Flask instance
+        :type app: a :class:`~flask.Flask` instance
         """
         # Store default config to application
         for key, value in self.default_config:
@@ -129,8 +129,8 @@ class FlatPages(object):
     def root(self):
         """Full path to the directory where pages are looked for.
 
-        It is the `FLATPAGES_%(name)s_ROOT` config value, interpreted as
-        relative to the app root directory.
+        This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
+        interpreted as relative to the app's root directory.
         """
         root_dir = os.path.join(self.app.root_path, self.config('root'))
         return force_unicode(root_dir)
@@ -174,8 +174,8 @@ class FlatPages(object):
         page object.
         """
         def _walk(directory, path_prefix=()):
-            """Walk over directory and find all possible flatpages, files which
-            ended with ``FLATPAGES_%(name)s_EXTENSION`` value.
+            """Walk over directory and find all possible flatpages, i.e. files which
+            end with the string given by ``FLATPAGES_%(name)s_EXTENSION``.
             """
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
@@ -194,7 +194,7 @@ class FlatPages(object):
         return pages
 
     def _parse(self, content, path):
-        """Parse flatpage file with reading meta data and body from it.
+        """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
         """
@@ -220,22 +220,29 @@ class FlatPages(object):
         return Page(path, meta, content, html_renderer)
 
     def _smart_html_renderer(self, html_renderer):
-        """As of 0.4 version we support passing :class:`FlatPages` instance to
-        HTML renderer function.
+        """This wraps the rendering function in order to allow the use of
+        rendering functions with differing signatures.
 
-        So we need to inspect function args spec and if it supports two
-        arguments, pass ``self`` instance there.
-
-        .. versionadded:: 0.4
-
-        As of 0.6 version we support passing :class:`Page` instance to HTML
-        renderer function too, to make more robust renderers.
+        We stay backwards compatible by using reflection, i.e. we inspect the
+        given rendering function's signature in order to find out how many
+        arguments the function takes.
 
         .. versionchanged:: 0.6
+
+           Support for HTML renderer functions with signature
+           ``f(body, flatpages, page)``, where ``page`` is an instance of
+           :class:`Page`.
+
+        .. versionchanged:: 0.5
+
+           Support for HTML renderer functions with signature
+           ``f(body, flatpages)``, where ``flatpages`` is an instance of
+           :class:`FlatPages`.
+
         """
         def wrapper(page):
-            """Simple wrapper to inspect HTML renderer function and pass
-            arguments to it due to args length.
+            """Simple wrapper to inspect the HTML renderer function and pass
+            arguments to it based on the number of arguments.
 
             * 1 argument -> page body
             * 2 arguments -> page body, flatpages instance

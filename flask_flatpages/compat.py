@@ -3,7 +3,7 @@
 flask_flatpages.compat
 ======================
 
-Compatible module for support both of Python 2 and Python 3.
+Compatibility module for supporting both Python 2 and Python 3.
 
 """
 

@@ -13,6 +13,10 @@ For releasing:
 
     $ pip install Sphinx Sphinx-PyPI-upload tox
 
+Check out the Sphinx theme:
+
+    $ git submodule update --init --recursive
+
 Running tests
 =============
 

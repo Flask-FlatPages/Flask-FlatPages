@@ -1,7 +1,7 @@
 Flask-FlatPages
 ===============
 
-Flask-FlatPages provides a collections of pages to your `Flask`_ application.
+Flask-FlatPages provides a collection of pages to your `Flask`_ application.
 Pages are built from “flat” text files as opposed to a relational database.
 
 * BSD licensed
@@ -70,16 +70,24 @@ are optional.
     Encoding of the pages files. Defaults to ``utf8``.
 
 ``FLATPAGES_HTML_RENDERER``
-    Callable or import string for a callable that takes the unicode body of a
-    page, and return its HTML rendering as a unicode string. Defaults to
-    :func:`~.pygmented_markdown`.
+    Callable or import string for a callable that takes at least the unicode
+    body of a page, and return its HTML rendering as a unicode string. Defaults
+    to :func:`~.pygmented_markdown`.
+
+    .. versionchanged:: 0.6
+
+       Support for passing the :class:`~.Page` instance as third argument.
 
     .. versionchanged:: 0.5
 
-    Renderer function can take not only unicode body, but also
-    :class:`FlatPages` instance. This usable for implementing more robust
-    renderers which could depends to other installed Flask extensions, config
-    values etc.
+       Support for passing the :class:`~.FlatPages` instance as second
+       argument.
+
+    Renderer functions need to have at least one argument, the unicode body.
+    The use of either :class:`~FlatPages` as second argument or
+    :class:`~FlatPages` and :class:`Page` as second respective third argument
+    is optional, and allows for more advanced renderers.
+
 
 ``FLATPAGES_MARKDOWN_EXTENSIONS``
     .. versionadded:: 0.4
@@ -259,14 +267,21 @@ API
 Changelog
 ---------
 
+Version 0.6
+~~~~~~~~~~~
+
+* The renderer function now optionally takes a third argument, namely
+  the :class:`Page` instance.
+
+
 Version 0.5
 ~~~~~~~~~~~
 
 Released on 2013-04-02
 
 * Change behavior of passing ``FLATPAGES_MARKDOWN_EXTENSIONS`` to renderer
-  function, now whole :class:`FlatPages` instance passed as second argument,
-  this helps user provide more robust renderer functions.
+  function, now the :class:`FlatPages` instance is optionally passed as second
+  argument. This allows more robust renderer functions.
 
 
 Version 0.4

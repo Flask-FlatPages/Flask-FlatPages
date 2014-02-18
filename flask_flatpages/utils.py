@@ -25,14 +25,13 @@ def force_unicode(value, encoding='utf-8', errors='strict'):
 def pygmented_markdown(text, flatpages=None):
     """Render Markdown text to HTML.
 
-    Uses the `CodeHilite`_ extension only if `Pygments`_ is available. But if
-    `Pygments`_ no available removes "codehilite" from list of possible
+    Uses the `CodeHilite`_ extension only if `Pygments`_ is available. If
+    `Pygments`_ is not available, "codehilite" is removed from list of
     extensions.
 
-    If you need other extensions to use setup them to
-    ``FLATPAGES_MARKDOWN_EXTENSIONS`` list setting. Later whole
-    :class:`FlatPages` instance would be passed to your
-    ``FLATPAGES_HTML_RENDERER`` function as second argument.
+    If you need other extensions, set them up using the
+    ``FLATPAGES_MARKDOWN_EXTENSIONS`` setting, which should be a sequence
+    of strings.
 
     .. _CodeHilite:
        http://www.freewisdom.org/projects/python-markdown/CodeHilite
