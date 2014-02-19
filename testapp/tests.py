@@ -402,12 +402,14 @@ class TestFlatPages(unittest.TestCase):
         '''
         app = Flask(__name__)
         app.debug = True
-        app.config['FLATPAGES_AUTO_RELOAD'] = False
-        app.config['FLATPAGES_FUBAR_AUTO_RELOAD'] = True
+        app.config['FLATPAGES_DUMMY'] = True
+        app.config['FLATPAGES_FUBAR_DUMMY'] = False
         with temp_pages(app) as pages:
-            self.assert_no_auto_reset(pages)
+            self.assertEqual(pages.config('DUMMY'),
+                             app.config['FLATPAGES_DUMMY'])
         with temp_pages(app, 'fubar') as pages:
-            self.assert_auto_reset(pages)
+            self.assertEqual(pages.config('DUMMY'),
+                             app.config['FLATPAGES_FUBAR_DUMMY'])
 
 if __name__ == '__main__':
     unittest.main()
