@@ -51,7 +51,11 @@ def temp_pages(app=None, name=None):
         os.rmdir(temp)
         shutil.copytree(source, temp)
         app = app or Flask(__name__)
-        app.config['FLATPAGES_ROOT'] = temp
+        if name is None:
+            config_root = 'FLATPAGES_ROOT'
+        else:
+            config_root = 'FLATPAGES_%s_ROOT' % str(name)
+        app.config[config_root] = temp
         yield FlatPages(app, name)
 
 
