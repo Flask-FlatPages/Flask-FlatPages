@@ -272,6 +272,10 @@ Version 0.6
 
 * The renderer function now optionally takes a third argument, namely
   the :class:`Page` instance.
+* It is now possible to instantiate multiple instances of :class:`Flatpages`
+  with different configurations. This is done by specifying an additional
+  parameter ``name`` to the initializer and adding the same name in uppercase
+  to the respective Flask configuration settings.
 
 
 Version 0.5

@@ -43,13 +43,17 @@ class FlatPages(object):
         :param name: The name for this FlatPages instance. Used for looking
                     up config values using
                         'FLATPAGES_%s_%s' % (name.upper(), key)
-                    By default behaviour, no name is used, so configuration is
+                    By default, no name is used, so configuration is
                     done by specifying config values using
                         'FLATPAGES_%s' % (key)
                     Typically, you only need to set this parameter if you
                     want to use multiple :class:`FlatPages instances within the
                     same Flask application.
         :type name: string
+
+        .. versionchanged:: 0.6
+
+           New parameter `name` to support multiple FlatPages instances.
         """
         if name is None:
             self.config_prefix = 'FLATPAGES'
