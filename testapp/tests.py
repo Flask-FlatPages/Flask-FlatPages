@@ -54,7 +54,7 @@ def temp_pages(app=None, name=None):
         if name is None:
             config_root = 'FLATPAGES_ROOT'
         else:
-            config_root = 'FLATPAGES_%s_ROOT' % str(name.upper())
+            config_root = 'FLATPAGES_%s_ROOT' % str(name).upper()
         app.config[config_root] = temp
         yield FlatPages(app, name)
 
