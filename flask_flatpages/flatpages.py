@@ -174,8 +174,9 @@ class FlatPages(object):
         page object.
         """
         def _walk(directory, path_prefix=()):
-            """Walk over directory and find all possible flatpages, i.e. files which
-            end with the string given by ``FLATPAGES_%(name)s_EXTENSION``.
+            """Walk over directory and find all possible flatpages, i.e. files
+            which end with the string given by
+            `FLATPAGES_%(name)s_EXTENSION``.
             """
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
