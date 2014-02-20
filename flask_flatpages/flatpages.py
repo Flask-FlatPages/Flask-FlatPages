@@ -43,13 +43,17 @@ class FlatPages(object):
         :param name: The name for this FlatPages instance. Used for looking
                     up config values using
                         'FLATPAGES_%s_%s' % (name.upper(), key)
-                    By default behaviour, no name is used, so configuration is
+                    By default, no name is used, so configuration is
                     done by specifying config values using
                         'FLATPAGES_%s' % (key)
                     Typically, you only need to set this parameter if you
                     want to use multiple :class:`FlatPages instances within the
                     same Flask application.
         :type name: string
+
+        .. versionchanged:: 0.6
+
+           New parameter `name` to support multiple FlatPages instances.
         """
         if name is None:
             self.config_prefix = 'FLATPAGES'
@@ -174,8 +178,9 @@ class FlatPages(object):
         page object.
         """
         def _walk(directory, path_prefix=()):
-            """Walk over directory and find all possible flatpages, i.e. files which
-            end with the string given by ``FLATPAGES_%(name)s_EXTENSION``.
+            """Walk over directory and find all possible flatpages, i.e. files
+            which end with the string given by
+            `FLATPAGES_%(name)s_EXTENSION``.
             """
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)

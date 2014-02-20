@@ -36,7 +36,7 @@ def temp_directory():
 
 
 @contextmanager
-def temp_pages(app=None):
+def temp_pages(app=None, name=None):
     """This context manager gives a FlatPages object configured
     in a temporary directory with a copy of the test pages.
 
@@ -51,8 +51,12 @@ def temp_pages(app=None):
         os.rmdir(temp)
         shutil.copytree(source, temp)
         app = app or Flask(__name__)
-        app.config['FLATPAGES_ROOT'] = temp
-        yield FlatPages(app)
+        if name is None:
+            config_root = 'FLATPAGES_ROOT'
+        else:
+            config_root = 'FLATPAGES_%s_ROOT' % str(name).upper()
+        app.config[config_root] = temp
+        yield FlatPages(app, name)
 
 
 class TestTempDirectory(unittest.TestCase):
@@ -390,6 +394,22 @@ class TestFlatPages(unittest.TestCase):
                 set(safe_unicode(p.path for p in pages)),
                 set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
 
+    def test_multiple_instance(self):
+        '''
+        This does a very basic test to see if two instances of FlatPages,
+        one default instance and one with a name, do pick up the different
+        config settings.
+        '''
+        app = Flask(__name__)
+        app.debug = True
+        app.config['FLATPAGES_DUMMY'] = True
+        app.config['FLATPAGES_FUBAR_DUMMY'] = False
+        with temp_pages(app) as pages:
+            self.assertEqual(pages.config('DUMMY'),
+                             app.config['FLATPAGES_DUMMY'])
+        with temp_pages(app, 'fubar') as pages:
+            self.assertEqual(pages.config('DUMMY'),
+                             app.config['FLATPAGES_FUBAR_DUMMY'])
 
 if __name__ == '__main__':
     unittest.main()
