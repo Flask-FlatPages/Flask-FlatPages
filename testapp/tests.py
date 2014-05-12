@@ -293,6 +293,10 @@ class TestFlatPages(unittest.TestCase):
             bar5 = pages.get('foo/bar')
             self.assertTrue(bar5 is None)
 
+            # Reloading twice does not trigger an exception
+            pages.reload()
+            pages.reload()
+
     def test_caching(self):
         with temp_pages() as pages:
             foo = pages.get('foo')
