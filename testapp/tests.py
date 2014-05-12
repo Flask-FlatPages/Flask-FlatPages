@@ -417,5 +417,12 @@ class TestFlatPages(unittest.TestCase):
             pages._is_excluded = lambda page: True
             self.assertEqual(pages.get('foo/bar'), None)
 
+    def test_process(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            pages._process = lambda page: 123
+            self.assertEqual(pages.get('foo/bar'), 123)
+            self.assertEqual(pages.get('nonexistent'), None)
+
 if __name__ == '__main__':
     unittest.main()

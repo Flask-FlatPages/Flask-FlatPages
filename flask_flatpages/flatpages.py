@@ -192,7 +192,7 @@ class FlatPages(object):
                     path = u'/'.join(path_prefix + (name_without_extension, ))
                     page = self._load_file(path, full_name)
                     if not self._is_excluded(page):
-                        pages[path] = page
+                        pages[path] = self._process(page)
 
         extension = self.config('extension')
         pages = {}
@@ -207,6 +207,17 @@ class FlatPages(object):
         to exclude pages based on arbitrary rules.
         """
         return False
+
+    def _process(self, page):
+        """Process a :class:`Page` object directly after loading.
+
+        By default, this does not modify the page. It can be used by subclasses
+        to process the page directly after loading. This is executed after
+        :function:`_is_excluded`.
+
+        :return: processed version of :param:`page`
+        """
+        return page
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
