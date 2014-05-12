@@ -190,13 +190,23 @@ class FlatPages(object):
                 elif name.endswith(extension):
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
-                    pages[path] = self._load_file(path, full_name)
+                    page = self._load_file(path, full_name)
+                    if not self._is_excluded(page):
+                        pages[path] = page
 
         extension = self.config('extension')
         pages = {}
 
         _walk(self.root)
         return pages
+
+    def _is_excluded(self, page):
+        """Check whether a :class:`Page` object should be excluded.
+
+        By default, this always returns ``False``. It can be used by subclasses
+        to exclude pages based on arbitrary rules.
+        """
+        return False
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.

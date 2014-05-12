@@ -411,5 +411,11 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(pages.config('DUMMY'),
                              app.config['FLATPAGES_FUBAR_DUMMY'])
 
+    def test_exclude(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            pages._is_excluded = lambda page: True
+            self.assertEqual(pages.get('foo/bar'), None)
+
 if __name__ == '__main__':
     unittest.main()
