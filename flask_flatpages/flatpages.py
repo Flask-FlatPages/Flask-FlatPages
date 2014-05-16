@@ -154,7 +154,7 @@ class FlatPages(object):
         if auto:
             self.reload()
 
-    def _load_file(self, path, filename):
+    def _load_file(self, path, filename, extension):
         """Load file from file system and put it to cached dict as
         :class:`Path` and `mtime` tuple.
         """
@@ -173,7 +173,7 @@ class FlatPages(object):
                 with open(filename) as handler:
                     content = handler.read().decode(encoding)
 
-            page = self._parse(content, path)
+            page = self._parse(content, path, extension)
             self._file_cache[filename] = (page, mtime)
 
         return page
@@ -203,14 +203,15 @@ class FlatPages(object):
                 elif extension is not None:
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
-                    pages[path] = self._load_file(path, full_name)
+                    pages[path] = self._load_file(path, full_name,
+                                                  extension=extension)
 
         pages = {}
 
         _walk(self.root)
         return pages
 
-    def _parse(self, content, path):
+    def _parse(self, content, path, extension):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
@@ -234,7 +235,7 @@ class FlatPages(object):
         html_renderer = self._smart_html_renderer(html_renderer)
 
         # Initialize and return Page instance
-        return Page(path, meta, content, html_renderer)
+        return Page(path, meta, content, html_renderer, extension=extension)
 
     def _smart_html_renderer(self, html_renderer):
         """This wraps the rendering function in order to allow the use of

@@ -18,7 +18,7 @@ class Page(object):
     Main purpose is to render the page's content with a ``html_renderer``
     function.
     """
-    def __init__(self, path, meta, body, html_renderer):
+    def __init__(self, path, meta, body, html_renderer, extension=None):
         """
         Initialize Page instance.
 
@@ -26,6 +26,7 @@ class Page(object):
         :param meta: Page meta data in YAML format.
         :param body: Page body.
         :param html_renderer: HTML renderer function.
+        :param extension: File extension.
         """
         #: Path this page was obtained from, as in ``pages.get(path)``
         self.path = path
@@ -34,6 +35,8 @@ class Page(object):
         self.body = body
         #: Renderer function
         self.html_renderer = html_renderer
+        #: Extension of the source file
+        self.extension = extension
 
     def __getitem__(self, name):
         """Shortcut for accessing metadata.

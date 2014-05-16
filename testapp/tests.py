@@ -246,6 +246,13 @@ class TestFlatPages(unittest.TestCase):
                  'foo/42/not_a_page'])
         )
 
+    def test_page_extension(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSIONS'] = ['.html', '.txt']
+        pages = FlatPages(app)
+        self.assertEqual(pages.get('foo/bar').extension, '.html')
+        self.assertEqual(pages.get('not_a_page').extension, '.txt')
+
     def test_lazy_loading(self):
         with temp_pages() as pages:
             bar = pages.get('foo/bar')
