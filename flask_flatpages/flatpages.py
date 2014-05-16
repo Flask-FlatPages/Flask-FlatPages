@@ -27,7 +27,7 @@ class FlatPages(object):
     #: Default configuration for FlatPages extension
     default_config = (
         ('root', 'pages'),
-        ('extension', '.html'),
+        ('extensions', ['.html']),
         ('encoding', 'utf-8'),
         ('html_renderer', pygmented_markdown),
         ('markdown_extensions', ['codehilite']),
@@ -75,6 +75,12 @@ class FlatPages(object):
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
+        if key == 'extensions':
+            try:
+                # FIXME: warn about deprecated config usage
+                return [self.config('extension')]
+            except KeyError:
+                pass
         return self.app.config['_'.join((self.config_prefix, key.upper()))]
 
     def get(self, path, default=None):
@@ -172,6 +178,12 @@ class FlatPages(object):
 
         return page
 
+    def _get_extension(self, name):
+        """Extract the extension from a filename."""
+        for extension in self.config('extensions'):
+            if name.endswith(extension):
+                return extension
+
     @cached_property
     def _pages(self):
         """Walk the page root directory an return a dict of unicode path:
@@ -180,19 +192,19 @@ class FlatPages(object):
         def _walk(directory, path_prefix=()):
             """Walk over directory and find all possible flatpages, i.e. files
             which end with the string given by
-            `FLATPAGES_%(name)s_EXTENSION``.
+            `FLATPAGES_%(name)s_EXTENSIONS``.
             """
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
+                extension = self._get_extension(name)
 
                 if os.path.isdir(full_name):
                     _walk(full_name, path_prefix + (name,))
-                elif name.endswith(extension):
+                elif extension is not None:
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
                     pages[path] = self._load_file(path, full_name)
 
-        extension = self.config('extension')
         pages = {}
 
         _walk(self.root)

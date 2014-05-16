@@ -213,13 +213,37 @@ class TestFlatPages(unittest.TestCase):
             u'<p>Text</p>'
         )
 
-    def test_other_extension(self):
+    def test_deprecated_extension(self):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSION'] = '.txt'
         pages = FlatPages(app)
         self.assertEqual(
             set(page.path for page in pages),
             set(['not_a_page', 'foo/42/not_a_page'])
+        )
+
+    def test_other_extension(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSIONS'] = ['.txt']
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set(['not_a_page', 'foo/42/not_a_page'])
+        )
+
+    def test_multi_extensions(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSIONS'] = ['.html', '.txt']
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set(['foo/bar',
+                 'foo/lorem/ipsum',
+                 'foo',
+                 'headerid',
+                 'hello',
+                 'not_a_page',
+                 'foo/42/not_a_page'])
         )
 
     def test_lazy_loading(self):
