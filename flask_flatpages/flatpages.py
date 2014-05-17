@@ -203,19 +203,23 @@ class FlatPages(object):
     def _is_excluded_page(self, page):
         """Check whether a :class:`Page` object should be excluded.
 
-        By default, this always returns ``False``. It can be used by subclasses
-        to exclude pages based on arbitrary rules.
+        By default, this function always returns ``False``. It can be
+        overridden by subclasses to exclude pages based on arbitrary rules.
+
+        :type page: :class:`Page`
+        :return: `True` if `page` should be excluded, otherwise `False`
         """
         return False
 
     def _process_page(self, page):
         """Process a :class:`Page` object directly after loading.
 
-        By default, this does not modify the page. It can be used by subclasses
-        to process the page directly after loading. This is executed after
-        :function:`_is_excluded`.
+        By default, this function returns an unmodified version of `page`. It
+        can be overridden by subclasses to process the page directly after
+        loading.  This is executed after :func:`_is_excluded`.
 
-        :return: processed version of :param:`page`
+        :type page: :class:`Page`
+        :return: processed version of `page`
         """
         return page
 

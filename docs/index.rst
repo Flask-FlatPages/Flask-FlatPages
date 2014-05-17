@@ -211,7 +211,14 @@ API
 .. module:: flask_flatpages
 
 .. autoclass:: FlatPages
-    :members: init_app, get, get_or_404, __iter__, reload
+    :members:
+        init_app,
+        get,
+        get_or_404,
+        __iter__,
+        reload,
+        _is_excluded_page,
+        _process_page
 
     Example usage::
 
