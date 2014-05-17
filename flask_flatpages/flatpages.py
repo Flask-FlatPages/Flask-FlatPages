@@ -200,7 +200,7 @@ class FlatPages(object):
         _walk(self.root)
         return pages
 
-    def _is_excluded(self, page):
+    def _is_excluded_page(self, page):
         """Check whether a :class:`Page` object should be excluded.
 
         By default, this always returns ``False``. It can be used by subclasses
@@ -208,7 +208,7 @@ class FlatPages(object):
         """
         return False
 
-    def _process(self, page):
+    def _process_page(self, page):
         """Process a :class:`Page` object directly after loading.
 
         By default, this does not modify the page. It can be used by subclasses
