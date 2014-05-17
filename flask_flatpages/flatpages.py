@@ -70,18 +70,20 @@ class FlatPages(object):
         """
         return compat.itervalues(self._pages)
 
+    def _config_key(self, key):
+        return '_'.join((self.config_prefix, key.upper()))
+
     def config(self, key):
         """Read actual configuration from Flask application config.
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
+        # check for deprecated keys
         if key == 'extensions':
-            try:
-                # FIXME: warn about deprecated config usage
+            if self._config_key('extension') in self.app.config:
                 return [self.config('extension')]
-            except KeyError:
-                pass
-        return self.app.config['_'.join((self.config_prefix, key.upper()))]
+
+        return self.app.config[self._config_key(key)]
 
     def get(self, path, default=None):
         """Returns the :class:`Page` object at ``path``, or ``default`` if
@@ -112,8 +114,19 @@ class FlatPages(object):
         """
         # Store default config to application
         for key, value in self.default_config:
-            config_key = '_'.join((self.config_prefix, key.upper()))
+            config_key = self._config_key(key)
             app.config.setdefault(config_key, value)
+
+        # check for deprecated config keys
+        deprecated_keys = {
+            'extension': ('Configration %s has been deprecated. Please use %s '
+                          'instead.' % (self._config_key('extension'),
+                                        self._config_key('extensions'))),
+        }
+        if app.debug:
+            for key in deprecated_keys:
+                if self._config_key(key) in app.config:
+                    raise DeprecationWarning(deprecated_keys[key])
 
         # Register function to forget all pages if necessary
         app.before_request(self._conditional_auto_reset)

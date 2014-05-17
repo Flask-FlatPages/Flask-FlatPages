@@ -222,6 +222,13 @@ class TestFlatPages(unittest.TestCase):
             set(['not_a_page', 'foo/42/not_a_page'])
         )
 
+    def test_deprecated_extension_warning(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = '.txt'
+        app.config['DEBUG'] = True
+        pages = FlatPages()
+        self.assertRaises(DeprecationWarning, pages.init_app, app)
+
     def test_other_extension(self):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSIONS'] = ['.txt']
