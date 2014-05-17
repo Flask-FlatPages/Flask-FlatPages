@@ -191,8 +191,8 @@ class FlatPages(object):
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
                     page = self._load_file(path, full_name)
-                    if not self._is_excluded(page):
-                        pages[path] = self._process(page)
+                    if not self._is_excluded_page(page):
+                        pages[path] = self._process_page(page)
 
         extension = self.config('extension')
         pages = {}
@@ -216,7 +216,7 @@ class FlatPages(object):
 
         By default, this function returns an unmodified version of `page`. It
         can be overridden by subclasses to process the page directly after
-        loading.  This is executed after :func:`_is_excluded`.
+        loading.  This is executed after :func:`_is_excluded_page`.
 
         :type page: :class:`Page`
         :return: processed version of `page`

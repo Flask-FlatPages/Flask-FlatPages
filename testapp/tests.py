@@ -414,13 +414,13 @@ class TestFlatPages(unittest.TestCase):
     def test_exclude(self):
         app = Flask(__name__)
         with temp_pages(app) as pages:
-            pages._is_excluded = lambda page: True
+            pages._is_excluded_page = lambda page: True
             self.assertEqual(pages.get('foo/bar'), None)
 
     def test_process(self):
         app = Flask(__name__)
         with temp_pages(app) as pages:
-            pages._process = lambda page: 123
+            pages._process_page = lambda page: 123
             self.assertEqual(pages.get('foo/bar'), 123)
             self.assertEqual(pages.get('nonexistent'), None)
 
