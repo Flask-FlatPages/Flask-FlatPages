@@ -27,7 +27,7 @@ class FlatPages(object):
     #: Default configuration for FlatPages extension
     default_config = (
         ('root', 'pages'),
-        ('extension', '.html'),
+        ('extensions', ['.html']),
         ('encoding', 'utf-8'),
         ('html_renderer', pygmented_markdown),
         ('markdown_extensions', ['codehilite']),
@@ -70,12 +70,20 @@ class FlatPages(object):
         """
         return compat.itervalues(self._pages)
 
+    def _config_key(self, key):
+        return '_'.join((self.config_prefix, key.upper()))
+
     def config(self, key):
         """Read actual configuration from Flask application config.
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
-        return self.app.config['_'.join((self.config_prefix, key.upper()))]
+        # check for deprecated keys
+        if key == 'extensions':
+            if self._config_key('extension') in self.app.config:
+                return [self.config('extension')]
+
+        return self.app.config[self._config_key(key)]
 
     def get(self, path, default=None):
         """Returns the :class:`Page` object at ``path``, or ``default`` if
@@ -106,8 +114,19 @@ class FlatPages(object):
         """
         # Store default config to application
         for key, value in self.default_config:
-            config_key = '_'.join((self.config_prefix, key.upper()))
+            config_key = self._config_key(key)
             app.config.setdefault(config_key, value)
+
+        # check for deprecated config keys
+        deprecated_keys = {
+            'extension': ('Configration %s has been deprecated. Please use %s '
+                          'instead.' % (self._config_key('extension'),
+                                        self._config_key('extensions'))),
+        }
+        if app.debug:
+            for key in deprecated_keys:
+                if self._config_key(key) in app.config:
+                    raise DeprecationWarning(deprecated_keys[key])
 
         # Register function to forget all pages if necessary
         app.before_request(self._conditional_auto_reset)
@@ -148,7 +167,7 @@ class FlatPages(object):
         if auto:
             self.reload()
 
-    def _load_file(self, path, filename):
+    def _load_file(self, path, filename, extension):
         """Load file from file system and put it to cached dict as
         :class:`Path` and `mtime` tuple.
         """
@@ -167,10 +186,16 @@ class FlatPages(object):
                 with open(filename) as handler:
                     content = handler.read().decode(encoding)
 
-            page = self._parse(content, path)
+            page = self._parse(content, path, extension)
             self._file_cache[filename] = (page, mtime)
 
         return page
+
+    def _get_extension(self, name):
+        """Extract the extension from a filename."""
+        for extension in self.config('extensions'):
+            if name.endswith(extension):
+                return extension
 
     @cached_property
     def _pages(self):
@@ -180,25 +205,26 @@ class FlatPages(object):
         def _walk(directory, path_prefix=()):
             """Walk over directory and find all possible flatpages, i.e. files
             which end with the string given by
-            `FLATPAGES_%(name)s_EXTENSION``.
+            `FLATPAGES_%(name)s_EXTENSIONS``.
             """
             for name in os.listdir(directory):
                 full_name = os.path.join(directory, name)
+                extension = self._get_extension(name)
 
                 if os.path.isdir(full_name):
                     _walk(full_name, path_prefix + (name,))
-                elif name.endswith(extension):
+                elif extension is not None:
                     name_without_extension = name[:-len(extension)]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
-                    pages[path] = self._load_file(path, full_name)
+                    pages[path] = self._load_file(path, full_name,
+                                                  extension=extension)
 
-        extension = self.config('extension')
         pages = {}
 
         _walk(self.root)
         return pages
 
-    def _parse(self, content, path):
+    def _parse(self, content, path, extension):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
@@ -222,7 +248,7 @@ class FlatPages(object):
         html_renderer = self._smart_html_renderer(html_renderer)
 
         # Initialize and return Page instance
-        return Page(path, meta, content, html_renderer)
+        return Page(path, meta, content, html_renderer, extension=extension)
 
     def _smart_html_renderer(self, html_renderer):
         """This wraps the rendering function in order to allow the use of

@@ -62,9 +62,9 @@ are optional.
     interpreted as relative to the application root, next to the ``static`` and
     ``templates`` directories. Defaults to ``pages``.
 
-``FLATPAGES_EXTENSION``
-    Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
-    without this suffix are ignored. Defaults to ``.html``.
+``FLATPAGES_EXTENSIONS``
+    Filename extensions for pages. Files in the ``FLATPAGES_ROOT`` directory
+    without one of these this suffixes are ignored. Defaults to ``.html``.
 
 ``FLATPAGES_ENCODING``
     Encoding of the pages files. Defaults to ``utf8``.
@@ -114,8 +114,8 @@ How it works
 
 When first needed (see :ref:`laziness-and-caching` for more about this),
 the extension loads all pages from the filesystem: a :class:`Page` object is
-created for all files in ``FLATPAGES_ROOT`` whose name ends with
-``FLATPAGES_EXTENSION``.
+created for all files in ``FLATPAGES_ROOT`` whose name ends with one of
+``FLATPAGES_EXTENSIONS``.
 
 Each of these objects is associated to a path:
 the slash-separated (whatever the OS) name of the file it was loaded from,
