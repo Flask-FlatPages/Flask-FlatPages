@@ -282,6 +282,32 @@ class TestFlatPages(unittest.TestCase):
             set(['not_a_page', 'foo/42/not_a_page'])
         )
 
+    def test_extension_comma(self):
+        self.test_extension_sequence('.html,.txt')
+
+    def test_extension_sequence(self, extension=None):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = extension or ['.html', '.txt']
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set(['codehilite',
+                 'foo',
+                 'foo/42/not_a_page',
+                 'foo/bar',
+                 'foo/lorem/ipsum',
+                 'headerid',
+                 'hello',
+                 'not_a_page',
+                 'toc'])
+        )
+
+    def test_extension_set(self):
+        self.test_extension_sequence(set(['.html', '.txt']))
+
+    def test_extension_tuple(self):
+        self.test_extension_sequence(('.html', '.txt'))
+
     def test_lazy_loading(self):
         with temp_pages() as pages:
             bar = pages.get('foo/bar')

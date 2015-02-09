@@ -63,6 +63,11 @@ are optional.
     Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
     without this suffix are ignored. Defaults to ``.html``.
 
+    .. versionchanged:: 0.6
+
+       Support multiple file extensions via sequences, e.g.:
+       ``['.htm', '.html']`` or via comma-separated strings: ``.htm,.html``.
+
 ``FLATPAGES_ENCODING``
     Encoding of the pages files. Defaults to ``utf8``.
 
@@ -327,6 +332,7 @@ Version 0.6
 *In development*
 
 * Python 3 support.
+* Allow multiple file extensions for FlatPages.
 * The renderer function now optionally takes a third argument, namely
   the :class:`Page` instance.
 * It is now possible to instantiate multiple instances of :class:`FlatPages`

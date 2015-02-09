@@ -55,10 +55,13 @@ class FlatPages(object):
 
            New parameter `name` to support multiple FlatPages instances.
         """
+        self.name = name
+
         if name is None:
             self.config_prefix = 'FLATPAGES'
         else:
             self.config_prefix = '_'.join(('FLATPAGES', name.upper()))
+
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
 
@@ -114,7 +117,9 @@ class FlatPages(object):
 
         # And finally store application to current instance and current
         # instance to application
-        app.extensions['flatpages'] = self
+        if 'flatpages' not in app.extensions:
+            app.extensions['flatpages'] = {}
+        app.extensions['flatpages'][self.name] = self
         self.app = app
 
     def reload(self):
@@ -177,26 +182,49 @@ class FlatPages(object):
         """Walk the page root directory an return a dict of unicode path:
         page object.
         """
-        def _walk(directory, path_prefix=()):
-            """Walk over directory and find all possible flatpages, i.e. files
-            which end with the string given by
-            `FLATPAGES_%(name)s_EXTENSION``.
+        def _walker():
             """
-            for name in os.listdir(directory):
-                full_name = os.path.join(directory, name)
+            Walk over directory and find all possible flatpages, i.e. files
+            which end with the string or sequence given by
+            ``FLATPAGES_%(name)s_EXTENSION``.
+            """
+            for cur_path, _, filenames in os.walk(self.root):
+                rel_path = cur_path.replace(self.root, '').lstrip(os.sep)
+                path_prefix = tuple(rel_path.split(os.sep)) if rel_path else ()
 
-                if os.path.isdir(full_name):
-                    _walk(full_name, path_prefix + (name,))
-                elif name.endswith(extension):
-                    name_without_extension = name[:-len(extension)]
+                for name in filenames:
+                    if not name.endswith(extension):
+                        continue
+
+                    full_name = os.path.join(cur_path, name)
+                    name_without_extension = [name[:-len(item)]
+                                              for item in extension
+                                              if name.endswith(item)][0]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
-                    pages[path] = self._load_file(path, full_name)
+                    yield (path, full_name)
 
+        # Read extension from config
         extension = self.config('extension')
-        pages = {}
 
-        _walk(self.root)
-        return pages
+        # Support for multiple extensions
+        if isinstance(extension, compat.string_types):
+            if ',' in extension:
+                extension = tuple(extension.split(','))
+            else:
+                extension = (extension, )
+        elif isinstance(extension, (list, set)):
+            extension = tuple(extension)
+
+        # FlatPage extension should be a string or a sequence
+        if not isinstance(extension, tuple):
+            raise ValueError(
+                'Invalid value for FlatPages extension. Should be a string or '
+                'a sequence, got {0} instead: {1}'.
+                format(type(extension).__name__, extension)
+            )
+
+        return dict([(path, self._load_file(path, full_name))
+                     for path, full_name in _walker()])
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
