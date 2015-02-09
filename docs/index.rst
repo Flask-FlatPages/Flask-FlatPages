@@ -71,14 +71,14 @@ are optional.
     body of a page, and return its HTML rendering as a unicode string. Defaults
     to :func:`~.pygmented_markdown`.
 
-    .. versionchanged:: 0.6
-
-       Support for passing the :class:`~.Page` instance as third argument.
-
     .. versionchanged:: 0.5
 
        Support for passing the :class:`~.FlatPages` instance as second
        argument.
+
+    .. versionchanged:: 0.6
+
+       Support for passing the :class:`~.Page` instance as third argument.
 
     Renderer functions need to have at least one argument, the unicode body.
     The use of either :class:`~FlatPages` as second argument or
@@ -97,7 +97,7 @@ are optional.
     ``['footnotes(UNIQUE_IDS=True)']``.
 
     To disable line numbers in CodeHilite extension, which are enabled by
-    default, use:: ``['codehilite(linenums=False)']``
+    default, use: ``['codehilite(linenums=False)']``
 
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
@@ -177,6 +177,56 @@ Or disabling default approach::
 
     FLATPAGES_MARKDOWN_EXTENSIONS = []
 
+Using custom HTML renderers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As pointed above, by default Flask-FlatPages expects that flatpage body
+contains `Markdown`_ markup, so uses ``markdown.markdown`` function to render
+its content. But due to ``FLATPAGES_HTML_RENDERER`` setting you can specify
+different approach for rendering flatpage body.
+
+The most common necessity of using custom HTML renderer is modifyings default
+Markdown approach (e.g. by pre-rendering Markdown flatpages with Jinja), or
+using different markup for rendering flatpage body (e.g. ReStructuredText).
+Examples below introduce how to use custom renderers for those needs.
+
+Pre-rendering Markdown flatpages with Jinja
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from flask import Flask, render_template_string
+    from flask_flatpages import FlatPages
+    from flask_flatpages.utils import pygmented_markdown
+
+    def my_renderer(text):
+        prerendered_body = render_template_string(text)
+        return pygmented_markdown(prerendered_body)
+
+    app = Flask(__name__)
+    app.config['FLATPAGES_HTML_RENDERER'] = my_renderer
+    pages = FlatPages(app)
+
+ReStructuredText flatpages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note:: For rendering ReStructuredText you need to add `docutils
+   <http://pypi.python.org/pypi/docutils>`_ to your project requirements.
+
+::
+
+    from docuitls.core import publish_parts
+    from flask import Flask
+    from flask_flatpages import FlatPages
+
+    def rst_renderer(text):
+        parts = publish_parts(source=text, writer_name='html')
+        return parts['fragment']
+
+    app = Flask(__name__)
+    app.config['FLATPAGES_HTML_RENDERER'] = rst_renderer
+    pages = FlatPages(app)
+
 .. _laziness-and-caching:
 
 Laziness and caching
@@ -200,7 +250,7 @@ If you have many pages and loading takes a long time, you can force it at
 initialization time so that it’s done by the time the first request is served::
 
     pages = FlatPages(app)
-    pages.get('foo') # Force loading now. foo.html may not even exist.
+    pages.get('foo')  # Force loading now. foo.html may not even exist.
 
 Loading everything every time may seem wasteful, but the impact is mitigated
 by caching: if a file’s modification time hasn’t changed, it is not read again
@@ -273,6 +323,8 @@ Changelog
 
 Version 0.6
 ~~~~~~~~~~~
+
+*In development*
 
 * Python 3 support.
 * The renderer function now optionally takes a third argument, namely
