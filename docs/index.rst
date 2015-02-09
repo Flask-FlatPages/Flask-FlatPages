@@ -329,7 +329,7 @@ Changelog
 Version 0.6
 ~~~~~~~~~~~
 
-*In development*
+Released on 2015-02-09
 
 * Python 3 support.
 * Allow multiple file extensions for FlatPages.
