@@ -96,7 +96,12 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEqual(
             set(page.path for page in pages),
-            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
+            set(['foo',
+                 'foo/bar',
+                 'foo/lorem/ipsum',
+                 'headerid',
+                 'hello',
+                 'toc'])
         )
 
     def test_get(self):
@@ -208,6 +213,22 @@ class TestFlatPages(unittest.TestCase):
         hello = pages.get('headerid')
         self.assertEqual(
             hello.html,
+            u'<h1 id="page-header">Page Header</h1>\n'
+            u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            u'<p>Text</p>'
+        )
+
+    def test_markdown_extensions_toc(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['toc']
+        pages = FlatPages(app)
+
+        toc = pages.get('toc')
+        self.assertEqual(
+            toc.html,
+            u'<div class="toc">\n<ul>\n<li><a href="#page-header">Page '
+            u'Header</a><ul>\n<li><a href="#paragraph-header">Paragraph '
+            u'Header</a></li>\n</ul>\n</li>\n</ul>\n</div>\n'
             u'<h1 id="page-header">Page Header</h1>\n'
             u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
             u'<p>Text</p>'
@@ -385,18 +406,27 @@ class TestFlatPages(unittest.TestCase):
         app = Flask(__name__)
         with temp_pages(app) as pages:
             self.assertEqual(
-                set(p.path for p in pages),
+                set(page.path for page in pages),
                 set(['foo/bar',
                      'foo/lorem/ipsum',
                      'foo',
                      'headerid',
-                     'hello']))
+                     'hello',
+                     'toc'])
+            )
+
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
+
             self.assertEqual(
-                set(safe_unicode(p.path for p in pages)),
-                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
+                set(safe_unicode(page.path for page in pages)),
+                set(['foo',
+                     'foo/bar',
+                     'headerid',
+                     'hello',
+                     'toc',
+                     u'Unïcôdé']))
 
     def test_multiple_instance(self):
         '''
