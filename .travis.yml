@@ -3,6 +3,7 @@ python:
   - 2.6
   - 2.7
   - 3.3
+  - 3.4
   - pypy
 env:
   - FLASK_VERSION=0.8
@@ -11,7 +12,7 @@ env:
 install:
   - pip install -r testapp/requirements.txt
   - pip install -I Flask==$FLASK_VERSION
-  -
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install Markdown==2.3.1; fi
 script:
   - PYTHONPATH=. make -C testapp/ test
 matrix:
@@ -21,4 +22,8 @@ matrix:
     - python: 3.3
       env: FLASK_VERSION=0.8
     - python: 3.3
+      env: FLASK_VERSION=0.9
+    - python: 3.4
+      env: FLASK_VERSION=0.8
+    - python: 3.4
       env: FLASK_VERSION=0.9
