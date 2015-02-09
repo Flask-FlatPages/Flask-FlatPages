@@ -94,7 +94,10 @@ are optional.
 
     For passing additional arguments to Markdown extension, e.g. in case of
     using footnotes extension, use next syntax:
-    ``['footnotes(UNIQUE_IDS=True)']``
+    ``['footnotes(UNIQUE_IDS=True)']``.
+
+    To disable line numbers in CodeHilite extension, which are enabled by
+    default, use:: ``['codehilite(linenums=False)']``
 
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`

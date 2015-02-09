@@ -96,7 +96,8 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEqual(
             set(page.path for page in pages),
-            set(['foo',
+            set(['codehilite',
+                 'foo',
                  'foo/bar',
                  'foo/lorem/ipsum',
                  'headerid',
@@ -213,9 +214,41 @@ class TestFlatPages(unittest.TestCase):
         hello = pages.get('headerid')
         self.assertEqual(
             hello.html,
-            u'<h1 id="page-header">Page Header</h1>\n'
-            u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
-            u'<p>Text</p>'
+            '<h1 id="page-header">Page Header</h1>\n'
+            '<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            '<p>Text</p>'
+        )
+
+    def test_markdown_extensions_codehilite_linenums_disabled(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+            'codehilite(linenums=False)'
+        ]
+        pages = FlatPages(app)
+
+        codehilite = pages.get('codehilite')
+        self.assertEqual(
+            codehilite.html,
+            '<div class="codehilite"><pre><span class="k">print</span>'
+            '<span class="p">(</span><span class="s">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>'
+        )
+
+    def test_markdown_extensions_codehilite_linenums_enabled(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+            'codehilite(linenums=True)'
+        ]
+        pages = FlatPages(app)
+
+        codehilite = pages.get('codehilite')
+        self.assertEqual(
+            codehilite.html,
+            '<table class="codehilitetable"><tr><td class="linenos">'
+            '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
+            '<div class="codehilite"><pre><span class="k">print</span>'
+            '<span class="p">(</span><span class="s">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>\n</td></tr></table>'
         )
 
     def test_markdown_extensions_toc(self):
@@ -226,12 +259,12 @@ class TestFlatPages(unittest.TestCase):
         toc = pages.get('toc')
         self.assertEqual(
             toc.html,
-            u'<div class="toc">\n<ul>\n<li><a href="#page-header">Page '
-            u'Header</a><ul>\n<li><a href="#paragraph-header">Paragraph '
-            u'Header</a></li>\n</ul>\n</li>\n</ul>\n</div>\n'
-            u'<h1 id="page-header">Page Header</h1>\n'
-            u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
-            u'<p>Text</p>'
+            '<div class="toc">\n<ul>\n<li><a href="#page-header">Page '
+            'Header</a><ul>\n<li><a href="#paragraph-header">Paragraph '
+            'Header</a></li>\n</ul>\n</li>\n</ul>\n</div>\n'
+            '<h1 id="page-header">Page Header</h1>\n'
+            '<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            '<p>Text</p>'
         )
 
     def test_other_extension(self):
@@ -407,9 +440,10 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages(app) as pages:
             self.assertEqual(
                 set(page.path for page in pages),
-                set(['foo/bar',
-                     'foo/lorem/ipsum',
+                set(['codehilite',
                      'foo',
+                     'foo/bar',
+                     'foo/lorem/ipsum',
                      'headerid',
                      'hello',
                      'toc'])
@@ -421,7 +455,8 @@ class TestFlatPages(unittest.TestCase):
 
             self.assertEqual(
                 set(safe_unicode(page.path for page in pages)),
-                set(['foo',
+                set(['codehilite',
+                     'foo',
                      'foo/bar',
                      'headerid',
                      'hello',
