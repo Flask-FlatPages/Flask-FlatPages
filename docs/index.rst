@@ -18,11 +18,7 @@ Pages are built from “flat” text files as opposed to a relational database.
 Installation
 ------------
 
-Install the extension with one of the following commands::
-
-    $ easy_install Flask-FlatPages
-
-or alternatively if you have pip installed::
+Install the extension with `pip <http://pip.pypa.org/>`_::
 
     $ pip install Flask-FlatPages
 
@@ -94,6 +90,10 @@ are optional.
 
     List of Markdown extensions to use with default HTML renderer. Defaults to
     ``['codehilite']``.
+
+    For passing additional arguments to Markdown extension, e.g. in case of
+    using footnotes extension, use next syntax:
+    ``['footnotes(UNIQUE_IDS=True)']``
 
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
@@ -270,9 +270,10 @@ Changelog
 Version 0.6
 ~~~~~~~~~~~
 
+* Python 3 support.
 * The renderer function now optionally takes a third argument, namely
   the :class:`Page` instance.
-* It is now possible to instantiate multiple instances of :class:`Flatpages`
+* It is now possible to instantiate multiple instances of :class:`FlatPages`
   with different configurations. This is done by specifying an additional
   parameter ``name`` to the initializer and adding the same name in uppercase
   to the respective Flask configuration settings.
