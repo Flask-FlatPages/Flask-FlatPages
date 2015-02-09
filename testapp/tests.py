@@ -127,10 +127,16 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(foo.meta, {
             'title': 'Foo > bar',
             'created': datetime.date(2010, 12, 11),
-            'versions': [3.14, 42]
+            'updated': datetime.datetime(2015, 2, 9, 10, 59, 0),
+            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0),
+            'versions': [3.14, 42],
         })
         self.assertEqual(foo['title'], 'Foo > bar')
         self.assertEqual(foo['created'], datetime.date(2010, 12, 11))
+        self.assertEqual(foo['updated'],
+                         datetime.datetime(2015, 2, 9, 10, 59, 0))
+        self.assertEqual(foo['updated_iso'],
+                         datetime.datetime(2015, 2, 9, 10, 59, 0))
         self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
 
