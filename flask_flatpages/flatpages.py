@@ -223,8 +223,36 @@ class FlatPages(object):
                 format(type(extension).__name__, extension)
             )
 
-        return dict([(path, self._load_file(path, full_name))
-                     for path, full_name in _walker()])
+        pages = dict()
+        for path, full_name in _walker():
+            page = self._load_file(path, full_name)
+            if not self._is_excluded_page(page):
+                pages[path] = self._process_page(page)
+
+        return pages
+
+    def _is_excluded_page(self, page):
+        """Check whether a :class:`Page` object should be excluded.
+
+        By default, this function always returns ``False``. It can be
+        overridden by subclasses to exclude pages based on arbitrary rules.
+
+        :type page: :class:`Page`
+        :return: `True` if `page` should be excluded, otherwise `False`
+        """
+        return False
+
+    def _process_page(self, page):
+        """Process a :class:`Page` object directly after loading.
+
+        By default, this function returns an unmodified version of `page`. It
+        can be overridden by subclasses to process the page directly after
+        loading.  This is executed after :func:`_is_excluded_page`.
+
+        :type page: :class:`Page`
+        :return: processed version of `page`
+        """
+        return page
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
