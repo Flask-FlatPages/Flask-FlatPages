@@ -96,7 +96,13 @@ class TestFlatPages(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         self.assertEqual(
             set(page.path for page in pages),
-            set(['foo', 'foo/bar', 'foo/lorem/ipsum', 'headerid', 'hello'])
+            set(['codehilite',
+                 'foo',
+                 'foo/bar',
+                 'foo/lorem/ipsum',
+                 'headerid',
+                 'hello',
+                 'toc'])
         )
 
     def test_get(self):
@@ -121,10 +127,16 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(foo.meta, {
             'title': 'Foo > bar',
             'created': datetime.date(2010, 12, 11),
-            'versions': [3.14, 42]
+            'updated': datetime.datetime(2015, 2, 9, 10, 59, 0),
+            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0),
+            'versions': [3.14, 42],
         })
         self.assertEqual(foo['title'], 'Foo > bar')
         self.assertEqual(foo['created'], datetime.date(2010, 12, 11))
+        self.assertEqual(foo['updated'],
+                         datetime.datetime(2015, 2, 9, 10, 59, 0))
+        self.assertEqual(foo['updated_iso'],
+                         datetime.datetime(2015, 2, 9, 10, 59, 0))
         self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
 
@@ -208,9 +220,57 @@ class TestFlatPages(unittest.TestCase):
         hello = pages.get('headerid')
         self.assertEqual(
             hello.html,
-            u'<h1 id="page-header">Page Header</h1>\n'
-            u'<h2 id="paragraph-header">Paragraph Header</h2>\n'
-            u'<p>Text</p>'
+            '<h1 id="page-header">Page Header</h1>\n'
+            '<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            '<p>Text</p>'
+        )
+
+    def test_markdown_extensions_codehilite_linenums_disabled(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+            'codehilite(linenums=False)'
+        ]
+        pages = FlatPages(app)
+
+        codehilite = pages.get('codehilite')
+        self.assertEqual(
+            codehilite.html,
+            '<div class="codehilite"><pre><span class="k">print</span>'
+            '<span class="p">(</span><span class="s">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>'
+        )
+
+    def test_markdown_extensions_codehilite_linenums_enabled(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+            'codehilite(linenums=True)'
+        ]
+        pages = FlatPages(app)
+
+        codehilite = pages.get('codehilite')
+        self.assertEqual(
+            codehilite.html,
+            '<table class="codehilitetable"><tr><td class="linenos">'
+            '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
+            '<div class="codehilite"><pre><span class="k">print</span>'
+            '<span class="p">(</span><span class="s">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>\n</td></tr></table>'
+        )
+
+    def test_markdown_extensions_toc(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['toc']
+        pages = FlatPages(app)
+
+        toc = pages.get('toc')
+        self.assertEqual(
+            toc.html,
+            '<div class="toc">\n<ul>\n<li><a href="#page-header">Page '
+            'Header</a><ul>\n<li><a href="#paragraph-header">Paragraph '
+            'Header</a></li>\n</ul>\n</li>\n</ul>\n</div>\n'
+            '<h1 id="page-header">Page Header</h1>\n'
+            '<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            '<p>Text</p>'
         )
 
     def test_other_extension(self):
@@ -221,6 +281,32 @@ class TestFlatPages(unittest.TestCase):
             set(page.path for page in pages),
             set(['not_a_page', 'foo/42/not_a_page'])
         )
+
+    def test_extension_comma(self):
+        self.test_extension_sequence('.html,.txt')
+
+    def test_extension_sequence(self, extension=None):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = extension or ['.html', '.txt']
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set(['codehilite',
+                 'foo',
+                 'foo/42/not_a_page',
+                 'foo/bar',
+                 'foo/lorem/ipsum',
+                 'headerid',
+                 'hello',
+                 'not_a_page',
+                 'toc'])
+        )
+
+    def test_extension_set(self):
+        self.test_extension_sequence(set(['.html', '.txt']))
+
+    def test_extension_tuple(self):
+        self.test_extension_sequence(('.html', '.txt'))
 
     def test_lazy_loading(self):
         with temp_pages() as pages:
@@ -292,6 +378,10 @@ class TestFlatPages(unittest.TestCase):
 
             bar5 = pages.get('foo/bar')
             self.assertTrue(bar5 is None)
+
+            # Reloading twice does not trigger an exception
+            pages.reload()
+            pages.reload()
 
     def test_caching(self):
         with temp_pages() as pages:
@@ -381,18 +471,29 @@ class TestFlatPages(unittest.TestCase):
         app = Flask(__name__)
         with temp_pages(app) as pages:
             self.assertEqual(
-                set(p.path for p in pages),
-                set(['foo/bar',
-                     'foo/lorem/ipsum',
+                set(page.path for page in pages),
+                set(['codehilite',
                      'foo',
+                     'foo/bar',
+                     'foo/lorem/ipsum',
                      'headerid',
-                     'hello']))
+                     'hello',
+                     'toc'])
+            )
+
             os.remove(os.path.join(pages.root, 'foo', 'lorem', 'ipsum.html'))
             open(os.path.join(pages.root, u'Unïcôdé.html'), 'w').close()
             pages.reload()
+
             self.assertEqual(
-                set(safe_unicode(p.path for p in pages)),
-                set(['foo/bar', 'foo', 'headerid', 'hello', u'Unïcôdé']))
+                set(safe_unicode(page.path for page in pages)),
+                set(['codehilite',
+                     'foo',
+                     'foo/bar',
+                     'headerid',
+                     'hello',
+                     'toc',
+                     u'Unïcôdé']))
 
     def test_multiple_instance(self):
         '''

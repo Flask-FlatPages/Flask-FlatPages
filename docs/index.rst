@@ -4,13 +4,14 @@ Flask-FlatPages
 Flask-FlatPages provides a collection of pages to your `Flask`_ application.
 Pages are built from “flat” text files as opposed to a relational database.
 
+* Works on Python 2.6, 2.7 and 3.3+
 * BSD licensed
-* Latest documentation `on python.org`_
+* Latest documentation `on Read the Docs`_
 * Source, issues and pull requests `on Github`_
 * Releases `on PyPI`_
 
 .. _Flask: http://flask.pocoo.org/
-.. _on python.org: http://packages.python.org/Flask-FlatPages/
+.. _on Read the Docs: http://flask-flatpages.readthedocs.org/
 .. _on Github: https://github.com/SimonSapin/Flask-FlatPages/
 .. _on PyPI: http://pypi.python.org/pypi/Flask-FlatPages
 
@@ -18,11 +19,7 @@ Pages are built from “flat” text files as opposed to a relational database.
 Installation
 ------------
 
-Install the extension with one of the following commands::
-
-    $ easy_install Flask-FlatPages
-
-or alternatively if you have pip installed::
+Install the extension with `pip <http://pip.pypa.org/>`_::
 
     $ pip install Flask-FlatPages
 
@@ -66,6 +63,11 @@ are optional.
     Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
     without this suffix are ignored. Defaults to ``.html``.
 
+    .. versionchanged:: 0.6
+
+       Support multiple file extensions via sequences, e.g.:
+       ``['.htm', '.html']`` or via comma-separated strings: ``.htm,.html``.
+
 ``FLATPAGES_ENCODING``
     Encoding of the pages files. Defaults to ``utf8``.
 
@@ -74,14 +76,14 @@ are optional.
     body of a page, and return its HTML rendering as a unicode string. Defaults
     to :func:`~.pygmented_markdown`.
 
-    .. versionchanged:: 0.6
-
-       Support for passing the :class:`~.Page` instance as third argument.
-
     .. versionchanged:: 0.5
 
        Support for passing the :class:`~.FlatPages` instance as second
        argument.
+
+    .. versionchanged:: 0.6
+
+       Support for passing the :class:`~.Page` instance as third argument.
 
     Renderer functions need to have at least one argument, the unicode body.
     The use of either :class:`~FlatPages` as second argument or
@@ -94,6 +96,13 @@ are optional.
 
     List of Markdown extensions to use with default HTML renderer. Defaults to
     ``['codehilite']``.
+
+    For passing additional arguments to Markdown extension, e.g. in case of
+    using footnotes extension, use next syntax:
+    ``['footnotes(UNIQUE_IDS=True)']``.
+
+    To disable line numbers in CodeHilite extension, which are enabled by
+    default, use: ``['codehilite(linenums=False)']``
 
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
@@ -173,6 +182,56 @@ Or disabling default approach::
 
     FLATPAGES_MARKDOWN_EXTENSIONS = []
 
+Using custom HTML renderers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As pointed above, by default Flask-FlatPages expects that flatpage body
+contains `Markdown`_ markup, so uses ``markdown.markdown`` function to render
+its content. But due to ``FLATPAGES_HTML_RENDERER`` setting you can specify
+different approach for rendering flatpage body.
+
+The most common necessity of using custom HTML renderer is modifyings default
+Markdown approach (e.g. by pre-rendering Markdown flatpages with Jinja), or
+using different markup for rendering flatpage body (e.g. ReStructuredText).
+Examples below introduce how to use custom renderers for those needs.
+
+Pre-rendering Markdown flatpages with Jinja
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from flask import Flask, render_template_string
+    from flask_flatpages import FlatPages
+    from flask_flatpages.utils import pygmented_markdown
+
+    def my_renderer(text):
+        prerendered_body = render_template_string(text)
+        return pygmented_markdown(prerendered_body)
+
+    app = Flask(__name__)
+    app.config['FLATPAGES_HTML_RENDERER'] = my_renderer
+    pages = FlatPages(app)
+
+ReStructuredText flatpages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note:: For rendering ReStructuredText you need to add `docutils
+   <http://pypi.python.org/pypi/docutils>`_ to your project requirements.
+
+::
+
+    from docuitls.core import publish_parts
+    from flask import Flask
+    from flask_flatpages import FlatPages
+
+    def rst_renderer(text):
+        parts = publish_parts(source=text, writer_name='html')
+        return parts['fragment']
+
+    app = Flask(__name__)
+    app.config['FLATPAGES_HTML_RENDERER'] = rst_renderer
+    pages = FlatPages(app)
+
 .. _laziness-and-caching:
 
 Laziness and caching
@@ -196,7 +255,7 @@ If you have many pages and loading takes a long time, you can force it at
 initialization time so that it’s done by the time the first request is served::
 
     pages = FlatPages(app)
-    pages.get('foo') # Force loading now. foo.html may not even exist.
+    pages.get('foo')  # Force loading now. foo.html may not even exist.
 
 Loading everything every time may seem wasteful, but the impact is mitigated
 by caching: if a file’s modification time hasn’t changed, it is not read again
@@ -277,9 +336,13 @@ Changelog
 Version 0.6
 ~~~~~~~~~~~
 
+Released on 2015-02-09
+
+* Python 3 support.
+* Allow multiple file extensions for FlatPages.
 * The renderer function now optionally takes a third argument, namely
   the :class:`Page` instance.
-* It is now possible to instantiate multiple instances of :class:`Flatpages`
+* It is now possible to instantiate multiple instances of :class:`FlatPages`
   with different configurations. This is done by specifying an additional
   parameter ``name`` to the initializer and adding the same name in uppercase
   to the respective Flask configuration settings.

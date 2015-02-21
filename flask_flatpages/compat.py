@@ -11,6 +11,10 @@ import sys
 
 
 IS_PY3 = sys.version_info[0] == 3
-
-itervalues = lambda obj: iter(obj.values()) if IS_PY3 else obj.itervalues()
+string_types = (str, ) if IS_PY3 else (basestring, )  # noqa
 text_type = str if IS_PY3 else unicode  # noqa
+
+
+def itervalues(obj):
+    """Iterate over dict values."""
+    return iter(obj.values()) if IS_PY3 else obj.itervalues()

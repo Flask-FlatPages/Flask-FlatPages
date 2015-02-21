@@ -17,6 +17,7 @@ import sys, os, re
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+sys.path.append(os.path.abspath('..'))
 sys.path.append(os.path.abspath('_themes'))
 
 # -- General configuration -----------------------------------------------------
@@ -45,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Flask-FlatPages'
-copyright = u'2010, Simon Sapin'
+copyright = u'2010-2015, Simon Sapin. 2013-2015, Igor Davydenko'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -225,5 +226,5 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'flask-flatpages', u'Flask-FlatPages Documentation',
-     [u'Simon Sapin'], 1)
+     [u'Simon Sapin', u'Igor Davydenko'], 1)
 ]

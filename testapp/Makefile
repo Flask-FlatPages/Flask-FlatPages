@@ -1,19 +1,19 @@
-.PHONY: bootstrap clean distclean docs list_updates manage pep8 server shell test
+.PHONY: bootstrap clean distclean manage pep8 server shell test
 
 PROJECT = flask_flatpages
 APP = .
 
 ENV ?= env
-VENV = $(shell python -c 'import sys; print(1 if hasattr(sys, "real_prefix") else 0);')
+VENV = $(shell python -c 'import sys; print(int(hasattr(sys, "real_prefix")));')
 
 ifeq ($(VENV),1)
-	FLAKE8 = flake8
 	NOSETESTS = nosetests
+	PEP8 = flake8
 	PIP = pip
 	PYTHON = python
 else
-	FLAKE8 = $(ENV)/bin/flake8
 	NOSETESTS = $(ENV)/bin/nosetests
+	PEP8 = $(ENV)/bin/flake8
 	PIP = $(ENV)/bin/pip
 	PYTHON = $(ENV)/bin/python
 endif
@@ -24,27 +24,21 @@ PORT ?= 8302
 TEST_ARGS ?= -v
 
 bootstrap:
-	bootstrapper -e $(ENV)/ -C "{pip} install ipython==1.1.0"
+	bootstrapper -e $(ENV)/ -C "{pip} install ipython==2.4.0"
 
 clean:
 	find .. -name "*.pyc" -delete
-	rm -rf ../$(PROJECT)/__pycache__/
+	find .. -name __pycache__ -type d -exec rm -rf {} 2> /dev/null +
 
 distclean: clean
-	rm -rf ../build/ ../dist/ ../.tox/ ../*.egg*/ $(ENV)/
 	rm -f ../MANIFEST .coverage
-
-docs:
-	$(PIP) install Sphinx==1.2.1
-
-list_updates:
-	$(PIP) list -lo
+	rm -rf ../build/ ../dist/ ../.tox/ ../*.egg*/ $(ENV)/
 
 manage:
 	$(PYTHON) ./manage.py $(COMMAND)
 
 pep8:
-	$(FLAKE8) --statistics ../$(PROJECT)/ $(APP)/*.py
+	$(PEP8) --statistics ../$(PROJECT)/ $(APP)/*.py
 
 shell:
 	COMMAND=shell $(MAKE) manage
