@@ -7,6 +7,10 @@ Define flatpage instance.
 
 """
 
+import operator
+
+from itertools import takewhile
+
 import yaml
 
 from werkzeug.utils import cached_property
@@ -18,7 +22,8 @@ class Page(object):
     Main purpose is to render the page's content with a ``html_renderer``
     function.
     """
-    def __init__(self, path, meta, body, html_renderer):
+
+    def __init__(self, name, location, html_renderer, meta='', body=None):
         """
         Initialize Page instance.
 
@@ -27,12 +32,10 @@ class Page(object):
         :param body: Page body.
         :param html_renderer: HTML renderer function.
         """
-        #: Path this page was obtained from, as in ``pages.get(path)``
-        self.path = path
-        #: Content of the page
+        self.name = name
+        self.location = location
         self._meta = meta
         self.body = body
-        #: Renderer function
         self.html_renderer = html_renderer
 
     def __getitem__(self, name):
@@ -52,7 +55,18 @@ class Page(object):
     def __repr__(self):
         """Machine representation of :class:`Page` instance.
         """
-        return '<Page %r>' % self.path
+        return '<Page %r %r>' % (self.name, self.location)
+
+    def load_content(self, content):
+
+        lines = iter(content.split('\n'))
+
+        meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
+
+        content = '\n'.join(lines)
+        self._meta = meta
+        self.body = content
+
 
     @cached_property
     def html(self):

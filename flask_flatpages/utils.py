@@ -22,7 +22,7 @@ def force_unicode(value, encoding='utf-8', errors='strict'):
     return value.decode(encoding, errors)
 
 
-def pygmented_markdown(text, flatpages=None):
+def pygmented_markdown(text, extensions=[]):
     """Render Markdown text to HTML.
 
     Uses the `CodeHilite`_ extension only if `Pygments`_ is available. If
@@ -37,7 +37,7 @@ def pygmented_markdown(text, flatpages=None):
        http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
-    extensions = flatpages.config('markdown_extensions') if flatpages else []
+
 
     if PygmentsHtmlFormatter is None:
         original_extensions = extensions
