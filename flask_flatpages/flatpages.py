@@ -22,8 +22,9 @@ from .utils import force_unicode, pygmented_markdown
 
 
 class FlatPages(object):
-    """A collection of :class:`Page` objects.
-    """
+
+    """A collection of :class:`Page` objects."""
+
     #: Default configuration for FlatPages extension
     default_config = (
         ('root', 'pages'),
@@ -69,8 +70,7 @@ class FlatPages(object):
             self.init_app(app)
 
     def __iter__(self):
-        """Iterate on all :class:`Page` objects.
-        """
+        """Iterate on all :class:`Page` objects."""
         return compat.itervalues(self._pages)
 
     def config(self, key):
@@ -81,8 +81,9 @@ class FlatPages(object):
         return self.app.config['_'.join((self.config_prefix, key.upper()))]
 
     def get(self, path, default=None):
-        """Returns the :class:`Page` object at ``path``, or ``default`` if
-        there is no such page.
+        """
+        Return the :class:`Page` object at ``path``, or ``default`` if there is
+        no such page.
         """
         # This may trigger the property. Do it outside of the try block.
         pages = self._pages
@@ -92,8 +93,9 @@ class FlatPages(object):
             return default
 
     def get_or_404(self, path):
-        """Returns the :class:`Page` object at ``path``, or raise Flask's
-        404 error if there is no such page.
+        """
+        Return the :class:`Page` object at ``path``, or raise Flask's 404 error
+        if there is no such page.
         """
         page = self.get(path)
         if not page:
@@ -101,8 +103,9 @@ class FlatPages(object):
         return page
 
     def init_app(self, app):
-        """Used to initialize an application, useful for passing an app later
-        and app factory patterns.
+        """
+        Used to initialize an application, useful for passing an app later and
+        app factory patterns.
 
         :param app: your application
         :type app: a :class:`~flask.Flask` instance
@@ -145,8 +148,7 @@ class FlatPages(object):
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
-        """Reset if configured to do so on new requests.
-        """
+        """Reset if configured to do so on new requests."""
         auto = self.config('auto_reload')
         if auto == 'if debug':
             auto = self.app.debug
@@ -154,8 +156,9 @@ class FlatPages(object):
             self.reload()
 
     def _load_file(self, path, filename):
-        """Load file from file system and put it to cached dict as
-        :class:`Path` and `mtime` tuple.
+        """
+        Load file from file system and put it to cached dict as :class:`Path`
+        and `mtime` tuple.
         """
         mtime = os.path.getmtime(filename)
         cached = self._file_cache.get(filename)
@@ -179,8 +182,9 @@ class FlatPages(object):
 
     @cached_property
     def _pages(self):
-        """Walk the page root directory an return a dict of unicode path:
-        page object.
+        """
+        Walk the page root directory and return a dict of ``{unicode path: page
+        object}``.
         """
         def _walker():
             """
@@ -253,8 +257,9 @@ class FlatPages(object):
         return Page(path, meta, content, html_renderer)
 
     def _smart_html_renderer(self, html_renderer):
-        """This wraps the rendering function in order to allow the use of
-        rendering functions with differing signatures.
+        """
+        Wrap the rendering function in order to allow the use of rendering
+        functions with differing signatures.
 
         We stay backwards compatible by using reflection, i.e. we inspect the
         given rendering function's signature in order to find out how many
