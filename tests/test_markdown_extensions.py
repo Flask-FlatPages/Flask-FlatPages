@@ -7,6 +7,7 @@ Test proper work of various Markdown extensions.
 
 """
 
+import sys
 import unittest
 
 from flask import Flask
@@ -84,14 +85,15 @@ class TestMarkdownExtensions(unittest.TestCase):
         app = Flask(__name__)
         app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['extra']
         pages = FlatPages(app)
+        extra_sep = '\n' if sys.version_info[:2] > (2, 6) else '\n\n'
 
         extra = pages.get('extra')
         self.assertEqual(
             extra.html,
             '<p>This is <em>true</em> markdown text.</p>\n'
-            '<div>\n'
+            '<div>{0}'
             '<p>This is <em>true</em> markdown text.</p>\n'
-            '</div>'
+            '</div>'.format(extra_sep)
         )
 
     def test_toc(self):
