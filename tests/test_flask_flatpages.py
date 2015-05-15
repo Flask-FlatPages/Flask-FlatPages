@@ -153,6 +153,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(
             set(page.path for page in pages),
             set(['codehilite',
+                 'extra',
                  'foo',
                  'foo/42/not_a_page',
                  'foo/bar',
@@ -185,6 +186,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(
             set(page.path for page in pages),
             set(['codehilite',
+                 'extra',
                  'foo',
                  'foo/bar',
                  'foo/lorem/ipsum',
@@ -353,6 +355,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(
                 set(page.path for page in pages),
                 set(['codehilite',
+                     'extra',
                      'foo',
                      'foo/bar',
                      'foo/lorem/ipsum',
@@ -368,6 +371,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(
                 set(safe_unicode(page.path for page in pages)),
                 set(['codehilite',
+                     'extra',
                      'foo',
                      'foo/bar',
                      'headerid',

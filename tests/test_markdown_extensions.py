@@ -80,6 +80,20 @@ class TestMarkdownExtensions(unittest.TestCase):
             '</span><span class="p">)</span>\n</pre></div>\n</td></tr></table>'
         )
 
+    def test_extra(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['extra']
+        pages = FlatPages(app)
+
+        extra = pages.get('extra')
+        self.assertEqual(
+            extra.html,
+            '<p>This is <em>true</em> markdown text.</p>\n'
+            '<div>\n'
+            '<p>This is <em>true</em> markdown text.</p>\n'
+            '</div>'
+        )
+
     def test_toc(self):
         app = Flask(__name__)
         app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['toc']
