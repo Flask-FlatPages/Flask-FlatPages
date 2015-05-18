@@ -14,9 +14,7 @@ from .imports import PygmentsHtmlFormatter
 
 
 def force_unicode(value, encoding='utf-8', errors='strict'):
-    """
-    Convert bytes or any other Python instance to string.
-    """
+    """Convert bytes or any other Python instance to string."""
     if isinstance(value, compat.text_type):
         return value
     return value.decode(encoding, errors)

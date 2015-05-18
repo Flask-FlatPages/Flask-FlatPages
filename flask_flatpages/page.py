@@ -17,6 +17,7 @@ from werkzeug.utils import cached_property
 
 
 class Page(object):
+
     """Simple class to store all necessary information about a flatpage.
 
     Main purpose is to render the page's content with a ``html_renderer``
@@ -26,7 +27,6 @@ class Page(object):
     def __init__(self, name, location, html_renderer, meta='', body=None):
         """
         Initialize Page instance.
-
         :param path: Page path.
         :param meta: Page meta data in YAML format.
         :param body: Page body.
@@ -47,7 +47,8 @@ class Page(object):
         return self.meta[name]
 
     def __html__(self):
-        """In a template, ``{{ page }}`` is equivalent to
+        """
+        In a template, ``{{ page }}`` is equivalent to
         ``{{ page.html|safe }}``.
         """
         return self.html
@@ -70,15 +71,12 @@ class Page(object):
 
     @cached_property
     def html(self):
-        """The content of the page, rendered as HTML by the configured
-        renderer.
-        """
+        """Content of the page, rendered as HTML by the configured renderer."""
         return self.html_renderer(self)
 
     @cached_property
     def meta(self):
-        """A dict of metadata parsed as YAML from the header of the file.
-        """
+        """A dict of metadata parsed as YAML from the header of the file."""
         meta = yaml.safe_load(self._meta)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None

@@ -15,6 +15,6 @@ string_types = (str, ) if IS_PY3 else (basestring, )  # noqa
 text_type = str if IS_PY3 else unicode  # noqa
 
 
-def itervalues(obj):
+def itervalues(obj, **kwargs):
     """Iterate over dict values."""
-    return iter(obj.values()) if IS_PY3 else obj.itervalues()
+    return iter(obj.values(**kwargs)) if IS_PY3 else obj.itervalues(**kwargs)
