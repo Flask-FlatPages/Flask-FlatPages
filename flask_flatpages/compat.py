@@ -11,8 +11,17 @@ import sys
 
 
 IS_PY3 = sys.version_info[0] == 3
-string_types = (str, ) if IS_PY3 else (basestring, )  # noqa
-text_type = str if IS_PY3 else unicode  # noqa
+
+if IS_PY3:
+    string_types = (str, )  # noqa
+    text_type = str  # noqa
+    from io import StringIO  # noqa
+
+else:
+    string_types = (basestring, )  # noqa
+    text_type = unicode  # noqa
+
+    from StringIO import StringIO  # noqa
 
 
 def itervalues(obj, **kwargs):
