@@ -6,6 +6,7 @@ flask_flatpages.utils
 Utility functions to render Markdown text to HTML.
 
 """
+import errno
 
 import markdown
 
@@ -20,7 +21,7 @@ def force_unicode(value, encoding='utf-8', errors='strict'):
     return value.decode(encoding, errors)
 
 
-def pygmented_markdown(text, extensions=[]):
+def pygmented_markdown(text, flatpages=None):
     """Render Markdown text to HTML.
 
     Uses the `CodeHilite`_ extension only if `Pygments`_ is available. If
@@ -35,8 +36,7 @@ def pygmented_markdown(text, extensions=[]):
        http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
-
-
+    extensions = flatpages.config('markdown_extensions') if flatpages else []
     if PygmentsHtmlFormatter is None:
         original_extensions = extensions
         extensions = []
@@ -65,3 +65,33 @@ def pygments_style_defs(style='default'):
     """
     formatter = PygmentsHtmlFormatter(style=style)
     return formatter.get_style_defs('.codehilite')
+
+
+def validate_file_extension(extensions):
+    """Create a Tuple with all configured file extensions."""
+    if isinstance(extensions, compat.string_types):
+        if ',' in extensions:
+            extensions = tuple(extensions.split(','))
+        else:
+            extensions = (extensions,)
+    elif isinstance(extensions, (list, set)):
+        extensions = tuple(extensions)
+
+    if not isinstance(extensions, tuple):
+        raise ValueError(
+            'Invalid value for FlatPages extension. Should be a string or '
+            'a sequence, got {0} instead: {1}'.
+            format(type(extensions).__name__, extensions)
+        )
+
+    return extensions
+
+
+def ensure_directory(path):
+    """Create directory if it does not exist, else do nothing."""
+    if not path.exists():
+        try:
+            path.mkdir(parents=True)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
