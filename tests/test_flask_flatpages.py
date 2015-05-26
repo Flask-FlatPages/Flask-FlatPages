@@ -347,8 +347,14 @@ class TestFlatPages(unittest.TestCase):
         def safe_unicode(sequence):
             if sys.platform != 'darwin':
                 return sequence
-            return map(lambda item: unicodedata.normalize('NFC', item),
-                       sequence)
+            seq = []
+            for item in sequence:
+                try:
+                    item = unicodedata.normalize('NFC', item)
+                except TypeError:
+                    pass
+                seq.append(item)
+            return seq
 
         app = Flask(__name__)
         with temp_pages(app) as pages:
