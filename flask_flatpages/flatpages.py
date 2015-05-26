@@ -12,10 +12,9 @@ from flask import abort
 from werkzeug.utils import cached_property
 
 from . import compat
-from .cache import FileCache
-from .page import Page
+from .cache import FileCache, SQLiteCache
 from .renderer import smart_html_renderer
-from .utils import force_unicode, pygmented_markdown
+from .utils import force_unicode, pygmented_markdown, validate_file_extension
 
 
 class FlatPages(object):
@@ -64,6 +63,7 @@ class FlatPages(object):
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
         self._cache = cache
+        self._html_renderer = None
 
         if app:
             self.init_app(app)
@@ -124,21 +124,44 @@ class FlatPages(object):
         app.extensions['flatpages'][self.name] = self
         self.app = app
 
-        self._initCache()
+        self._init_cache()
 
-    def _initCache(self):
+    def _init_cache(self):
+        """Used to initialize the backend cache.
+
+        Right now there is the option to store and load all pages from the
+        filesystem or a SQLite database.
+        """
         if self._cache is None:
             cache_type = self.config('cachetype')
-
+            encoding = self.config('encoding')
             if cache_type == 'file':
-                ext = self.config('extension')
-                encoding = self.config('encoding')
-                html_renderer = self.config('html_renderer')
-                extensions = self.config('markdown_extensions')
-                html_renderer = smart_html_renderer(html_renderer, extensions)
-                self._cache = FileCache(self.root, ext, html_renderer, encoding)
+                ext = validate_file_extension(self.config('extension'))
+                self._cache = FileCache(self.root, ext, encoding)
+            elif cache_type == 'sqlite':
+                self._cache = SQLiteCache(self.root, encoding)
 
-    def reload(self):
+    def store_page(self, page):
+        """Store the given page.
+
+        The page will be saved in the configured backend cache and the _pages
+        dict will be refreshed.
+        """
+        success = self._cache.store_page(page)
+        if success:
+            self.reload()
+
+    def delete_page(self, page):
+        """Delete the page from the cache.
+
+        The page will be removed from the filesystem or database and the _pages
+        dict will be refreshed.
+        """
+        success = self._cache.delete_page(page)
+        if success:
+            self.reload()
+
+    def reload(self, deep=False):
         """Forget all pages.
 
         All pages will be reloaded next time they're accessed.
@@ -147,8 +170,18 @@ class FlatPages(object):
             # This will "unshadow" the cached_property.
             # The property will be re-executed on next access.
             del self.__dict__['_pages']
+            if deep:
+                self._cache.empty()
         except KeyError:
             pass
+
+    @property
+    def html_renderer(self):
+        """Generate a html_renderer for all pages."""
+        if True:
+            html_renderer = self.config('html_renderer')
+            self._html_renderer = smart_html_renderer(html_renderer, self)
+        return self._html_renderer
 
     @property
     def root(self):
@@ -157,7 +190,8 @@ class FlatPages(object):
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
         interpreted as relative to the app's root directory.
         """
-        root_dir = os.path.join(self.app.root_path, self.config('root'))
+        # force a trailing slash by adding an empty element
+        root_dir = os.path.join(self.app.root_path, self.config('root'), '')
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
@@ -170,6 +204,6 @@ class FlatPages(object):
 
     @cached_property
     def _pages(self):
+        """Load all pages from the backend and save them in memory."""
         if self._cache is not None:
-            return self._cache.load_pages()
-
+            return self._cache.load_pages(self.html_renderer)
