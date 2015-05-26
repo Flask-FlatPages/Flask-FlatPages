@@ -63,7 +63,6 @@ class FlatPages(object):
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
         self._cache = cache
-        self._html_renderer = None
 
         if app:
             self.init_app(app)
@@ -178,10 +177,8 @@ class FlatPages(object):
     @property
     def html_renderer(self):
         """Generate a html_renderer for all pages."""
-        if True:
-            html_renderer = self.config('html_renderer')
-            self._html_renderer = smart_html_renderer(html_renderer, self)
-        return self._html_renderer
+        html_renderer = self.config('html_renderer')
+        return smart_html_renderer(html_renderer, self)
 
     @property
     def root(self):
