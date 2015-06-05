@@ -12,9 +12,22 @@ import unittest
 
 from flask import Flask
 from flask_flatpages import FlatPages
+from markdown.extensions.toc import TocExtension
 
 
 class TestMarkdownExtensions(unittest.TestCase):
+
+    def check_toc_page(self, pages):
+        toc = pages.get('toc')
+        self.assertEqual(
+            toc.html,
+            '<div class="toc">\n<ul>\n<li><a href="#page-header">Page '
+            'Header</a><ul>\n<li><a href="#paragraph-header">Paragraph '
+            'Header</a></li>\n</ul>\n</li>\n</ul>\n</div>\n'
+            '<h1 id="page-header">Page Header</h1>\n'
+            '<h2 id="paragraph-header">Paragraph Header</h2>\n'
+            '<p>Text</p>'
+        )
 
     def test_basic(self):
         pages = FlatPages(Flask(__name__))
@@ -100,14 +113,10 @@ class TestMarkdownExtensions(unittest.TestCase):
         app = Flask(__name__)
         app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['toc']
         pages = FlatPages(app)
+        self.check_toc_page(pages)
 
-        toc = pages.get('toc')
-        self.assertEqual(
-            toc.html,
-            '<div class="toc">\n<ul>\n<li><a href="#page-header">Page '
-            'Header</a><ul>\n<li><a href="#paragraph-header">Paragraph '
-            'Header</a></li>\n</ul>\n</li>\n</ul>\n</div>\n'
-            '<h1 id="page-header">Page Header</h1>\n'
-            '<h2 id="paragraph-header">Paragraph Header</h2>\n'
-            '<p>Text</p>'
-        )
+    def test_toc_ext_object(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [TocExtension()]
+        pages = FlatPages(app)
+        self.check_toc_page(pages)

@@ -42,7 +42,10 @@ def pygmented_markdown(text, flatpages=None):
         extensions = []
 
         for extension in original_extensions:
-            if extension.startswith('codehilite'):
+            if (
+                isinstance(extension, compat.string_types) and
+                extension.startswith('codehilite')
+            ):
                 continue
             extensions.append(extension)
     elif not extensions:
