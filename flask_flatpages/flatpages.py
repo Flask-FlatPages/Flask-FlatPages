@@ -6,19 +6,15 @@ flask_flatpages.flatpages
 Flatpages extension.
 
 """
-
-import operator
 import os
 
-from inspect import getargspec
-from itertools import takewhile
-
 from flask import abort
-from werkzeug.utils import cached_property, import_string
+from werkzeug.utils import cached_property
 
 from . import compat
-from .page import Page
-from .utils import force_unicode, pygmented_markdown
+from .cache import FileCache, SQLiteCache
+from .renderer import smart_html_renderer
+from .utils import force_unicode, pygmented_markdown, validate_file_extension
 
 
 class FlatPages(object):
@@ -30,12 +26,13 @@ class FlatPages(object):
         ('root', 'pages'),
         ('extension', '.html'),
         ('encoding', 'utf-8'),
+        ('cachetype', 'file'),
         ('html_renderer', pygmented_markdown),
         ('markdown_extensions', ['codehilite']),
         ('auto_reload', 'if debug'),
     )
 
-    def __init__(self, app=None, name=None):
+    def __init__(self, app=None, name=None, cache=None):
         """Initialize FlatPages extension.
 
         :param app: Your application. Can be omitted if you call
@@ -65,6 +62,7 @@ class FlatPages(object):
 
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
+        self._cache = cache
 
         if app:
             self.init_app(app)
@@ -125,7 +123,44 @@ class FlatPages(object):
         app.extensions['flatpages'][self.name] = self
         self.app = app
 
-    def reload(self):
+        self._init_cache()
+
+    def _init_cache(self):
+        """Used to initialize the backend cache.
+
+        Right now there is the option to store and load all pages from the
+        filesystem or a SQLite database.
+        """
+        if self._cache is None:
+            cache_type = self.config('cachetype')
+            encoding = self.config('encoding')
+            if cache_type == 'file':
+                ext = validate_file_extension(self.config('extension'))
+                self._cache = FileCache(self.root, ext, encoding)
+            elif cache_type == 'sqlite':
+                self._cache = SQLiteCache(self.root, encoding)
+
+    def store_page(self, page):
+        """Store the given page.
+
+        The page will be saved in the configured backend cache and the _pages
+        dict will be refreshed.
+        """
+        success = self._cache.store_page(page)
+        if success:
+            self.reload()
+
+    def delete_page(self, page):
+        """Delete the page from the cache.
+
+        The page will be removed from the filesystem or database and the _pages
+        dict will be refreshed.
+        """
+        success = self._cache.delete_page(page)
+        if success:
+            self.reload()
+
+    def reload(self, deep=False):
         """Forget all pages.
 
         All pages will be reloaded next time they're accessed.
@@ -134,8 +169,16 @@ class FlatPages(object):
             # This will "unshadow" the cached_property.
             # The property will be re-executed on next access.
             del self.__dict__['_pages']
+            if deep:
+                self._cache.empty()
         except KeyError:
             pass
+
+    @property
+    def html_renderer(self):
+        """Generate a html_renderer for all pages."""
+        html_renderer = self.config('html_renderer')
+        return smart_html_renderer(html_renderer, self)
 
     @property
     def root(self):
@@ -144,7 +187,8 @@ class FlatPages(object):
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
         interpreted as relative to the app's root directory.
         """
-        root_dir = os.path.join(self.app.root_path, self.config('root'))
+        # force a trailing slash by adding an empty element
+        root_dir = os.path.join(self.app.root_path, self.config('root'), '')
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
@@ -155,154 +199,8 @@ class FlatPages(object):
         if auto:
             self.reload()
 
-    def _load_file(self, path, filename):
-        """
-        Load file from file system and put it to cached dict as :class:`Path`
-        and `mtime` tuple.
-        """
-        mtime = os.path.getmtime(filename)
-        cached = self._file_cache.get(filename)
-
-        if cached and cached[1] == mtime:
-            page = cached[0]
-        else:
-            encoding = self.config('encoding')
-
-            if compat.IS_PY3:
-                with open(filename, encoding=encoding) as handler:
-                    content = handler.read()
-            else:
-                with open(filename) as handler:
-                    content = handler.read().decode(encoding)
-
-            page = self._parse(content, path)
-            self._file_cache[filename] = (page, mtime)
-
-        return page
-
     @cached_property
     def _pages(self):
-        """
-        Walk the page root directory and return a dict of ``{unicode path: page
-        object}``.
-        """
-        def _walker():
-            """
-            Walk over directory and find all possible flatpages, i.e. files
-            which end with the string or sequence given by
-            ``FLATPAGES_%(name)s_EXTENSION``.
-            """
-            for cur_path, _, filenames in os.walk(self.root):
-                rel_path = cur_path.replace(self.root, '').lstrip(os.sep)
-                path_prefix = tuple(rel_path.split(os.sep)) if rel_path else ()
-
-                for name in filenames:
-                    if not name.endswith(extension):
-                        continue
-
-                    full_name = os.path.join(cur_path, name)
-                    name_without_extension = [name[:-len(item)]
-                                              for item in extension
-                                              if name.endswith(item)][0]
-                    path = u'/'.join(path_prefix + (name_without_extension, ))
-                    yield (path, full_name)
-
-        # Read extension from config
-        extension = self.config('extension')
-
-        # Support for multiple extensions
-        if isinstance(extension, compat.string_types):
-            if ',' in extension:
-                extension = tuple(extension.split(','))
-            else:
-                extension = (extension, )
-        elif isinstance(extension, (list, set)):
-            extension = tuple(extension)
-
-        # FlatPage extension should be a string or a sequence
-        if not isinstance(extension, tuple):
-            raise ValueError(
-                'Invalid value for FlatPages extension. Should be a string or '
-                'a sequence, got {0} instead: {1}'.
-                format(type(extension).__name__, extension)
-            )
-
-        return dict([(path, self._load_file(path, full_name))
-                     for path, full_name in _walker()])
-
-    def _parse(self, content, path):
-        """Parse a flatpage file, i.e. read and parse its meta data and body.
-
-        :return: initialized :class:`Page` instance.
-        """
-        lines = iter(content.split('\n'))
-
-        # Read lines until an empty line is encountered.
-        meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
-        # The rest is the content. `lines` is an iterator so it continues
-        # where `itertools.takewhile` left it.
-        content = '\n'.join(lines)
-
-        # Now we ready to get HTML renderer function
-        html_renderer = self.config('html_renderer')
-
-        # If function is not callable yet, import it
-        if not callable(html_renderer):
-            html_renderer = import_string(html_renderer)
-
-        # Make able to pass custom arguments to renderer function
-        html_renderer = self._smart_html_renderer(html_renderer)
-
-        # Initialize and return Page instance
-        return Page(path, meta, content, html_renderer)
-
-    def _smart_html_renderer(self, html_renderer):
-        """
-        Wrap the rendering function in order to allow the use of rendering
-        functions with differing signatures.
-
-        We stay backwards compatible by using reflection, i.e. we inspect the
-        given rendering function's signature in order to find out how many
-        arguments the function takes.
-
-        .. versionchanged:: 0.6
-
-           Support for HTML renderer functions with signature
-           ``f(body, flatpages, page)``, where ``page`` is an instance of
-           :class:`Page`.
-
-        .. versionchanged:: 0.5
-
-           Support for HTML renderer functions with signature
-           ``f(body, flatpages)``, where ``flatpages`` is an instance of
-           :class:`FlatPages`.
-
-        """
-        def wrapper(page):
-            """Simple wrapper to inspect the HTML renderer function and pass
-            arguments to it based on the number of arguments.
-
-            * 1 argument -> page body
-            * 2 arguments -> page body, flatpages instance
-            * 3 arguments -> page body, flatpages instance, page instance
-            """
-            body = page.body
-
-            try:
-                args_length = len(getargspec(html_renderer).args)
-            except TypeError:
-                return html_renderer(body)
-
-            if args_length == 1:
-                return html_renderer(body)
-            elif args_length == 2:
-                return html_renderer(body, self)
-            elif args_length == 3:
-                return html_renderer(body, self, page)
-
-            raise ValueError(
-                'HTML renderer function {0!r} not supported by '
-                'Flask-FlatPages, wrong number of arguments: {1}.'.
-                format(html_renderer, args_length)
-            )
-        return wrapper
+        """Load all pages from the backend and save them in memory."""
+        if self._cache is not None:
+            return self._cache.load_pages(self.html_renderer)

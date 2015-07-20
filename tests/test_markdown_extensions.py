@@ -39,8 +39,7 @@ class TestMarkdownExtensions(unittest.TestCase):
         )
 
         pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = []
-        pages.reload()
-        pages._file_cache = {}
+        pages.reload(deep=True)
 
         hello = pages.get('headerid')
         self.assertEqual(
@@ -51,8 +50,7 @@ class TestMarkdownExtensions(unittest.TestCase):
         pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
             'codehilite', 'headerid'
         ]
-        pages.reload()
-        pages._file_cache = {}
+        pages.reload(deep=True)
 
         hello = pages.get('headerid')
         self.assertEqual(
