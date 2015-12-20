@@ -227,8 +227,19 @@ class FlatPages(object):
                 format(type(extension).__name__, extension)
             )
 
-        return dict([(path, self._load_file(path, full_name))
-                     for path, full_name in _walker()])
+        pages = dict()
+
+        for path, full_name in _walker():
+            page = self._load_file(path, full_name)
+
+            # if user is hiding drafts, then don't return pages marked as draft
+            if self.app.config['FLATPAGES_HIDE_DRAFTS'] \
+                    and page.meta.get('draft'):
+                pass  # do not include this page
+            else:
+                pages.update([(path, page)])
+
+        return pages
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
