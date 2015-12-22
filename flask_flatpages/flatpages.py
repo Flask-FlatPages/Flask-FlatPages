@@ -33,6 +33,7 @@ class FlatPages(object):
         ('html_renderer', pygmented_markdown),
         ('markdown_extensions', ['codehilite']),
         ('auto_reload', 'if debug'),
+        ('hide_drafts', False),
     )
 
     def __init__(self, app=None, name=None):
