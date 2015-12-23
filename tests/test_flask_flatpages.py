@@ -153,6 +153,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(
             set(page.path for page in pages),
             set(['codehilite',
+                 'draft',
                  'extra',
                  'foo',
                  'foo/42/not_a_page',
@@ -186,6 +187,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(
             set(page.path for page in pages),
             set(['codehilite',
+                 'draft',
                  'extra',
                  'foo',
                  'foo/bar',
@@ -355,6 +357,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(
                 set(page.path for page in pages),
                 set(['codehilite',
+                     'draft',
                      'extra',
                      'foo',
                      'foo/bar',
@@ -371,6 +374,7 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(
                 set(safe_unicode(page.path for page in pages)),
                 set(['codehilite',
+                     'draft',
                      'extra',
                      'foo',
                      'foo/bar',
@@ -397,3 +401,12 @@ class TestFlatPages(unittest.TestCase):
                          datetime.datetime(2015, 2, 9, 10, 59, 0))
         self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
+
+    def test_draft_exclusion(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_HIDE_DRAFTS'] = True
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set([u'foo/lorem/ipsum', u'toc', u'foo/bar', u'hello', u'foo', u'headerid', u'extra', u'codehilite'])
+        )
