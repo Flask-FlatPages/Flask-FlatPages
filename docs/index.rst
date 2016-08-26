@@ -207,6 +207,9 @@ Pre-rendering Markdown flatpages with Jinja
     def my_renderer(text):
         prerendered_body = render_template_string(text)
         return pygmented_markdown(prerendered_body)
+        # Or, if you wish to render using the markdown extensions
+        # listed in FLATPAGES_MARKDOWN_EXTENSIONS:
+        #return pygmented_markdown(prerendered_body, flatpages=pages)
 
     app = Flask(__name__)
     app.config['FLATPAGES_HTML_RENDERER'] = my_renderer
