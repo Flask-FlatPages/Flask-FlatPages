@@ -70,6 +70,6 @@ class Page(object):
         if not meta:
             return {}
         if not isinstance(meta, dict):
-            raise ValueError("Excpected a dict in metadata for '{0}', got {1}".
+            raise ValueError("Expected a dict in metadata for '{0}', got {1}".
                              format(self.path, type(meta).__name__))
         return meta
