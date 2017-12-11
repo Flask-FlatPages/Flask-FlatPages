@@ -142,9 +142,13 @@ class FlatPages(object):
         """Full path to the directory where pages are looked for.
 
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
-        interpreted as relative to the app's root directory.
+        taken exactly if it is an absolute path, or interpreted as relative to
+        the app's root directory otherwise
         """
-        root_dir = os.path.join(self.app.root_path, self.config('root'))
+        if os.path.isabs(self.config('root'):
+            root_dir = self.config('root')
+        else:
+            root_dir = os.path.join(self.app.root_path, self.config('root'))
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
