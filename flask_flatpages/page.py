@@ -63,13 +63,17 @@ class Page(object):
     @cached_property
     def meta(self):
         """A dict of metadata parsed as YAML from the header of the file."""
-        meta = yaml.safe_load(self._meta)
+        meta = yaml.safe_load_all(self._meta)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None
         #     yaml.safe_load('- 1\n- a') -> [1, 'a']
-        if not meta:
+
+        meta_list = list(meta)
+        meta_dict = dict(meta_list[0])
+
+        if not meta_dict:
             return {}
-        if not isinstance(meta, dict):
+        if not isinstance(meta_dict, dict):
             raise ValueError("Expected a dict in metadata for '{0}', got {1}".
-                             format(self.path, type(meta).__name__))
-        return meta
+                             format(self.path, type(meta_dict).__name__))
+        return meta_dict
