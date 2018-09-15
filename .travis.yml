@@ -1,15 +1,10 @@
 language: python
-env:
-  - TOXENV=py27-flask10
-  - TOXENV=py27-flask102
-  - TOXENV=py34-flask10
-  - TOXENV=py34-flask102
-  - TOXENV=py35-flask10
-  - TOXENV=py35-flask102
-  - TOXENV=py36-flask10
-  - TOXENV=py36-flask102
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
 
 install:
-  - pip install tox>=3.3.0
+  - pip install tox-travis
 script:
   - tox
