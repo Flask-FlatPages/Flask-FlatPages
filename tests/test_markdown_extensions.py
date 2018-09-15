@@ -47,7 +47,14 @@ class TestMarkdownExtensions(unittest.TestCase):
             hello.html,
             u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
         )
-
+        codehilite = pages.get('codehilite') #Test codehilite loaded by default
+                                             #by pygmented_markdown
+        self.assertEqual(
+            codehilite.html,
+            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
+            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>'
+        )
         pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
             'codehilite', 'headerid'
         ]
@@ -61,19 +68,37 @@ class TestMarkdownExtensions(unittest.TestCase):
             '<h2 id="paragraph-header">Paragraph Header</h2>\n'
             '<p>Text</p>'
         )
+        codehilite = pages.get('codehilite') #Test codehilite also loaded
+        self.assertEqual(
+            codehilite.html,
+            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
+            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>'
+        )
 
     def test_codehilite_linenums_disabled(self):
+        #Test implicitly disabled
         app = Flask(__name__)
-        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
-            'codehilite(linenums=False)'
-        ]
+        app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['codehilite']
         pages = FlatPages(app)
-
         codehilite = pages.get('codehilite')
         self.assertEqual(
             codehilite.html,
-            '<div class="codehilite"><pre><span class="k">print</span>'
-            '<span class="p">(</span><span class="s">&#39;Hello, world!&#39;'
+            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
+            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</pre></div>'
+        )
+        #Test explicity disabled
+        pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+            'codehilite(linenums=False)'
+        ]
+        pages.reload()
+        pages._file_cache = {}
+        codehilite = pages.get('codehilite')
+        self.assertEqual(
+            codehilite.html,
+            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
+            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
             '</span><span class="p">)</span>\n</pre></div>'
         )
 
@@ -89,8 +114,8 @@ class TestMarkdownExtensions(unittest.TestCase):
             codehilite.html,
             '<table class="codehilitetable"><tr><td class="linenos">'
             '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
-            '<div class="codehilite"><pre><span class="k">print</span>'
-            '<span class="p">(</span><span class="s">&#39;Hello, world!&#39;'
+            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
+            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
             '</span><span class="p">)</span>\n</pre></div>\n</td></tr></table>'
         )
 

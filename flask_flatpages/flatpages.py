@@ -7,11 +7,10 @@ Flatpages extension.
 
 """
 
-import operator
-import os
-
 from inspect import getargspec
 from itertools import takewhile
+import operator
+import os
 
 from flask import abort
 from werkzeug.utils import cached_property, import_string
@@ -22,7 +21,6 @@ from .utils import force_unicode, pygmented_markdown
 
 
 class FlatPages(object):
-
     """A collection of :class:`Page` objects."""
 
     #: Default configuration for FlatPages extension
@@ -104,7 +102,7 @@ class FlatPages(object):
 
     def init_app(self, app):
         """
-        Used to initialize an application, useful for passing an app later and
+        Use to initialize an application, useful for passing an app later and
         app factory patterns.
 
         :param app: your application
@@ -279,7 +277,7 @@ class FlatPages(object):
 
         """
         def wrapper(page):
-            """Simple wrapper to inspect the HTML renderer function and pass
+            """Use to wrap HTML renderer function and pass
             arguments to it based on the number of arguments.
 
             * 1 argument -> page body
