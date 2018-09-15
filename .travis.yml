@@ -1,24 +1,15 @@
 language: python
 env:
-  - TOXENV=py26-flask08
-  - TOXENV=py26-flask09
-  - TOXENV=py26-flask010
-  - TOXENV=py27-flask08
-  - TOXENV=py27-flask09
-  - TOXENV=py27-flask010
-  - TOXENV=py33-flask010
-  - TOXENV=py34-flask010
-  - TOXENV=pypy-flask08
-  - TOXENV=pypy-flask09
-  - TOXENV=pypy-flask010
+  - TOXENV=py27-flask10
+  - TOXENV=py27-flask102
+  - TOXENV=py34-flask10
+  - TOXENV=py34-flask102
+  - TOXENV=py35-flask10
+  - TOXENV=py35-flask102
+  - TOXENV=py36-flask10
+  - TOXENV=py36-flask102
 
 install:
-  - pip install tox==1.9.2
+  - pip install tox>=3.3.0
 script:
   - tox
-
-matrix:
-  allow_failures:
-    - env: TOXENV=pypy-flask08
-    - env: TOXENV=pypy-flask09
-    - env: TOXENV=pypy-flask010

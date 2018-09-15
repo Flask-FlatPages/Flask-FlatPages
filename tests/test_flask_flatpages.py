@@ -18,7 +18,7 @@ import unittest
 from contextlib import contextmanager
 
 from flask import Flask
-from flask.ext.flatpages import FlatPages, compat, pygments_style_defs
+from flask_flatpages import FlatPages, compat, pygments_style_defs
 from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
