@@ -28,9 +28,9 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'Flask>=0.8',
+        'Flask>=1.0',
         'PyYAML>=3.10',
-        'Markdown>=2.3.1'
+        'Markdown>=2.6.11'
     ],
     tests_require=['Pygments>=1.6'],
     extras_require={
