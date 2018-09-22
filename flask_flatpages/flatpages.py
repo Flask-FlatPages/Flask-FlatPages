@@ -224,9 +224,14 @@ class FlatPages(object):
                 'a sequence, got {0} instead: {1}'.
                 format(type(extension).__name__, extension)
             )
-
-        return dict([(path, self._load_file(path, full_name))
-                     for path, full_name in _walker()])
+        pages = {}
+        for path, full_name in _walker():
+            if path in pages:
+                raise ValueError(
+                    'Multiple pages found which correspond to the same path. '
+                    'This error can arise when using multiple extensions.')
+            pages[path] = self._load_file(path, full_name)
+        return pages
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.

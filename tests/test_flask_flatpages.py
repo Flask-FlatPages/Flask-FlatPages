@@ -170,6 +170,16 @@ class TestFlatPages(unittest.TestCase):
     def test_extension_tuple(self):
         self.test_extension_sequence(('.html', '.txt'))
 
+    def test_catch_conflicting_paths(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = ['.html', '.txt']
+        with temp_pages(app) as pages:
+            original_file = os.path.join(pages.root, 'hello.html')
+            target_file = os.path.join(pages.root, 'hello.txt')
+            shutil.copyfile(original_file, target_file)
+            pages.reload()
+            self.assertRaises(ValueError, pages.get, 'hello')
+
     def test_get(self):
         pages = FlatPages(Flask(__name__))
         self.assertEqual(pages.get('foo/bar').path, 'foo/bar')
