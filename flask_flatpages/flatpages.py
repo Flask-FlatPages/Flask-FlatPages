@@ -32,6 +32,7 @@ class FlatPages(object):
         ('markdown_extensions', ['codehilite']),
         ('extension_configs', {}),
         ('auto_reload', 'if debug'),
+        ('case_insensitive', False)
     )
 
     def __init__(self, app=None, name=None):
@@ -204,6 +205,8 @@ class FlatPages(object):
                                               for item in extension
                                               if name.endswith(item)][0]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
+                    if self.config('case_insensitive'):
+                        path = path.lower()
                     yield (path, full_name)
 
         # Read extension from config

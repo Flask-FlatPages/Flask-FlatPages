@@ -180,6 +180,36 @@ class TestFlatPages(unittest.TestCase):
             pages.reload()
             self.assertRaises(ValueError, pages.get, 'hello')
 
+    def test_case_insensitive(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = ['.html', '.txt']
+        app.config['FLATPAGES_CASE_INSENSITIVE'] = True
+        with temp_pages(app) as pages:
+            original_file = os.path.join(pages.root, 'hello.html')
+            upper_file = os.path.join(pages.root, 'Hello.html')
+            txt_file = os.path.join(pages.root, 'hello.txt')
+            print(original_file)
+            print(upper_file)
+            shutil.move(original_file, upper_file)
+            print(os.listdir(pages.root))
+            pages.reload()
+            self.assertEqual(
+                set(page.path for page in pages),
+                set(['codehilite',
+                     'extra',
+                     'foo',
+                     'foo/42/not_a_page',
+                     'foo/bar',
+                     'foo/lorem/ipsum',
+                     'headerid',
+                     'hello',
+                     'not_a_page',
+                     'toc'])
+            )
+            shutil.copyfile(upper_file, txt_file)
+            pages.reload()
+            self.assertRaises(ValueError, pages.get, 'hello')
+
     def test_get(self):
         pages = FlatPages(Flask(__name__))
         self.assertEqual(pages.get('foo/bar').path, 'foo/bar')
