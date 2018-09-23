@@ -30,6 +30,7 @@ class FlatPages(object):
         ('encoding', 'utf-8'),
         ('html_renderer', pygmented_markdown),
         ('markdown_extensions', ['codehilite']),
+        ('extension_configs', {}),
         ('auto_reload', 'if debug'),
     )
 
