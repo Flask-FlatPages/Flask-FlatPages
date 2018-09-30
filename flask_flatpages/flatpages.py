@@ -32,7 +32,8 @@ class FlatPages(object):
         ('markdown_extensions', ['codehilite']),
         ('extension_configs', {}),
         ('auto_reload', 'if debug'),
-        ('case_insensitive', False)
+        ('case_insensitive', False),
+        ('instance_folder', False)
     )
 
     def __init__(self, app=None, name=None):
@@ -144,7 +145,11 @@ class FlatPages(object):
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
         interpreted as relative to the app's root directory.
         """
-        root_dir = os.path.join(self.app.root_path, self.config('root'))
+        if self.config('instance_folder'):
+            root_dir = os.path.join(self.app.instance_path,
+                                    self.config('root'))
+        else:
+            root_dir = os.path.join(self.app.root_path, self.config('root'))
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
