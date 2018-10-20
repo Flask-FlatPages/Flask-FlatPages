@@ -68,7 +68,8 @@ class TestMarkdownExtensions(unittest.TestCase):
             '<h2 id="paragraph-header">Paragraph Header</h2>\n'
             '<p>Text</p>'
         )
-        codehilite = pages.get('codehilite') #Test codehilite also loaded
+        #Test codehilite also loaded
+        codehilite = pages.get('codehilite')
         self.assertEqual(
             codehilite.html,
             '<div class="codehilite"><pre><span></span><span class="k">print</span>'
@@ -77,18 +78,10 @@ class TestMarkdownExtensions(unittest.TestCase):
         )
 
     def test_codehilite_linenums_disabled(self):
-        #Test implicitly disabled
+        #Test explicity disabled
         app = Flask(__name__)
         app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['codehilite']
         pages = FlatPages(app)
-        codehilite = pages.get('codehilite')
-        self.assertEqual(
-            codehilite.html,
-            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
-            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-            '</span><span class="p">)</span>\n</pre></div>'
-        )
-        #Test explicity disabled
         pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
             'codehilite(linenums=False)'
         ]

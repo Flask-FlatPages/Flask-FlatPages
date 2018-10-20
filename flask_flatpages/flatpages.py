@@ -7,10 +7,10 @@ Flatpages extension.
 
 """
 
-from inspect import getargspec
-from itertools import takewhile
 import operator
 import os
+from inspect import getargspec
+from itertools import takewhile
 
 from flask import abort
 from werkzeug.utils import cached_property, import_string

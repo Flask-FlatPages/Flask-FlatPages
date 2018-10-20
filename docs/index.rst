@@ -4,7 +4,7 @@ Flask-FlatPages
 Flask-FlatPages provides a collection of pages to your `Flask`_ application.
 Pages are built from “flat” text files as opposed to a relational database.
 
-* Works on Python 2.6, 2.7 and 3.3+
+* Works on Python 2.7 and 3.4+
 * BSD licensed
 * Latest documentation `on Read the Docs`_
 * Source, issues and pull requests `on Github`_
@@ -101,8 +101,8 @@ are optional.
     using footnotes extension, use next syntax:
     ``['footnotes(UNIQUE_IDS=True)']``.
 
-    To disable line numbers in CodeHilite extension, which are enabled by
-    default, use: ``['codehilite(linenums=False)']``
+    To enable line numbers in CodeHilite extension, which are disabled by
+    default, use: ``['codehilite(linenums=True)']``
 
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
@@ -325,6 +325,12 @@ API
 
 Changelog
 ---------
+
+Vesrion 0.6.1
+~~~~~~~~~~~~~
+
+* Update dependencies to `Flask>=1.0` (as Flask 0.12.1 has known vulnerabilities).
+* Pin `Markdown<=3.0` as the Markdown extension API has changed.
 
 Version 0.6
 ~~~~~~~~~~~

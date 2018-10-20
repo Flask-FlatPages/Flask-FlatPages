@@ -7,8 +7,8 @@ Define flatpage instance.
 
 """
 
-from werkzeug.utils import cached_property
 import yaml
+from werkzeug.utils import cached_property
 
 
 class Page(object):
