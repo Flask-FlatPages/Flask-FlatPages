@@ -18,7 +18,7 @@ import unittest
 from contextlib import contextmanager
 
 from flask import Flask
-from flask.ext.flatpages import FlatPages, compat, pygments_style_defs
+from flask_flatpages import FlatPages, compat, pygments_style_defs
 from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
@@ -169,6 +169,16 @@ class TestFlatPages(unittest.TestCase):
 
     def test_extension_tuple(self):
         self.test_extension_sequence(('.html', '.txt'))
+
+    def test_catch_conflicting_paths(self):
+        app = Flask(__name__)
+        app.config['FLATPAGES_EXTENSION'] = ['.html', '.txt']
+        with temp_pages(app) as pages:
+            original_file = os.path.join(pages.root, 'hello.html')
+            target_file = os.path.join(pages.root, 'hello.txt')
+            shutil.copyfile(original_file, target_file)
+            pages.reload()
+            self.assertRaises(ValueError, pages.get, 'hello')
 
     def test_get(self):
         pages = FlatPages(Flask(__name__))

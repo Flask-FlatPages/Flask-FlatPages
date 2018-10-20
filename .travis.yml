@@ -1,24 +1,14 @@
+sudo: true
+dist: xenial
 language: python
-env:
-  - TOXENV=py26-flask08
-  - TOXENV=py26-flask09
-  - TOXENV=py26-flask010
-  - TOXENV=py27-flask08
-  - TOXENV=py27-flask09
-  - TOXENV=py27-flask010
-  - TOXENV=py33-flask010
-  - TOXENV=py34-flask010
-  - TOXENV=pypy-flask08
-  - TOXENV=pypy-flask09
-  - TOXENV=pypy-flask010
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
 
 install:
-  - pip install tox==1.9.2
+  - pip install tox-travis==0.10
 script:
   - tox
-
-matrix:
-  allow_failures:
-    - env: TOXENV=pypy-flask08
-    - env: TOXENV=pypy-flask09
-    - env: TOXENV=pypy-flask010

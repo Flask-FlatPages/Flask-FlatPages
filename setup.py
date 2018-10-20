@@ -28,9 +28,9 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'Flask>=0.8',
+        'Flask>=1.0',
         'PyYAML>=3.10',
-        'Markdown>=2.3.1'
+        'Markdown<3.0'
     ],
     tests_require=['Pygments>=1.6'],
     extras_require={
@@ -48,8 +48,9 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: PyPy',
     ]
 )

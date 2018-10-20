@@ -9,7 +9,6 @@ Flatpages extension.
 
 import operator
 import os
-
 from inspect import getargspec
 from itertools import takewhile
 
@@ -22,7 +21,6 @@ from .utils import force_unicode, pygmented_markdown
 
 
 class FlatPages(object):
-
     """A collection of :class:`Page` objects."""
 
     #: Default configuration for FlatPages extension
@@ -104,7 +102,7 @@ class FlatPages(object):
 
     def init_app(self, app):
         """
-        Used to initialize an application, useful for passing an app later and
+        Use to initialize an application, useful for passing an app later and
         app factory patterns.
 
         :param app: your application
@@ -226,9 +224,14 @@ class FlatPages(object):
                 'a sequence, got {0} instead: {1}'.
                 format(type(extension).__name__, extension)
             )
-
-        return dict([(path, self._load_file(path, full_name))
-                     for path, full_name in _walker()])
+        pages = {}
+        for path, full_name in _walker():
+            if path in pages:
+                raise ValueError(
+                    'Multiple pages found which correspond to the same path. '
+                    'This error can arise when using multiple extensions.')
+            pages[path] = self._load_file(path, full_name)
+        return pages
 
     def _parse(self, content, path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
@@ -279,7 +282,7 @@ class FlatPages(object):
 
         """
         def wrapper(page):
-            """Simple wrapper to inspect the HTML renderer function and pass
+            """Use to wrap HTML renderer function and pass
             arguments to it based on the number of arguments.
 
             * 1 argument -> page body

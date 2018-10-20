@@ -8,12 +8,10 @@ Define flatpage instance.
 """
 
 import yaml
-
 from werkzeug.utils import cached_property
 
 
 class Page(object):
-
     """Simple class to store all necessary information about a flatpage.
 
     Main purpose is to render the page's content with a ``html_renderer``
@@ -62,7 +60,10 @@ class Page(object):
 
     @cached_property
     def meta(self):
-        """A dict of metadata parsed as YAML from the header of the file."""
+        """
+        Store a dict of metadata parsed as YAML
+        from the header of the file.
+        """
         meta = yaml.safe_load(self._meta)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None
