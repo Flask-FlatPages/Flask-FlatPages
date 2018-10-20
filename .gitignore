@@ -6,6 +6,6 @@
 /dist
 /docs/_build
 /.tox
-
+.DS_Store
 env*
 .coverage
