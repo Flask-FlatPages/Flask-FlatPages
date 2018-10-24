@@ -62,9 +62,9 @@ are optional.
 ``FLATPAGES_INSTANCE_RELATIVE``
     .. versionadded:: 0.7
     If `True`, Flask-Flatpages will interpret the root as relative to the
-    application's `instance folder`_. Defaults to `False`.
-
-    .._instance folder: http://flask.pocoo.org/docs/1.0/config/#instance-folders
+    application's 
+    `instance folder <http://flask.pocoo.org/docs/1.0/config/#instance-folders>`_.
+    Defaults to `False`.
 
 ``FLATPAGES_EXTENSION``
     Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
@@ -77,7 +77,7 @@ are optional.
 
 ``FLATPAGES_CASE_INSENSITIVE``
     .. versionadded:: 0.7
-    If `True`, the path property of each :class: `Page` instance will be all
+    If `True`, the path property of each :class:`Page` instance will be all
     lower case. Flask-Flatpages will throw a `ValueError` if multiple pages
     would correspond to the same path.
 
@@ -360,7 +360,8 @@ Changelog
 Version 0.7.0
 ~~~~~~~~~~~~~
 
-* Update to Markdown 3.0 with new extension loading config.
+* Update to Markdown 3.0 with new extension loading syntax. 
+* Added `FLATPAGES_EXTENSION_CONFIGS` for configuring extensions specified by import string.
 * Add support for loading pages from Flask instance folder
 * Add a case insensitive loading option
 
