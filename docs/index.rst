@@ -357,7 +357,14 @@ API
 Changelog
 ---------
 
-Vesrion 0.6.1
+Version 0.7.0
+~~~~~~~~~~~~~
+
+* Update to Markdown 3.0 with new extension loading config.
+* Add support for loading pages from Flask instance folder
+* Add a case insensitive loading option
+
+Version 0.6.1
 ~~~~~~~~~~~~~
 
 * Update dependencies to `Flask>=1.0` (as Flask 0.12.1 has known vulnerabilities).
