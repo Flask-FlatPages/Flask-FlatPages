@@ -17,4 +17,4 @@ from .utils import pygmented_markdown, pygments_style_defs  # noqa
 
 __author__ = 'Simon Sapin, Igor Davydenko, Padraic Calpin'
 __license__ = 'BSD License'
-__version__ = '0.6.1'
+__version__ = '0.7.0'

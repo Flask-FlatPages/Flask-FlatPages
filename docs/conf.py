@@ -226,5 +226,5 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'flask-flatpages', u'Flask-FlatPages Documentation',
-     [u'Simon Sapin', u'Igor Davydenko'], 1)
+     [u'Simon Sapin', u'Igor Davydenko', u'Padraic Calpin'], 1)
 ]

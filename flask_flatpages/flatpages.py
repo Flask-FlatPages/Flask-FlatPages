@@ -30,7 +30,10 @@ class FlatPages(object):
         ('encoding', 'utf-8'),
         ('html_renderer', pygmented_markdown),
         ('markdown_extensions', ['codehilite']),
+        ('extension_configs', {}),
         ('auto_reload', 'if debug'),
+        ('case_insensitive', False),
+        ('instance_relative', False)
     )
 
     def __init__(self, app=None, name=None):
@@ -140,9 +143,16 @@ class FlatPages(object):
         """Full path to the directory where pages are looked for.
 
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
-        interpreted as relative to the app's root directory.
+        interpreted as relative to the app's root directory, or as relative
+        to the app's instance folder if `FLATPAGES_%(name)s_INSTANCE_RELATIVE`
+        is set to `True`.
+
         """
-        root_dir = os.path.join(self.app.root_path, self.config('root'))
+        if self.config('instance_folder'):
+            root_dir = os.path.join(self.app.instance_path,
+                                    self.config('root'))
+        else:
+            root_dir = os.path.join(self.app.root_path, self.config('root'))
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
@@ -203,6 +213,8 @@ class FlatPages(object):
                                               for item in extension
                                               if name.endswith(item)][0]
                     path = u'/'.join(path_prefix + (name_without_extension, ))
+                    if self.config('case_insensitive'):
+                        path = path.lower()
                     yield (path, full_name)
 
         # Read extension from config

@@ -29,29 +29,44 @@ def pygmented_markdown(text, flatpages=None):
 
     If you need other extensions, set them up using the
     ``FLATPAGES_MARKDOWN_EXTENSIONS`` setting, which should be a sequence
-    of strings.
+    of strings or Markdown Extension objects.
+    Extensions specified with entrypoint strings should be configured using
+    ``FLATPAGES_EXTENSION_CONFIGS``.
 
     .. _CodeHilite:
        http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
-    extensions = flatpages.config('markdown_extensions') if flatpages else []
-
+    if flatpages:
+        extensions = flatpages.config('markdown_extensions')
+        extension_configs = flatpages.config('extension_configs')
+    else:
+        extensions = []
+        extension_configs = {}
     if PygmentsHtmlFormatter is None:
         original_extensions = extensions
+        original_config = extension_configs
         extensions = []
+        extension_configs = {}
 
         for extension in original_extensions:
             if (
                 isinstance(extension, compat.string_types) and
-                extension.startswith('codehilite')
+                'codehilite' in extension
+            ):
+                continue
+            elif isinstance(
+                extension,
+                markdown.extensions.codehilite.CodeHiliteExtension
             ):
                 continue
             extensions.append(extension)
+            if isinstance(extension, compat.string_types):
+                extension_configs[extension] = original_config[extension]
     elif not extensions:
         extensions = ['codehilite']
-
-    return markdown.markdown(text, extensions)
+    return markdown.markdown(text, extensions=extensions,
+                             extension_configs=extension_configs)
 
 
 def pygments_style_defs(style='default'):
