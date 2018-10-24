@@ -112,11 +112,11 @@ are optional.
     ``['codehilite']``.
 
     .. versionchanged:: 0.7
-    Markdown 3.0 changed the syntax for passing extensions, and for configuring
-    extensions. In particular, configuring an extension by passing keyword
-    arguments along with the import string is now deprecated.
-    Instead, these options need to be passed in a dict. For more information,
-    see ``FLATPAGES_EXTENSION_CONFIG``.
+    Markdown 2.5 changed the syntax for passing extensions, and for configuring
+    extensions. 
+    In particular, configuring an extension by passing keyword arguments along
+    with the import string is now deprecated. Instead, these options need to be
+    passed in a dict. For more information, see ``FLATPAGES_EXTENSION_CONFIG``.
 
 ``FLATPAGES_EXTENSION_CONFIGS``
     .. versionadded:: 0.7

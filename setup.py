@@ -30,7 +30,7 @@ setup(
     install_requires=[
         'Flask>=1.0',
         'PyYAML>=3.10',
-        'Markdown>=3.0'
+        'Markdown>=2.5'
     ],
     tests_require=['Pygments>=1.6'],
     extras_require={
