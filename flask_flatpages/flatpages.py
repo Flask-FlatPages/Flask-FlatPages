@@ -148,7 +148,7 @@ class FlatPages(object):
         is set to `True`.
 
         """
-        if self.config('instance_folder'):
+        if self.config('instance_relative'):
             root_dir = os.path.join(self.app.instance_path,
                                     self.config('root'))
         else:
