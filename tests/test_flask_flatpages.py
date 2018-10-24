@@ -258,6 +258,17 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(foo.body, 'Foo *bar*\n')
         self.assertEqual(foo.html, '<p>Foo <em>bar</em></p>')
 
+    def test_instance_relative(self):
+        with temp_directory() as temp:
+            source = os.path.join(os.path.dirname(__file__), 'pages')
+            dest = os.path.join(temp, 'instance', 'pages')
+            shutil.copytree(source, dest)
+            app = Flask(__name__, instance_path=os.path.join(temp, 'instance'))
+            app.config['FLATPAGES_INSTANCE_RELATIVE'] = True
+            pages = FlatPages(app)
+            bar = pages.get('foo/bar')
+            self.assertTrue(bar is not None)
+
     def test_multiple_instance(self):
         """
         This does a very basic test to see if two instances of FlatPages,
