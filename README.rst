@@ -2,8 +2,8 @@
 Flask-FlatPages
 ===============
 
-.. image:: https://secure.travis-ci.org/SimonSapin/Flask-FlatPages.png?branch=master&style=flat
-    :target: https://travis-ci.org/SimonSapin/Flask-FlatPages
+.. image:: https://travis-ci.org/Flask-FlatPages/Flask-FlatPages.svg?branch=master
+    :target: https://travis-ci.org/Flask-FlatPages/Flask-FlatPages
 
 .. image:: https://img.shields.io/pypi/v/Flask-FlatPages.svg
     :target: https://pypi.python.org/pypi/Flask-FlatPages
@@ -11,7 +11,7 @@ Flask-FlatPages
 Provides flat static pages to a Flask_ application, based on text files
 as opposed to a relational database.
 
-* Works on Python 2.6, 2.7 and 3.3+
+* Works on Python 2.7 and 3.4+
 * BSD licensed
 * Latest documentation `on Read the Docs`_
 * Source, issues and pull requests `on Github`_
