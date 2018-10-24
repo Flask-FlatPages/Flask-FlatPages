@@ -30,14 +30,16 @@ setup(
     install_requires=[
         'Flask>=1.0',
         'PyYAML>=3.10',
-        'Markdown<3.0'
+        'Markdown>=2.5'
     ],
     tests_require=['Pygments>=1.6'],
     extras_require={
         'tests': ['Pygments>=1.6'],
+        'docs': ['Sphinx>=1.4']
     },
     classifiers=[
         'Environment :: Web Environment',
+        'Framework :: Flask',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
@@ -50,6 +52,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.7'
     ]
 )

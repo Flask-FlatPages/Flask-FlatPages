@@ -11,7 +11,7 @@ Optional, for testing:
 
 For releasing:
 
-    $ pip install Sphinx Sphinx-PyPI-upload tox
+    $ pip install Sphinx Sphinx-apidoc tox
 
 Check out the Sphinx theme:
 
@@ -30,7 +30,7 @@ Making a new release
 * Update check MANIFEST.in and package_data in setup.py if non-Python files
   were added.
 * Update install_requires in setup.py if dependencies changed.
-* Check that tests pass in all supported Python versions (2.6, 2.7 and 3.3;
+* Check that tests pass in all supported Python versions (2.7 and 3.4+;
   PyPY if you like.) tox can do this automatically, assuming that the
   interpreters are installed:
 
@@ -44,7 +44,8 @@ Making a new release
 
 * Make and upload the release archive:
 
-      $ python setup.py sdist upload upload_sphinx
+      $ python setup.py sdist bdist_wheel
+      $ twine upload dist/*
 
 * Tag the release and push to GitHub:
 

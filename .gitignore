@@ -6,6 +6,7 @@
 /dist
 /docs/_build
 /.tox
+
 Pipfile
 Pipfile.lock
 

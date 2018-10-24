@@ -59,6 +59,13 @@ are optional.
     interpreted as relative to the application root, next to the ``static`` and
     ``templates`` directories. Defaults to ``pages``.
 
+``FLATPAGES_INSTANCE_RELATIVE``
+    .. versionadded:: 0.7
+    If `True`, Flask-Flatpages will interpret the root as relative to the
+    application's 
+    `instance folder <http://flask.pocoo.org/docs/1.0/config/#instance-folders>`_.
+    Defaults to `False`.
+
 ``FLATPAGES_EXTENSION``
     Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
     without this suffix are ignored. Defaults to ``.html``.
@@ -67,6 +74,12 @@ are optional.
 
        Support multiple file extensions via sequences, e.g.:
        ``['.htm', '.html']`` or via comma-separated strings: ``.htm,.html``.
+
+``FLATPAGES_CASE_INSENSITIVE``
+    .. versionadded:: 0.7
+    If `True`, the path property of each :class:`Page` instance will be all
+    lower case. Flask-Flatpages will throw a `ValueError` if multiple pages
+    would correspond to the same path.
 
 ``FLATPAGES_ENCODING``
     Encoding of the pages files. Defaults to ``utf8``.
@@ -94,15 +107,33 @@ are optional.
 ``FLATPAGES_MARKDOWN_EXTENSIONS``
     .. versionadded:: 0.4
 
-    List of Markdown extensions to use with default HTML renderer. Defaults to
+    List of Markdown extensions to use with default HTML renderer, given  as
+    either 'entrypoint' strings or ``markdown.Extension`` objects. Defaults to
     ``['codehilite']``.
 
-    For passing additional arguments to Markdown extension, e.g. in case of
-    using footnotes extension, use next syntax:
-    ``['footnotes(UNIQUE_IDS=True)']``.
+    .. versionchanged:: 0.7
+    Markdown 2.5 changed the syntax for passing extensions, and for configuring
+    extensions. 
+    In particular, configuring an extension by passing keyword arguments along
+    with the import string is now deprecated. Instead, these options need to be
+    passed in a dict. For more information, see ``FLATPAGES_EXTENSION_CONFIG``.
 
-    To enable line numbers in CodeHilite extension, which are disabled by
-    default, use: ``['codehilite(linenums=True)']``
+``FLATPAGES_EXTENSION_CONFIGS``
+    .. versionadded:: 0.7
+
+    Extension config dictionary for configuring extensions passed by their import
+    string. For each extension, ``FLATPAGES_EXTENSION_CONFIGS`` contains a dict
+    of configuration settings passed as strings.
+    For example, to enable linenums in ``codehilite``:
+
+    .. code-block:: python
+
+        FLATPAGES_EXTENSION_CONFIG = {
+            'codehilite': {
+                'linenums': 'True'
+            }
+        }
+    `See the Markdown 3 documentation for more details <https://python-markdown.github.io/reference/#extension_configs>`_
 
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
@@ -326,7 +357,15 @@ API
 Changelog
 ---------
 
-Vesrion 0.6.1
+Version 0.7.0
+~~~~~~~~~~~~~
+
+* Update to Markdown 3.0 with new extension loading syntax. 
+* Added `FLATPAGES_EXTENSION_CONFIGS` for configuring extensions specified by import string.
+* Add support for loading pages from Flask instance folder
+* Add a case insensitive loading option
+
+Version 0.6.1
 ~~~~~~~~~~~~~
 
 * Update dependencies to `Flask>=1.0` (as Flask 0.12.1 has known vulnerabilities).
