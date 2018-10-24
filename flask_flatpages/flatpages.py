@@ -33,7 +33,7 @@ class FlatPages(object):
         ('extension_configs', {}),
         ('auto_reload', 'if debug'),
         ('case_insensitive', False),
-        ('instance_folder', False)
+        ('instance_relative', False)
     )
 
     def __init__(self, app=None, name=None):
@@ -143,7 +143,10 @@ class FlatPages(object):
         """Full path to the directory where pages are looked for.
 
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
-        interpreted as relative to the app's root directory.
+        interpreted as relative to the app's root directory, or as relative
+        to the app's instance folder if `FLATPAGES_%(name)s_INSTANCE_RELATIVE`
+        is set to `True`.
+
         """
         if self.config('instance_folder'):
             root_dir = os.path.join(self.app.instance_path,

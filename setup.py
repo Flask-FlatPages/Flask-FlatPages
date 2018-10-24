@@ -35,6 +35,7 @@ setup(
     tests_require=['Pygments>=1.6'],
     extras_require={
         'tests': ['Pygments>=1.6'],
+        'docs': ['Sphinx>=1.4']
     },
     classifiers=[
         'Environment :: Web Environment',
@@ -51,5 +52,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ]
 )

@@ -29,7 +29,9 @@ def pygmented_markdown(text, flatpages=None):
 
     If you need other extensions, set them up using the
     ``FLATPAGES_MARKDOWN_EXTENSIONS`` setting, which should be a sequence
-    of strings.
+    of strings or Markdown Extension objects.
+    Extensions specified with entrypoint strings should be configured using
+    ``FLATPAGES_EXTENSION_CONFIGS``.
 
     .. _CodeHilite:
        http://www.freewisdom.org/projects/python-markdown/CodeHilite
