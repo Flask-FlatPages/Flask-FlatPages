@@ -357,6 +357,11 @@ API
 Changelog
 ---------
 
+Version 0.7.1
+~~~~~~~~~~~~~
+
+* Small bump to dependency versions to resolve security alerts.
+
 Version 0.7.0
 ~~~~~~~~~~~~~
 

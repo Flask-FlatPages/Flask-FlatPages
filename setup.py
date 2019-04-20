@@ -20,6 +20,8 @@ setup(
     license='BSD',
     author='Simon Sapin',
     author_email='simon.sapin@exyr.org',
+    maintainer='Padraic Calpin',
+    maintainer_email='padraic.calpin93@gmail.com',
     description='Provides flat static pages to a Flask application',
     long_description=README,
     packages=[
@@ -28,9 +30,10 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'Flask>=1.0',
-        'PyYAML>=3.10',
-        'Markdown>=2.5'
+        'Flask>1.0',
+        'PyYAML>3.13',
+        'Markdown>=2.5',
+        'Jinja2>=2.10.1'
     ],
     tests_require=['Pygments>=1.6'],
     extras_require={
