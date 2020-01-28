@@ -163,7 +163,7 @@ class FlatPages(object):
         if auto:
             self.reload()
 
-    def _load_file(self, path, filename):
+    def _load_file(self, path, filename, rel_path):
         """
         Load file from file system and put it to cached dict as :class:`Path`
         and `mtime` tuple.
@@ -183,7 +183,7 @@ class FlatPages(object):
                 with open(filename) as handler:
                     content = handler.read().decode(encoding)
 
-            page = self._parse(content, path)
+            page = self._parse(content, path, rel_path)
             self._file_cache[filename] = (page, mtime)
 
         return page
@@ -215,7 +215,7 @@ class FlatPages(object):
                     path = u'/'.join(path_prefix + (name_without_extension, ))
                     if self.config('case_insensitive'):
                         path = path.lower()
-                    yield (path, full_name)
+                    yield (path, full_name, rel_path)
 
         # Read extension from config
         extension = self.config('extension')
@@ -237,15 +237,15 @@ class FlatPages(object):
                 format(type(extension).__name__, extension)
             )
         pages = {}
-        for path, full_name in _walker():
+        for path, full_name, rel_path in _walker():
             if path in pages:
                 raise ValueError(
                     'Multiple pages found which correspond to the same path. '
                     'This error can arise when using multiple extensions.')
-            pages[path] = self._load_file(path, full_name)
+            pages[path] = self._load_file(path, full_name, rel_path)
         return pages
 
-    def _parse(self, content, path):
+    def _parse(self, content, path, rel_path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
@@ -268,8 +268,11 @@ class FlatPages(object):
         # Make able to pass custom arguments to renderer function
         html_renderer = self._smart_html_renderer(html_renderer)
 
+        #Assign the relative path (to root) for use in the page object
+        folder = rel_path
+
         # Initialize and return Page instance
-        return Page(path, meta, content, html_renderer)
+        return Page(path, meta, content, html_renderer, folder)
 
     def _smart_html_renderer(self, html_renderer):
         """
