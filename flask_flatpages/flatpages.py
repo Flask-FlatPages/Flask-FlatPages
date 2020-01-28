@@ -268,7 +268,7 @@ class FlatPages(object):
         # Make able to pass custom arguments to renderer function
         html_renderer = self._smart_html_renderer(html_renderer)
 
-        #Assign the relative path (to root) for use in the page object
+        # Assign the relative path (to root) for use in the page object
         folder = rel_path
 
         # Initialize and return Page instance
