@@ -251,6 +251,7 @@ class FlatPages(object):
         :return: initialized :class:`Page` instance.
         """
         lines = iter(content.split('\n'))
+        lines = (line for line in lines if line != '---')
 
         # Read lines until an empty line is encountered.
         meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
