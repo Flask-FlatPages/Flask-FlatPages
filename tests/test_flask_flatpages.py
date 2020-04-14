@@ -23,6 +23,12 @@ from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
 
+if compat.IS_PY3:
+    utc = datetime.timezone.utc
+else:
+    import pytz
+    utc = pytz.utc
+
 
 @contextmanager
 def temp_pages(app=None, name=None):
@@ -437,7 +443,8 @@ class TestFlatPages(unittest.TestCase):
             'title': 'Foo > bar',
             'created': datetime.date(2010, 12, 11),
             'updated': datetime.datetime(2015, 2, 9, 10, 59, 0),
-            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0),
+            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0,
+                                             tzinfo=utc),
             'versions': [3.14, 42],
         })
         self.assertEqual(foo['title'], 'Foo > bar')
@@ -445,6 +452,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(foo['updated'],
                          datetime.datetime(2015, 2, 9, 10, 59, 0))
         self.assertEqual(foo['updated_iso'],
-                         datetime.datetime(2015, 2, 9, 10, 59, 0))
+                         datetime.datetime(2015, 2, 9, 10, 59, 0,
+                                           tzinfo=utc))
         self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])

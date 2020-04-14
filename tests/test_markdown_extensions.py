@@ -12,6 +12,7 @@ import unittest
 
 from flask import Flask
 from flask_flatpages import FlatPages
+from flask_flatpages.compat import IS_PY3
 from markdown.extensions.toc import TocExtension
 
 
@@ -32,22 +33,48 @@ class TestMarkdownExtensions(unittest.TestCase):
     def check_default_codehilite_page(self, pages):
         codehilite = pages.get('codehilite') #Test codehilite loaded by default
                                              #by pygmented_markdown
+        fixture = (
+            '<div class="codehilite"><pre><span></span>'
+            '<code><span class="nb">print</span>'
+            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+            '</span><span class="p">)</span>\n</code></pre></div>'
+        )
+        if not IS_PY3:
+            fixture = (
+                '<div class="codehilite"><pre><span></span>'
+                '<span class="nb">print</span>'
+                '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+                '</span><span class="p">)</span>\n</pre></div>'
+            )
         self.assertEqual(
             codehilite.html,
-            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
-            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-            '</span><span class="p">)</span>\n</pre></div>'
+            fixture
         )
 
     def check_codehilite_with_linenums(self, pages):
         codehilite = pages.get('codehilite')
-        self.assertEqual(
-            codehilite.html,
+        fixture = (
             '<table class="codehilitetable"><tr><td class="linenos">'
             '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
-            '<div class="codehilite"><pre><span></span><span class="k">print</span>'
+            '<div class="codehilite"><pre><span></span><code>'
+            '<span class="nb">print</span>'
             '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-            '</span><span class="p">)</span>\n</pre></div>\n</td></tr></table>'
+            '</span><span class="p">)</span>\n'
+            '</code></pre></div>\n</td></tr></table>'
+        )
+        if not IS_PY3:
+            fixture = (
+                '<table class="codehilitetable"><tr><td class="linenos">'
+                '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
+                '<div class="codehilite"><pre><span></span>'
+                '<span class="nb">print</span>'
+                '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+                '</span><span class="p">)</span>\n'
+                '</pre></div>\n</td></tr></table>'
+            )
+        self.assertEqual(
+            codehilite.html,
+            fixture
         )
 
     def check_extra(self, pages):
