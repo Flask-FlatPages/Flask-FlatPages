@@ -22,7 +22,7 @@ deps =
   itsdangerous>=0.24
   click>=5.1
   !py34: PyYAML>=3.13
-  py34: PyYAML<3.13
+  py34: PyYAML==3.12
   Pygments>=2.0.2
   Markdown>=2.5
   coverage>=3.7.1
@@ -43,4 +43,9 @@ commands =
   flake8 --statistics flask_flatpages/ --import-order-style smarkets
   nosetests -v -w tests/ --with-coverage --cover-branches --cover-package=flask_flatpages \
   {posargs:--cover-html --cover-html-dir=/tmp/flask-flatpages-coverage}
+
+[testenv:py34]
+commands = 
+  flake8 --statistics flask_flatpages/ --import-order-style smarkets
+  nosetests -v -w tests/ 
 """

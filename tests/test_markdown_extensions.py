@@ -46,6 +46,13 @@ class TestMarkdownExtensions(unittest.TestCase):
                 '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
                 '</span><span class="p">)</span>\n</pre></div>'
             )
+        elif sys.version_info[1] == 4:
+            fixture = (
+                '<div class="codehilite"><pre><span></span>'
+                '<span class="k">print</span>'
+                '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+                '</span><span class="p">)</span>\n</pre></div>'
+            )
         self.assertEqual(
             codehilite.html,
             fixture
@@ -68,6 +75,16 @@ class TestMarkdownExtensions(unittest.TestCase):
                 '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
                 '<div class="codehilite"><pre><span></span>'
                 '<span class="nb">print</span>'
+                '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
+                '</span><span class="p">)</span>\n'
+                '</pre></div>\n</td></tr></table>'
+            )
+        elif sys.version_info[1] == 4:
+            fixture = (
+                '<table class="codehilitetable"><tr><td class="linenos">'
+                '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
+                '<div class="codehilite"><pre><span></span>'
+                '<span class="k">print</span>'
                 '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
                 '</span><span class="p">)</span>\n'
                 '</pre></div>\n</td></tr></table>'

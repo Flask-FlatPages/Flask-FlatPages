@@ -24,7 +24,10 @@ from werkzeug.exceptions import NotFound
 from .test_temp_directory import temp_directory
 
 if compat.IS_PY3:
-    utc = datetime.timezone.utc
+    if sys.version_info[1] == 4:
+        utc = None
+    else:
+        utc = datetime.timezone.utc
 else:
     import pytz
     utc = pytz.utc
