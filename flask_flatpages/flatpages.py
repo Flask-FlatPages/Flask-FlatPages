@@ -3,7 +3,7 @@
 flask_flatpages.flatpages
 =========================
 
-Flatpages extension.
+Flatpages extension. 
 
 """
 
