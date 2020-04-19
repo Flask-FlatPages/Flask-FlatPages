@@ -8,6 +8,7 @@ Utility functions to render Markdown text to HTML.
 """
 
 import markdown
+from markdown.extensions import codehilite
 
 from . import compat
 from .imports import PygmentsHtmlFormatter
@@ -57,7 +58,7 @@ def pygmented_markdown(text, flatpages=None):
                 continue
             elif isinstance(
                 extension,
-                markdown.extensions.codehilite.CodeHiliteExtension
+                codehilite.CodeHiliteExtension
             ):
                 continue
             extensions.append(extension)

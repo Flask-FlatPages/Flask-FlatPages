@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools > 39.2.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.tox]
+legacy_tox_ini = """
+[flake8]
+application-import-names = flask_flatpages
+ignore = D205,D400,W504
+import-order-style = google
+max-complexity = 20
+
+[tox]
+envlist =
+  py{27},py{34},py{35},py{36},py{37},py{38}
+
+[testenv]
+deps =
+  flask: Flask>=1.0
+  Werkzeug>=0.14
+  Jinja2>=2.10.1
+  itsdangerous>=0.24
+  click>=5.1
+  !py34: PyYAML>=3.13
+  py34: PyYAML==3.12
+  Pygments>=2.0.2
+  Markdown>=2.5
+  coverage>=3.7.1
+  docutils>=0.12
+  flake8>=2.3.0
+  flake8-docstrings>=0.2.1.post1
+  flake8-import-order>=0.5.3
+  mccabe>=0.3.0
+  nose>=1.3.7
+  pep257>=0.5.0
+  pep8>=1.6.2
+  pep8-naming>=0.2.2
+  pyflakes>=0.8.1
+  py27: pytz
+setenv =
+  PYTHONPATH=.
+commands =
+  flake8 --statistics flask_flatpages/ --import-order-style smarkets
+  nosetests -v -w tests/ --with-coverage --cover-branches --cover-package=flask_flatpages \
+  {posargs:--cover-html --cover-html-dir=/tmp/flask-flatpages-coverage}
+
+[testenv:py34]
+commands = 
+  flake8 --statistics flask_flatpages/ --import-order-style smarkets
+  nosetests -v -w tests/ 
+"""
+
+[tool.towncrier]
+package = "flask_flatpages"
+filename = "docs/index.rst"
+directory = "news"
+template = "news/template.rst"
+underlines = ["~", "-", "="]
+title_format = "Version {version}"
+issue_format = "`#{issue} <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/{issue}>`_"
+    [[tool.towncrier.type]]
+         directory = "feature"
+         name = "Features and Improvements"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "bugfix"
+         name = "Bug Fixes"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "removed"
+         name = "Deprecations"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "docs"
+         name = "Documentation Changes"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "misc"
+         name = "Other Notes"
+         showcontent = true

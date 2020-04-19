@@ -61,6 +61,7 @@ are optional.
 
 ``FLATPAGES_INSTANCE_RELATIVE``
     .. versionadded:: 0.7
+
     If `True`, Flask-Flatpages will interpret the root as relative to the
     application's 
     `instance folder <http://flask.pocoo.org/docs/1.0/config/#instance-folders>`_.
@@ -77,6 +78,7 @@ are optional.
 
 ``FLATPAGES_CASE_INSENSITIVE``
     .. versionadded:: 0.7
+
     If `True`, the path property of each :class:`Page` instance will be all
     lower case. Flask-Flatpages will throw a `ValueError` if multiple pages
     would correspond to the same path.
@@ -112,6 +114,7 @@ are optional.
     ``['codehilite']``.
 
     .. versionchanged:: 0.7
+
     Markdown 2.5 changed the syntax for passing extensions, and for configuring
     extensions. 
     In particular, configuring an extension by passing keyword arguments along
@@ -133,6 +136,7 @@ are optional.
                 'linenums': 'True'
             }
         }
+
     `See the Markdown 3 documentation for more details <https://python-markdown.github.io/reference/#extension_configs>`_
 
 ``FLATPAGES_AUTO_RELOAD``
@@ -356,6 +360,34 @@ API
 
 Changelog
 ---------
+
+.. towncrier release notes start
+
+Version 0.7.2
+~~~~~~~~~~~~~
+Released on 2020-04-19
+
+**Bug Fixes**
+
+- Fixed a bug arising when the user overrides the default markdown extensions, but does not use Pygments. Apologies to anyone who didn't want codehiliting!
+   (`#73 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/73>`_) 
+
+**Documentation Changes**
+
+- Update documentation to use the latest version of the Flask template.
+   
+- Add towncrier config for auto-generating release notes
+   
+
+**Other Notes**
+
+- This project currently supports Python versions 2.7, and 3.4+.
+
+  Some dependencies, particularly PyYAML, do not support Python 3.4 in the most recent versions. Thus, for security reasons,
+  we strongly advise using Python 2.7 if no newer version of Python 3 is available.
+
+  Support for Python 3.4 will be dropped in June 2020.
+
 
 Version 0.7.1
 ~~~~~~~~~~~~~
