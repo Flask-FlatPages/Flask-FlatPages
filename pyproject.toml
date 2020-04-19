@@ -49,3 +49,32 @@ commands =
   flake8 --statistics flask_flatpages/ --import-order-style smarkets
   nosetests -v -w tests/ 
 """
+
+[tool.towncrier]
+package = "flask_flatpages"
+filename = "docs/index.rst"
+directory = "news"
+template = "news/template.rst"
+underlines = ["~", "-", "="]
+title_format = "Version {version}"
+issue_format = "`#{issue} <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/{issue}>`_"
+    [[tool.towncrier.type]]
+         directory = "feature"
+         name = "Features and Improvements"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "bugfix"
+         name = "Bug Fixes"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "removed"
+         name = "Deprecations"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "docs"
+         name = "Documentation Changes"
+         showcontent = true
+    [[tool.towncrier.type]]
+         directory = "misc"
+         name = "Other Notes"
+         showcontent = true

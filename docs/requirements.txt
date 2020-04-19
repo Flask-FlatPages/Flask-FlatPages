@@ -12,6 +12,7 @@ Jinja2>=2.10.1
 Markdown>=2.6.11
 MarkupSafe>=1.0
 packaging>=18.0
+Pallets-Sphinx-Themes
 Pygments>=2.2.0
 pyparsing>=2.2.2
 pytz>=2018.5
