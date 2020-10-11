@@ -9,9 +9,13 @@ Flatpages extension.
 
 import operator
 import os
-from inspect import getargspec
 from itertools import takewhile
 
+import six
+if six.PY3:
+    from inspect import getfullargspec
+else:
+    from inspect import getargspec as getfullargspec
 from flask import abort
 from werkzeug.utils import cached_property, import_string
 
@@ -304,7 +308,7 @@ class FlatPages(object):
             body = page.body
 
             try:
-                args_length = len(getargspec(html_renderer).args)
+                args_length = len(getfullargspec(html_renderer).args)
             except TypeError:
                 return html_renderer(body)
 
