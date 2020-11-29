@@ -339,7 +339,7 @@ class TestFlatPages(unittest.TestCase):
 
     def test_pygments_style_defs(self):
         styles = pygments_style_defs()
-        self.assertTrue(styles.startswith('.codehilite'))
+        self.assertTrue('.codehilite' in styles)
 
     def test_reloading(self):
         with temp_pages() as pages:
