@@ -119,7 +119,7 @@ are optional.
     extensions. 
     In particular, configuring an extension by passing keyword arguments along
     with the import string is now deprecated. Instead, these options need to be
-    passed in a dict. For more information, see ``FLATPAGES_EXTENSION_CONFIG``.
+    passed in a dict. For more information, see ``FLATPAGES_EXTENSION_CONFIGS``.
 
 ``FLATPAGES_EXTENSION_CONFIGS``
     .. versionadded:: 0.7
@@ -131,7 +131,7 @@ are optional.
 
     .. code-block:: python
 
-        FLATPAGES_EXTENSION_CONFIG = {
+        FLATPAGES_EXTENSION_CONFIGS = {
             'codehilite': {
                 'linenums': 'True'
             }
