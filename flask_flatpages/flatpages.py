@@ -4,15 +4,15 @@ import operator
 import os
 from itertools import takewhile
 
+import six
 from flask import abort
 from werkzeug.utils import cached_property, import_string
 
-from . import compat
 from .page import Page
 from .utils import force_unicode, pygmented_markdown
 
 
-if compat.IS_PY3:
+if six.PY3:
     from inspect import getfullargspec
 else:
     from inspect import getargspec as getfullargspec
@@ -70,7 +70,7 @@ class FlatPages(object):
 
     def __iter__(self):
         """Iterate on all :class:`Page` objects."""
-        return compat.itervalues(self._pages)
+        return six.itervalues(self._pages)
 
     def config(self, key):
         """Read actual configuration from Flask application config.
@@ -178,7 +178,7 @@ class FlatPages(object):
         else:
             encoding = self.config('encoding')
 
-            if compat.IS_PY3:
+            if six.PY3:
                 with open(filename, encoding=encoding) as handler:
                     content = handler.read()
             else:
@@ -225,7 +225,7 @@ class FlatPages(object):
         extension = self.config('extension')
 
         # Support for multiple extensions
-        if isinstance(extension, compat.string_types):
+        if isinstance(extension, six.string_types):
             if ',' in extension:
                 extension = tuple(extension.split(','))
             else:

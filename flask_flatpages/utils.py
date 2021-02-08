@@ -1,15 +1,15 @@
 """Utility functions to render Markdown text to HTML."""
 
 import markdown
+import six
 from markdown.extensions import codehilite
 
-from . import compat
 from .imports import PygmentsHtmlFormatter
 
 
 def force_unicode(value, encoding='utf-8', errors='strict'):
     """Convert bytes or any other Python instance to string."""
-    if isinstance(value, compat.text_type):
+    if isinstance(value, six.text_type):
         return value
     return value.decode(encoding, errors)
 
@@ -45,7 +45,7 @@ def pygmented_markdown(text, flatpages=None):
 
         for extension in original_extensions:
             if (
-                isinstance(extension, compat.string_types) and
+                isinstance(extension, six.string_types) and
                 'codehilite' in extension
             ):
                 continue
@@ -55,7 +55,7 @@ def pygmented_markdown(text, flatpages=None):
             ):
                 continue
             extensions.append(extension)
-            if isinstance(extension, compat.string_types):
+            if isinstance(extension, six.string_types):
                 extension_configs[extension] = original_config[extension]
     elif not extensions:
         extensions = ['codehilite']
