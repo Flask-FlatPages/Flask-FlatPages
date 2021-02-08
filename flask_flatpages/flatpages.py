@@ -1,27 +1,21 @@
-"""
-=========================
-flask_flatpages.flatpages
-=========================
-
-Flatpages extension.
-
-"""
+"""Flatpages extension."""
 
 import operator
 import os
 from itertools import takewhile
 
-import six
-if six.PY3:
-    from inspect import getfullargspec
-else:
-    from inspect import getargspec as getfullargspec
 from flask import abort
 from werkzeug.utils import cached_property, import_string
 
 from . import compat
 from .page import Page
 from .utils import force_unicode, pygmented_markdown
+
+
+if compat.IS_PY3:
+    from inspect import getfullargspec
+else:
+    from inspect import getargspec as getfullargspec
 
 
 class FlatPages(object):
@@ -87,8 +81,9 @@ class FlatPages(object):
 
     def get(self, path, default=None):
         """
-        Return the :class:`Page` object at ``path``, or ``default`` if there is
-        no such page.
+        Return the :class:`Page` object at ``path``.
+
+        Returns ``default`` if there is no such page.
         """
         # This may trigger the property. Do it outside of the try block.
         pages = self._pages
@@ -99,8 +94,9 @@ class FlatPages(object):
 
     def get_or_404(self, path):
         """
-        Return the :class:`Page` object at ``path``, or raise Flask's 404 error
-        if there is no such page.
+        Return the :class:`Page` object at ``path``.
+
+        Raise Flask's 404 error if there is no such page.
         """
         page = self.get(path)
         if not page:
@@ -109,8 +105,9 @@ class FlatPages(object):
 
     def init_app(self, app):
         """
-        Use to initialize an application, useful for passing an app later and
-        app factory patterns.
+        Use to initialize an application.
+
+        Ueful for passing an app later and app factory patterns.
 
         :param app: your application
         :type app: a :class:`~flask.Flask` instance
@@ -169,8 +166,9 @@ class FlatPages(object):
 
     def _load_file(self, path, filename):
         """
-        Load file from file system and put it to cached dict as :class:`Path`
-        and `mtime` tuple.
+        Load file from file system and cache it.
+
+        We store the a tuple of :class:`Path` and the file `mtime`.
         """
         mtime = os.path.getmtime(filename)
         cached = self._file_cache.get(filename)
@@ -195,13 +193,15 @@ class FlatPages(object):
     @cached_property
     def _pages(self):
         """
-        Walk the page root directory and return a dict of ``{unicode path: page
-        object}``.
+        Walk the page root directory and return a dict of pages.
+
+        Returns a dictionary of pages keyed by their path.
         """
         def _walker():
             """
-            Walk over directory and find all possible flatpages, i.e. files
-            which end with the string or sequence given by
+            Walk over directory and find all possible flatpages.
+
+            Returns files which end with the string or sequence given by
             ``FLATPAGES_%(name)s_EXTENSION``.
             """
             for cur_path, _, filenames in os.walk(self.root):
@@ -277,8 +277,7 @@ class FlatPages(object):
 
     def _smart_html_renderer(self, html_renderer):
         """
-        Wrap the rendering function in order to allow the use of rendering
-        functions with differing signatures.
+        Wrappper to enable  rendering functions with differing signatures.
 
         We stay backwards compatible by using reflection, i.e. we inspect the
         given rendering function's signature in order to find out how many
@@ -298,8 +297,9 @@ class FlatPages(object):
 
         """
         def wrapper(page):
-            """Use to wrap HTML renderer function and pass
-            arguments to it based on the number of arguments.
+            """Wrap HTML renderer function.
+
+            Pass arguments to the renderer based on the number of arguments.
 
             * 1 argument -> page body
             * 2 arguments -> page body, flatpages instance

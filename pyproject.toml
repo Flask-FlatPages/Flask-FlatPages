@@ -31,13 +31,17 @@ deps =
   pytest
   pytest-cov
 commands =
-  flake8 --statistics flask_flatpages/ --import-order-style smarkets
+  - flake8 --statistics flask_flatpages/ --import-order-style smarkets
   pytest -v tests/ --cov=flask_flatpages --cov-branch --cov-report term
 
 [testenv:docs]
 deps = -rdocs/requirements.txt
 commands=
  sphinx-build -d "{toxworkdir}/docs/_build/_doctree" docs "docs/_build/html" --color -W -bhtml {posargs} 
+
+[testenv:lint]
+commands=
+  flake8 --statistics flask_flatpages/ --import-order-style smarkets
 """
 
 [tool.towncrier]

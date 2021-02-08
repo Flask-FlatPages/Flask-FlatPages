@@ -1,11 +1,4 @@
-"""
-=====================
-flask_flatpages.utils
-=====================
-
-Utility functions to render Markdown text to HTML.
-
-"""
+"""Utility functions to render Markdown text to HTML."""
 
 import markdown
 from markdown.extensions import codehilite
