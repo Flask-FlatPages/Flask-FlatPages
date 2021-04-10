@@ -25,6 +25,7 @@ jobs:
     name: Test (Python ${{matrix.python-version}})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: False
       matrix:
         python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9]
     steps:
@@ -38,5 +39,4 @@ jobs:
          python -m pip install -U pip
          python -m pip install tox tox-gh-actions
       - name: Test
-        run: |
-          tox
+        run: tox -e py
