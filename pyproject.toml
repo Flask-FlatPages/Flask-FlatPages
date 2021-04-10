@@ -15,6 +15,15 @@ envlist =
   py{27},py{35},py{36},py{37},py{38},py{39}
 requires = tox-venv
 
+[gh-actions]
+python =
+	2.7: py27
+ 	3.5: py35
+ 	3.6: py36
+ 	3.7: py37
+ 	3.8: py38
+ 	3.9: py39
+
 [testenv]
 deps =
   Pygments>=2.0.2
