@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools > 39.2.0", "wheel"]
+requires = ["setuptools > 40.6.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.tox]
@@ -13,6 +13,9 @@ max-complexity = 20
 [tox]
 envlist =
   py27,py36,py37,py38,py39
+requires=
+  setuptools==44.1.1;python_version=="2.7"
+  setuptools > 40.6.0
 
 [gh-actions]
 python =
@@ -37,7 +40,6 @@ deps =
   pyflakes>=0.8.1
   pytest
   pytest-cov
-  py27: setuptools==44.1.1
 commands =
   - flake8 --statistics flask_flatpages/ --import-order-style smarkets
   pytest -v tests/ --cov=flask_flatpages --cov-branch --cov-report term
