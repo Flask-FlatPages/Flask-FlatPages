@@ -12,12 +12,11 @@ max-complexity = 20
 
 [tox]
 envlist =
-  py27,py35,py36,py37,py38,py39
+  py27,py36,py37,py38,py39
 
 [gh-actions]
 python =
   2.7: py27
-  3.5: py35
   3.6: py36
   3.7: py37
   3.8: py38
@@ -38,8 +37,7 @@ deps =
   pyflakes>=0.8.1
   pytest
   pytest-cov
-  py35: setuptools==44.1.1
-  setuptools>40.6.0
+  py27: setuptools==44.1.1
 commands =
   - flake8 --statistics flask_flatpages/ --import-order-style smarkets
   pytest -v tests/ --cov=flask_flatpages --cov-branch --cov-report term
