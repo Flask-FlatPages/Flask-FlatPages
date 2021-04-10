@@ -168,7 +168,7 @@ class FlatPages(object):
         """
         Load file from file system and cache it.
 
-        We store the a tuple of :class:`Path` and the file `mtime`.
+        We store the result as a tuple of :class:`Path` and the file `mtime`.
         """
         mtime = os.path.getmtime(filename)
         cached = self._file_cache.get(filename)

@@ -55,7 +55,8 @@ class TestMarkdownExtensions(unittest.TestCase):
         codehilite = pages.get('codehilite')
         fixture = (
             '<table class="codehilitetable"><tr><td class="linenos">'
-            '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
+            '<div class="linenodiv"><pre><span class="normal">1</span>'
+            '</pre></div></td><td class="code">'
             '<div class="codehilite"><pre><span></span><code>'
             '<span class="nb">print</span>'
             '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
