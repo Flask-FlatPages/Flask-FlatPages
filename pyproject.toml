@@ -12,7 +12,7 @@ max-complexity = 20
 
 [tox]
 envlist =
-  py{27},py{35},py{36},py{37},py{38},py{39}
+  py27,py35,py36,py37,py38,py39
 requires = tox-venv
 
 [gh-actions]
