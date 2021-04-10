@@ -39,4 +39,4 @@ jobs:
          python -m pip install tox tox-gh-actions
       - name: Test
         run: |
-          tox -e py
+          tox
