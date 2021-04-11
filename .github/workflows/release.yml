@@ -3,7 +3,6 @@ on:
   release:
     types:
       - published
-      - created
 
 jobs:
   build_artifacts:
@@ -46,7 +45,7 @@ jobs:
         env:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_USERNAME: __token__
-        run: twine upload --repository flask-flatpages dist/* 
+        run: twine upload dist/* 
   release_upload:
     name: Upload to Github Release
     runs-on: ubuntu-latest
