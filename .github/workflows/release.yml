@@ -2,7 +2,8 @@ name: Upload release objects
 on:
   release:
     types:
-      published, created
+      - published
+      - created
 
 jobs:
   build_artifacts:
