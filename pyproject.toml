@@ -16,14 +16,6 @@ envlist =
 requires=
   setuptools==44.1.1;python_version=="2.7"
 
-[gh-actions]
-python =
-  2.7: py27
-  3.6: py36
-  3.7: py37
-  3.8: py38
-  3.9: py39
-
 [testenv]
 deps =
   Pygments>=2.0.2
