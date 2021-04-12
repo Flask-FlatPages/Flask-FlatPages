@@ -1,54 +1,93 @@
-==================
-Developer’s How To
-==================
+########################
+Contribution Guidelines
+#######################
 
+Flask-Flatpages welcomes any and all contributions. This file
+documents the tools and conventions we use, and steps to take when submitting
+a Pull-Request.
+
+************
 Tools
+************
+
+We use ``tox`` as a general-purpose tool for automating style-checking,
+testing and building documentation of the project. So in principle,
+contributing is as simple as 
+
+``python -m pip install tox``
+
+and opening your editor of choice.
+
+Linting and Style
+=================
+
+We use ``flake8`` to ensure code in the project conforms to a common
+style. The config can be found in ``setup.cfg``. Broadly, the project
+uses `smarkets import style <https://github.com/PyCQA/flake8-import-order/blob/master/tests/test_cases/complete_smarkets.py>`_,
+and we prefer breaking lines after a binary opertor.
+
+To check the style of any contributions, simply run ``tox -e lint``.
+
+Code is linted as part of the CI pipeline, which runs on push and on opening a pull request.
+
+Tests
 =====
 
-Optional, for testing:
+Any contributions to Flask-Flatpages will require corresponding test cases. Tests can be found
+in the ``tests`` directory in the project root. We use ``unittest`` classes to define tests,
+and ``pytest`` as the test runner.
 
-    $ pip install -r testapp/requirements.txt
+To run the full test suite, simply run ``tox``, which will test against all supported
+Python versions present on your machine.
 
-For releasing:
+Documentation and Release Notes
+===============================
 
-    $ pip install Sphinx Sphinx-apidoc tox
+All modules and functions are documented using Python docstrings, and documentation
+is then generated using Sphinx.
 
-Check out the Sphinx theme:
+The project documentaiton is a single-page using the ``flask`` theme. General descriptions
+of the project and its operation are contained in ``docs/index.rst``. The API seciton
+of the documentation is generated automatically using `autodoc <https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html>`_.
 
-    $ git submodule update --init --recursive
+Similarly, the Changelog is automatically generated using `reno <https://docs.openstack.org/reno/latest/user/index.html>`_. When opening a pull request, please create a new
+release note by running::
 
-Running tests
-=============
+reno new <your-note-name-here>
 
-Just:
+And then editing the resulting file in ``releasenotes/notes``.
 
-    $ make -C testapp/ test
 
-Making a new release
-====================
+Documentation can be built locally using ``tox -e docs``. A live copy of the
+documentation, based on the master branch, is hosted at
+`ReadTheDocs <flask-flatpages.readthedocs.io>`_.
 
-* Update check MANIFEST.in and package_data in setup.py if non-Python files
-  were added.
-* Update install_requires in setup.py if dependencies changed.
-* Check that tests pass in all supported Python versions (2.7 and 3.4+;
-  PyPY if you like.) tox can do this automatically, assuming that the
-  interpreters are installed:
+*************
+PR Checklist
+*************
 
-      $ tox
++ Is the code linted with ``tox -e lint``?
 
-* Bump the version number in flask_flatpages.py
-* Update the docs and changelog in docs/index.rst
-* Rebuild the docs, check that _build/html/index.html looks good:
++ Are appropriate tests added? Do they pass with ``tox``?
 
-      $ python setup.py build_sphinx
++ Does the PR need a release note? Include one with ``reno``.
 
-* Make and upload the release archive:
 
-      $ python setup.py sdist bdist_wheel
-      $ twine upload dist/*
+*************
+Releasing
+*************
 
-* Tag the release and push to GitHub:
+Releases are automatically handled using a Github Actions pipeline
+defined in ``.github/workflows/release.yml``. To make a relase
 
-      $ git tag v0.X  # Same version number as in flask_flatpages.py
-      $ git push
-      $ git push --tags
+1. Update the version in `setup.cfg`. ``reno`` can help to generate the
+   next version using::
+
+     reno -q semver-next
+
+2. Commit the changes, and tag the commit e.g.::
+
+   git add setup.cfg && git commit && git tag v$(reno -q semver-next)
+
+3. Push the tag and commit to the master branch
+
