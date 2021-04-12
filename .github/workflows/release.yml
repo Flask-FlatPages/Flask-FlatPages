@@ -22,10 +22,11 @@ jobs:
       - name: Build wheel
         run: python setup.py bdist_wheel
       - name: Generate Release Notes
-        run: reno report --version ${{ gitub.ref }} > notes.rst
+        run: reno report --version ${{ github.ref }} > notes.rst
       - name: Convert Notes to Markdown
         uses: docker://pandoc/core:2.13
-        args: "pandoc notes.rst -f rst -t markdown -o notes.md"
+        with:
+          args: "pandoc notes.rst -f rst -t markdown -o notes.md"
       - name: Upload distributions
         uses: actions/upload-artifact@v2
         with:
