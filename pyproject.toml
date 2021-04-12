@@ -4,11 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.tox]
 legacy_tox_ini = """
-[flake8]
-application-import-names = flask_flatpages
-ignore = D205,D400,W504
-import-order-style = google
-max-complexity = 20
 
 [tox]
 envlist =
@@ -32,8 +27,7 @@ deps =
   pytest
   pytest-cov
 commands =
-  - flake8 --statistics flask_flatpages/ --import-order-style smarkets
-  pytest -v tests/ --cov=flask_flatpages --cov-branch --cov-report term
+  - pytest -v tests/ --cov=flask_flatpages --cov-branch --cov-report term
 
 [testenv:docs]
 deps = -rdocs/requirements.txt
@@ -42,6 +36,6 @@ commands=
 
 [testenv:lint]
 commands=
-  flake8 --statistics flask_flatpages/ --import-order-style smarkets
+  flake8 --statistics flask_flatpages/
 """
 
