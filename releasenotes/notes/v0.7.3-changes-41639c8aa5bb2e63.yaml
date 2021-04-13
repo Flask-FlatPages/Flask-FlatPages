@@ -28,3 +28,6 @@ fixes:
   - |
     This release resolves issue `#79 <https://github.com/Flask-Flatpages/Flask-Flatpages/issues/79>`_.
     by correcting an inconsistent parameter name in the documentation.
+  - |
+    Building on the fix to Issue `#77 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/77>`_, we
+    replace the custom compact module with ``six``.
