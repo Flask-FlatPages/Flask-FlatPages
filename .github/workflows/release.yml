@@ -32,7 +32,7 @@ jobs:
       - name: Convert Notes to Markdown
         uses: docker://pandoc/core:2.13
         with:
-          args: "pandoc notes.rst -f rst -t markdown -o notes.md"
+          args: "/github/workspace/notes.rst -f rst -t markdown -o /github/workspace/notes.md"
       - name: Upload distributions
         uses: actions/upload-artifact@v2
         with:
