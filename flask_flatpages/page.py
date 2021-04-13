@@ -1,11 +1,4 @@
-"""
-====================
-flask_flatpages.page
-====================
-
-Define flatpage instance.
-
-"""
+"""Define flatpage instance."""
 
 import yaml
 from werkzeug.utils import cached_property
@@ -44,6 +37,8 @@ class Page(object):
 
     def __html__(self):
         """
+        Return HTML for use in Jinja templates.
+
         In a template, ``{{ page }}`` is equivalent to
         ``{{ page.html|safe }}``.
         """
@@ -60,10 +55,7 @@ class Page(object):
 
     @cached_property
     def meta(self):
-        """
-        Store a dict of metadata parsed as YAML
-        from the header of the file.
-        """
+        """Store a dict of metadata parsed from the YAML header of the file."""
         meta = yaml.safe_load(self._meta)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None

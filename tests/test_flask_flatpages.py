@@ -17,17 +17,15 @@ import unittest
 
 from contextlib import contextmanager
 
+import six
 from flask import Flask
-from flask_flatpages import FlatPages, compat, pygments_style_defs
+from flask_flatpages import FlatPages, pygments_style_defs
 from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
 
-if compat.IS_PY3:
-    if sys.version_info[1] == 4:
-        utc = None
-    else:
-        utc = datetime.timezone.utc
+if six.PY3:
+    utc = datetime.timezone.utc
 else:
     import pytz
     utc = pytz.utc
@@ -323,7 +321,7 @@ class TestFlatPages(unittest.TestCase):
 
         renderers = filter(None, (
             operator.methodcaller('upper'),
-            'string.upper' if not compat.IS_PY3 else None,
+            'string.upper' if not six.PY3 else None,
             body_renderer,
             page_renderer,
             pages_renderer

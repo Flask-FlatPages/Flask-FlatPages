@@ -361,25 +361,28 @@ API
 Changelog
 ---------
 
-.. towncrier release notes start
+.. release-notes::
 
-Version 0.7.2
+v0.7.2
 ~~~~~~~~~~~~~
-Released on 2020-04-19
+Release Date: 2020-04-19
 
-**Bug Fixes**
+Bug Fixes
+^^^^^^^^^
 
 - Fixed a bug arising when the user overrides the default markdown extensions, but does not use Pygments. Apologies to anyone who didn't want codehiliting!
-   (`#73 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/73>`_) 
+  (`#73 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/73>`_) 
 
-**Documentation Changes**
+Documentation Changes
+^^^^^^^^^^^^^^^^^^^^^
 
 - Update documentation to use the latest version of the Flask template.
    
 - Add towncrier config for auto-generating release notes
    
 
-**Other Notes**
+Other Notes
+^^^^^^^^^^^
 
 - This project currently supports Python versions 2.7, and 3.4+.
 
@@ -389,12 +392,12 @@ Released on 2020-04-19
   Support for Python 3.4 will be dropped in June 2020.
 
 
-Version 0.7.1
+v0.7.1
 ~~~~~~~~~~~~~
 
 * Small bump to dependency versions to resolve security alerts.
 
-Version 0.7.0
+v0.7.0
 ~~~~~~~~~~~~~
 
 * Update to Markdown 3.0 with new extension loading syntax. 
@@ -402,16 +405,16 @@ Version 0.7.0
 * Add support for loading pages from Flask instance folder
 * Add a case insensitive loading option
 
-Version 0.6.1
+v0.6.1
 ~~~~~~~~~~~~~
 
 * Update dependencies to `Flask>=1.0` (as Flask 0.12.1 has known vulnerabilities).
 * Pin `Markdown<=3.0` as the Markdown extension API has changed.
 
-Version 0.6
+v0.6
 ~~~~~~~~~~~
 
-Released on 2015-02-09
+Release Date: 2015-02-09
 
 * Python 3 support.
 * Allow multiple file extensions for FlatPages.
@@ -423,30 +426,30 @@ Released on 2015-02-09
   to the respective Flask configuration settings.
 
 
-Version 0.5
+v0.5
 ~~~~~~~~~~~
 
-Released on 2013-04-02
+Release Date: 2013-04-02
 
 * Change behavior of passing ``FLATPAGES_MARKDOWN_EXTENSIONS`` to renderer
   function, now the :class:`FlatPages` instance is optionally passed as second
   argument. This allows more robust renderer functions.
 
 
-Version 0.4
+v0.4
 ~~~~~~~~~~~
 
-Released on 2013-04-01
+Release Date: 2013-04-01
 
 * Add ``FLATPAGES_MARKDOWN_EXTENSIONS`` config to setup list of Markdown
   extensions to use with default HTML renderer.
 * Fix a bug with non-ASCII filenames.
 
 
-Version 0.3
+v0.3
 ~~~~~~~~~~~
 
-Released on 2012-07-03
+Release Date: 2012-07-03
 
 * Add :meth:`.FlatPages.init_app`
 * Do not use namespace packages anymore: rename the package from
@@ -454,17 +457,17 @@ Released on 2012-07-03
 * Add configuration files for testing with tox and Travis.
 
 
-Version 0.2
+v0.2
 ~~~~~~~~~~~
 
-Released on 2011-06-02
+Release Date: 2011-06-02
 
 Bugfix and cosmetic release. Tests are now installed alongside the code.
 
 
-Version 0.1
+v0.1
 ~~~~~~~~~~~
 
-Released on 2011-02-06.
+Release Date: 2011-02-06.
 
 First public release.
