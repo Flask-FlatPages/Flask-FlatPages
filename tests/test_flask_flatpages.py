@@ -17,11 +17,18 @@ import unittest
 
 from contextlib import contextmanager
 
+import six
 from flask import Flask
-from flask_flatpages import FlatPages, compat, pygments_style_defs
+from flask_flatpages import FlatPages, pygments_style_defs
 from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
+
+if six.PY3:
+    utc = datetime.timezone.utc
+else:
+    import pytz
+    utc = pytz.utc
 
 
 @contextmanager
@@ -314,7 +321,7 @@ class TestFlatPages(unittest.TestCase):
 
         renderers = filter(None, (
             operator.methodcaller('upper'),
-            'string.upper' if not compat.IS_PY3 else None,
+            'string.upper' if not six.PY3 else None,
             body_renderer,
             page_renderer,
             pages_renderer
@@ -330,7 +337,7 @@ class TestFlatPages(unittest.TestCase):
 
     def test_pygments_style_defs(self):
         styles = pygments_style_defs()
-        self.assertTrue(styles.startswith('.codehilite'))
+        self.assertTrue('.codehilite' in styles)
 
     def test_reloading(self):
         with temp_pages() as pages:
@@ -437,7 +444,8 @@ class TestFlatPages(unittest.TestCase):
             'title': 'Foo > bar',
             'created': datetime.date(2010, 12, 11),
             'updated': datetime.datetime(2015, 2, 9, 10, 59, 0),
-            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0),
+            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0,
+                                             tzinfo=utc),
             'versions': [3.14, 42],
         })
         self.assertEqual(foo['title'], 'Foo > bar')
@@ -445,6 +453,7 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(foo['updated'],
                          datetime.datetime(2015, 2, 9, 10, 59, 0))
         self.assertEqual(foo['updated_iso'],
-                         datetime.datetime(2015, 2, 9, 10, 59, 0))
+                         datetime.datetime(2015, 2, 9, 10, 59, 0,
+                                           tzinfo=utc))
         self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])

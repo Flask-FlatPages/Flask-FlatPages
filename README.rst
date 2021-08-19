@@ -2,8 +2,8 @@
 Flask-FlatPages
 ===============
 
-.. image:: https://travis-ci.org/Flask-FlatPages/Flask-FlatPages.svg?branch=master
-    :target: https://travis-ci.org/Flask-FlatPages/Flask-FlatPages
+.. image:: https://github.com/flask-FlatPages/flask-FlatPages/actions/workflows/test.yml/badge.svg?branch=master
+    :target: https://github.com/flask-FlatPages/flask-FlatPages/actions/workflows/test.yml/
 
 .. image:: https://img.shields.io/pypi/v/Flask-FlatPages.svg
     :target: https://pypi.python.org/pypi/Flask-FlatPages
