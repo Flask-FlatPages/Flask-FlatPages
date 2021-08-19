@@ -1,0 +1,33 @@
+---
+prelude: >
+  Small release to remove support for older Python versions, and to do some
+  housekeeping on the project repository and contributor experience.
+
+  Changes include:
+
+    + Moving CI from Travis to Github Actions
+      This decision was made following Travis CIs recent change in policies
+      around open source projects.
+
+    + Moving to Github Actions gave us the ability to define slightly more
+      granular workflows, which give more insight into why tests failed and put
+      CI results directly in Github.
+
+    + ``Tox`` as a single entrypoint for all main developer tasks, specifically
+      linting, testing and building docs.
+
+    + Updated contribution guidelines
+deprecations:
+  - |
+    This release drops support for Python versions 3.4 and 3.5. Support for python
+    3.4 was dropped from Pip in July 2019, and support for 3.5 in January of this
+    year. According to `PyPI Stats <https://pypistats.org/packages/flask-flatpages>`_.
+    these versions account for a handful of downloads a month. Version 0.7.2 has
+    identical funcitonality to this release and will still work for these versons.
+fixes:
+  - |
+    This release resolves issue `#79 <https://github.com/Flask-Flatpages/Flask-Flatpages/issues/79>`_.
+    by correcting an inconsistent parameter name in the documentation.
+  - |
+    Building on the fix to Issue `#77 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/77>`_, we
+    replace the custom compact module with ``six``.
