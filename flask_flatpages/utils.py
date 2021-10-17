@@ -56,7 +56,8 @@ def pygmented_markdown(text, flatpages=None):
                 continue
             extensions.append(extension)
             if isinstance(extension, six.string_types):
-                extension_configs[extension] = original_config[extension]
+                if extension in original_config:
+                    extension_configs[extension] = original_config[extension]
     elif not extensions:
         extensions = ['codehilite']
     return markdown.markdown(text, extensions=extensions,
