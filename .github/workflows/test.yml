@@ -22,24 +22,44 @@ jobs:
         run: |
           tox -e lint
   test:
-    name: Test (Python ${{matrix.python}})
+    name: Test (Python ${{matrix.python}} - ${{matrix.pygments}} Pygments)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: False
       matrix:
         python: [2.7, 3.6, 3.7, 3.8, 3.9]
-        pymgments: [yes, no]
+        pygments: [with, without]
         include:
           - python: 2.7
-            env: py27
+            pygments: with
+            env: py27-pygmentsyes
+          - python: 2.7
+            pygments: without
+            env: py27-pygmentsno
           - python: 3.6
-            env: py36
+            pygments: with
+            env: py36-pygmentsyes
+          - python: 3.6
+            pygments: without
+            env: py36-pygmentsno
           - python: 3.7
-            env: py37
+            pygments: with
+            env: py37-pygmentsyes
+          - python: 3.7
+            pygments: without
+            env: py37-pygmentsno
           - python: 3.8
-            env: py38
+            pygments: with
+            env: py38-pygmentsyes
+          - python: 3.8
+            pygments: without
+            env: py38-pygmentsno
           - python: 3.9
-            env: py39
+            pygments: with
+            env: py39-pygmentsyes
+          - python: 3.9
+            pygments: without
+            env: py39-pygmentsno
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python@${{matrix.python}}
@@ -51,4 +71,4 @@ jobs:
          python -m pip install -U pip
          pip install tox
       - name: Test
-        run: tox -e ${{ matrix.env }}-pygments${{matrix.pygments}}
+        run: tox -e ${{ matrix.env }}
