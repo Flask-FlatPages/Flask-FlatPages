@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python: [2.7, 3.6, 3.7, 3.8, 3.9]
+        python: [2.7, 3.6, 3.7, 3.8, 3.9, '3.10']
         pygments: [with, without]
         include:
           - python: 2.7
@@ -60,6 +60,12 @@ jobs:
           - python: 3.9
             pygments: without
             env: py39-pygmentsno
+          - python: '3.10'
+            pygments: with
+            env: py310-pygmentsyes
+          - python: '3.10'
+            pygments: without
+            env: py310-pygmentsno
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python@${{matrix.python}}

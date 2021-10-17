@@ -1,11 +1,4 @@
-"""
-=========================
-flask_flatpages.flatpages
-=========================
-
-Flatpages extension.
-
-"""
+"""Flatpages extension."""
 
 import operator
 import os
