@@ -28,6 +28,7 @@ jobs:
       fail-fast: False
       matrix:
         python: [2.7, 3.6, 3.7, 3.8, 3.9]
+        pymgments: [yes, no]
         include:
           - python: 2.7
             env: py27
@@ -50,4 +51,4 @@ jobs:
          python -m pip install -U pip
          pip install tox
       - name: Test
-        run: tox -e ${{ matrix.env }}
+        run: tox -e ${{ matrix.env }}-pygments${{matrix.pygments}}

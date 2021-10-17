@@ -18,8 +18,10 @@ import unittest
 from contextlib import contextmanager
 
 import six
+import pytest
 from flask import Flask
 from flask_flatpages import FlatPages, pygments_style_defs
+from flask_flatpages.imports import PygmentsHtmlFormatter
 from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
@@ -335,6 +337,8 @@ class TestFlatPages(unittest.TestCase):
             # Upper-case, markdown not interpreted
             self.assertEqual(hello.html, u'HELLO, *世界*!\n')
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def test_pygments_style_defs(self):
         styles = pygments_style_defs()
         self.assertTrue('.codehilite' in styles)

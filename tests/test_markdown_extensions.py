@@ -10,8 +10,10 @@ Test proper work of various Markdown extensions.
 import sys
 import unittest
 
+import pytest
 from flask import Flask
 from flask_flatpages import FlatPages
+from flask_flatpages.imports import PygmentsHtmlFormatter
 from markdown.extensions.toc import TocExtension
 from six import PY3
 
@@ -30,6 +32,8 @@ class TestMarkdownExtensions(unittest.TestCase):
             '<p>Text</p>'
         )
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def check_default_codehilite_page(self, pages):
         codehilite = pages.get('codehilite') #Test codehilite loaded by default
                                              #by pygmented_markdown
@@ -51,6 +55,8 @@ class TestMarkdownExtensions(unittest.TestCase):
             fixture
         )
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def check_codehilite_with_linenums(self, pages):
         codehilite = pages.get('codehilite')
         fixture = (
@@ -108,8 +114,11 @@ class TestMarkdownExtensions(unittest.TestCase):
             hello.html,
             u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
         )
-        self.check_default_codehilite_page(pages)
+        if PygmentsHtmlFormatter is not None:
+            self.check_default_codehilite_page(pages)
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def test_codehilite_linenums_disabled(self):
         #Test explicity disabled
         app = Flask(__name__)
@@ -126,6 +135,8 @@ class TestMarkdownExtensions(unittest.TestCase):
         pages._file_cache = {}
         self.check_default_codehilite_page(pages)
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def test_codehilite_linenums_enabled(self):
         app = Flask(__name__)
         app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['codehilite']
@@ -166,8 +177,12 @@ class TestMarkdownExtensions(unittest.TestCase):
             '<h2 id="paragraph-header">Paragraph Header</h2>\n'
             '<p>Text</p>'
         )
-        self.check_default_codehilite_page(pages) #test codehilite also loaded
+        if PygmentsHtmlFormatter is not None:
+            self.check_default_codehilite_page(pages) #test codehilite also loaded
 
+    
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def test_extension_importpath(self):
         app = Flask(__name__)
         app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
@@ -184,6 +199,8 @@ class TestMarkdownExtensions(unittest.TestCase):
         pages._file_cache = {}
         self.check_codehilite_with_linenums(pages)
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def test_extension_object(self):
         app = Flask(__name__)
         from markdown.extensions.codehilite import CodeHiliteExtension
@@ -197,6 +214,8 @@ class TestMarkdownExtensions(unittest.TestCase):
         pages._file_cache = {}
         self.check_codehilite_with_linenums(pages)
 
+    @pytest.mark.skipif(PygmentsHtmlFormatter is None,
+                        reason='Pygments not installed')
     def test_mixed_extension_types(self):
         app = Flask(__name__)
         from markdown.extensions.toc import TocExtension
