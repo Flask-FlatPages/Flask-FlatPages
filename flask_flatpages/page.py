@@ -11,7 +11,7 @@ class Page(object):
     function.
     """
 
-    def __init__(self, path, meta, body, html_renderer):
+    def __init__(self, path, meta, body, html_renderer, folder):
         """Initialize Page instance.
 
         :param path: Page path.
@@ -26,6 +26,8 @@ class Page(object):
         self.body = body
         #: Renderer function
         self.html_renderer = html_renderer
+        #: The name of the folder the page is contained in.
+        self.folder = folder
 
     def __getitem__(self, name):
         """Shortcut for accessing metadata.
