@@ -1,8 +1,6 @@
 """Flatpages extension."""
-import operator
 import os
 from io import StringIO
-from itertools import takewhile
 
 
 import six
