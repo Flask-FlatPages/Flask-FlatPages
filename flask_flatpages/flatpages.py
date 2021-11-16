@@ -67,7 +67,6 @@ class FlatPages(object):
         ('auto_reload', 'if debug'),
         ('case_insensitive', False),
         ('instance_relative', False),
-        ('legacy_frontmatter', False)
     )
 
     def __init__(self, app=None, name=None):
@@ -285,15 +284,6 @@ class FlatPages(object):
             pages[path] = self._load_file(path, full_name, rel_path)
         return pages
 
-    def _legacy_parser(self, content):
-        lines = iter(content.split('\n'))
-        # Read lines until an empty line is encountered.
-        meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
-        # The rest is the content. `lines` is an iterator so it continues
-        # where `itertools.takewhile` left it.
-        content = '\n'.join(lines)
-        return meta, content
-
     def _libyaml_parser(self, content):
         yaml_loader = SafeLoader(StringIO(content))
         yaml_loader.get_token()  # Get stream start token
@@ -334,18 +324,7 @@ class FlatPages(object):
 
         :return: initialized :class:`Page` instance.
         """
-        if self.config('LEGACY_FRONTMATTER'):
-            meta, content = self._legacy_parser(content)
-        else:
-            meta, content = self._libyaml_parser(content)
-
-        # lines = iter(content.split('\n'))
-
-        # # Read lines until an empty line is encountered.
-        # meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
-        # # The rest is the content. `lines` is an iterator so it continues
-        # # where `itertools.takewhile` left it.
-        # content = '\n'.join(lines)
+        meta, content = self._libyaml_parser(content)
 
         # Now we ready to get HTML renderer function
         html_renderer = self.config('html_renderer')
