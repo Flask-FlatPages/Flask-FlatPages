@@ -14,8 +14,8 @@ import shutil
 import sys
 import unicodedata
 import unittest
-
 from contextlib import contextmanager
+
 
 import six
 import pytest
@@ -28,9 +28,13 @@ from .test_temp_directory import temp_directory
 
 if six.PY3:
     utc = datetime.timezone.utc
+    from unittest.mock import patch
 else:
     import pytz
     utc = pytz.utc
+    from mock import patch
+
+
 
 
 @contextmanager
@@ -303,6 +307,36 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages(app, 'fubar') as pages:
             self.assertEqual(pages.config('DUMMY'),
                              app.config['FLATPAGES_FUBAR_DUMMY'])
+
+    @patch('flask_flatpages.flatpages.FlatPages._legacy_parser',
+           return_value=(dict(), 'Foo')
+    )
+    @patch('flask_flatpages.flatpages.FlatPages._libyaml_parser',
+           side_effect=ValueError('Cannot happen')
+    )
+    def test_legacy_parser(self, libyaml_mock, legacy_mock):
+        app = Flask(__name__)
+        app.config['FLATPAGES_LEGACY_META_PARSER'] = True
+        
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set(['codehilite',
+                 'extra',
+                 'foo',
+                 'foo/bar',
+                 'foo/lorem/ipsum',
+                 'headerid',
+                 'hello',
+                 'meta_styles/yaml_style',
+                 'meta_styles/jekyll_style',
+                 'meta_styles/multi_line',
+                 'meta_styles/no_meta',
+                 'toc'])
+        )
+        libyaml_mock.assert_not_called()
+        assert legacy_mock.call_count == len(list(pages))
+
 
     def test_other_encoding(self):
         app = Flask(__name__)

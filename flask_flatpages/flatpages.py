@@ -1,6 +1,8 @@
 """Flatpages extension."""
+import operator
 import os
 from io import StringIO
+from itertools import takewhile
 
 
 import six
@@ -65,6 +67,7 @@ class FlatPages(object):
         ('auto_reload', 'if debug'),
         ('case_insensitive', False),
         ('instance_relative', False),
+        ('legacy_meta_parser', False),
     )
 
     def __init__(self, app=None, name=None):
@@ -317,12 +320,25 @@ class FlatPages(object):
                 content = '\n'.join(lines[meta_end_line:]).lstrip('\n')
         return meta, content
 
+    def _legacy_parser(self, content):
+        lines = iter(content.split('\n'))
+
+        # Read lines until an empty line is encountered.
+        meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
+        # The rest is the content. `lines` is an iterator so it continues
+        # where `itertools.takewhile` left it.
+        content = '\n'.join(lines)
+        return meta, content
+
     def _parse(self, content, path, rel_path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
         """
-        meta, content = self._libyaml_parser(content)
+        if self.config('legacy_meta_parser'):
+            meta, content = self._legacy_parser(content)
+        else:
+            meta, content = self._libyaml_parser(content)
 
         # Now we ready to get HTML renderer function
         html_renderer = self.config('html_renderer')

@@ -13,6 +13,7 @@ requires=
 
 [testenv]
 deps =
+  py27-pygments{yes,no}: mock==3.0.5
   py{27,36,37,38,39,310}-pygmentsyes: Pygments>=2.0.2
   coverage>=3.7.1
   docutils>=0.12
