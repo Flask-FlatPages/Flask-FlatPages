@@ -1,7 +1,6 @@
 """Flatpages extension."""
 import operator
 import os
-from io import StringIO
 from itertools import takewhile
 
 
@@ -27,8 +26,10 @@ from .utils import force_unicode, pygmented_markdown
 
 if six.PY3:
     from inspect import getfullargspec
+    from io import StringIO
 else:
     from inspect import getargspec as getfullargspec
+    from StringIO import StringIO
 
 
 START_TOKENS = (BlockMappingStartToken, BlockSequenceStartToken,
@@ -286,6 +287,8 @@ class FlatPages(object):
         return pages
 
     def _libyaml_parser(self, content):
+        if not six.PY3:
+            content = force_unicode(content)
         yaml_loader = SafeLoader(StringIO(content))
         yaml_loader.get_token()  # Get stream start token
         token = yaml_loader.get_token()
@@ -318,6 +321,8 @@ class FlatPages(object):
                     meta_end_line += lines[meta_end_line:].index('')
                 meta = '\n'.join(lines[:meta_end_line])
                 content = '\n'.join(lines[meta_end_line:]).lstrip('\n')
+        if not six.PY3:
+            return force_unicode(meta), force_unicode(content)
         return meta, content
 
     def _legacy_parser(self, content):
