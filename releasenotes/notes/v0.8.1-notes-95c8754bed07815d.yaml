@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Small version bump to fix required Python versions
