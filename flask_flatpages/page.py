@@ -1,4 +1,6 @@
 """Define flatpage instance."""
+from io import StringIO
+
 
 import yaml
 from werkzeug.utils import cached_property
@@ -58,7 +60,11 @@ class Page(object):
     @cached_property
     def meta(self):
         """Store a dict of metadata parsed from the YAML header of the file."""
-        meta = yaml.safe_load(self._meta)
+        # meta = yaml.safe_load(self._meta)
+        meta = {}
+        for doc in yaml.safe_load_all(StringIO(self._meta)):
+            if doc is not None:
+                meta.update(doc)
         # YAML documents can be any type but we want a dict
         # eg. yaml.safe_load('') -> None
         #     yaml.safe_load('- 1\n- a') -> [1, 'a']

@@ -14,8 +14,8 @@ import shutil
 import sys
 import unicodedata
 import unittest
-
 from contextlib import contextmanager
+
 
 import six
 import pytest
@@ -28,9 +28,13 @@ from .test_temp_directory import temp_directory
 
 if six.PY3:
     utc = datetime.timezone.utc
+    from unittest.mock import patch
 else:
     import pytz
     utc = pytz.utc
+    from mock import patch
+
+
 
 
 @contextmanager
@@ -169,6 +173,10 @@ class TestFlatPages(unittest.TestCase):
                  'foo/lorem/ipsum',
                  'headerid',
                  'hello',
+                 'meta_styles/yaml_style',
+                 'meta_styles/jekyll_style',
+                 'meta_styles/multi_line',
+                 'meta_styles/no_meta',
                  'not_a_page',
                  'toc'])
         )
@@ -197,10 +205,7 @@ class TestFlatPages(unittest.TestCase):
             original_file = os.path.join(pages.root, 'hello.html')
             upper_file = os.path.join(pages.root, 'Hello.html')
             txt_file = os.path.join(pages.root, 'hello.txt')
-            print(original_file)
-            print(upper_file)
             shutil.move(original_file, upper_file)
-            print(os.listdir(pages.root))
             pages.reload()
             self.assertEqual(
                 set(page.path for page in pages),
@@ -212,6 +217,10 @@ class TestFlatPages(unittest.TestCase):
                      'foo/lorem/ipsum',
                      'headerid',
                      'hello',
+                     'meta_styles/yaml_style',
+                     'meta_styles/jekyll_style',
+                     'meta_styles/multi_line',
+                     'meta_styles/no_meta',
                      'not_a_page',
                      'toc'])
             )
@@ -241,6 +250,10 @@ class TestFlatPages(unittest.TestCase):
                  'foo/lorem/ipsum',
                  'headerid',
                  'hello',
+                 'meta_styles/yaml_style',
+                 'meta_styles/jekyll_style',
+                 'meta_styles/multi_line',
+                 'meta_styles/no_meta',
                  'toc'])
         )
 
@@ -294,6 +307,36 @@ class TestFlatPages(unittest.TestCase):
         with temp_pages(app, 'fubar') as pages:
             self.assertEqual(pages.config('DUMMY'),
                              app.config['FLATPAGES_FUBAR_DUMMY'])
+
+    @patch('flask_flatpages.flatpages.FlatPages._legacy_parser',
+           return_value=(dict(), 'Foo')
+    )
+    @patch('flask_flatpages.flatpages.FlatPages._libyaml_parser',
+           side_effect=ValueError('Cannot happen')
+    )
+    def test_legacy_parser(self, libyaml_mock, legacy_mock):
+        app = Flask(__name__)
+        app.config['FLATPAGES_LEGACY_META_PARSER'] = True
+        
+        pages = FlatPages(app)
+        self.assertEqual(
+            set(page.path for page in pages),
+            set(['codehilite',
+                 'extra',
+                 'foo',
+                 'foo/bar',
+                 'foo/lorem/ipsum',
+                 'headerid',
+                 'hello',
+                 'meta_styles/yaml_style',
+                 'meta_styles/jekyll_style',
+                 'meta_styles/multi_line',
+                 'meta_styles/no_meta',
+                 'toc'])
+        )
+        libyaml_mock.assert_not_called()
+        assert legacy_mock.call_count == len(list(pages))
+
 
     def test_other_encoding(self):
         app = Flask(__name__)
@@ -423,6 +466,10 @@ class TestFlatPages(unittest.TestCase):
                      'foo/lorem/ipsum',
                      'headerid',
                      'hello',
+                     'meta_styles/yaml_style',
+                     'meta_styles/jekyll_style',
+                     'meta_styles/multi_line',
+                     'meta_styles/no_meta',
                      'toc'])
             )
 
@@ -438,6 +485,10 @@ class TestFlatPages(unittest.TestCase):
                      'foo/bar',
                      'headerid',
                      'hello',
+                     'meta_styles/yaml_style',
+                     'meta_styles/jekyll_style',
+                     'meta_styles/multi_line',
+                     'meta_styles/no_meta',
                      'toc',
                      u'Unïcôdé']))
 
@@ -461,3 +512,69 @@ class TestFlatPages(unittest.TestCase):
                                            tzinfo=utc))
         self.assertEqual(foo['versions'], [3.14, 42])
         self.assertRaises(KeyError, lambda: foo['nonexistent'])
+
+    def test_no_meta(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            no_meta = pages.get('meta_styles/no_meta')
+            self.assertEqual(no_meta.meta, {})
+            filename = os.path.join(pages.root, 'meta_styles', 'no_meta.html')
+            with open(filename, 'w') as f_:
+                f_.write("\n Hello, there's no metadata here.")
+            pages.reload()
+            no_meta = pages.get('meta_styles/no_meta')
+            self.assertEqual(no_meta.meta, {})
+            with open(filename, 'w') as f_:
+                f_.write("---\n---\nHello, there's no metadata here.")
+            pages.reload()
+            no_meta = pages.get('meta_styles/no_meta')
+            self.assertEqual(no_meta.meta, {})
+            with open(filename, 'w') as f_:
+                f_.write("---\n...\nHello, there's no metadata here.")
+            pages.reload()
+            no_meta = pages.get('meta_styles/no_meta')
+            self.assertEqual(no_meta.meta, {})
+            with open(filename, 'w') as f_:
+                f_.write("#Hello, there's no metadata here.")
+            pages.reload()
+            no_meta = pages.get('meta_styles/no_meta')
+            self.assertEqual(no_meta.meta, {})
+
+    def test_jekyll_style_meta(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            jekyll_style = pages.get('meta_styles/jekyll_style')
+            self.assertEqual(jekyll_style.meta, {'hello': 'world'})
+            self.assertEqual(jekyll_style.body, 'Foo')
+            filename = os.path.join(pages.root, 'meta_styles', 'jekyll_style.html')
+            with open(filename, 'r') as f_:
+                lines = f_.readlines()
+            with open(filename, 'w') as f_:
+                f_.write('\n'.join(lines[1:]))
+            pages.reload()
+            jekyll_style = pages.get('meta_styles/jekyll_style')
+            self.assertEqual(jekyll_style.meta, {'hello': 'world'})
+            self.assertEqual(jekyll_style.body, 'Foo')
+
+    def test_yaml_style_meta(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            yaml_style = pages.get('meta_styles/yaml_style')
+            self.assertEqual(yaml_style.meta, {'hello': 'world'})
+            self.assertEqual(yaml_style.body, 'Foo')
+            filename = os.path.join(pages.root, 'meta_styles', 'yaml_style.html')
+            with open(filename, 'r') as f_:
+                lines = f_.readlines()
+            with open(filename, 'w') as f_:
+                f_.write('\n'.join(lines[1:]))
+            pages.reload()
+            yaml_style = pages.get('meta_styles/yaml_style')
+            self.assertEqual(yaml_style.meta, {'hello': 'world'})
+            self.assertEqual(yaml_style.body, 'Foo')
+
+    def test_multi_line(self):
+        pages = FlatPages(Flask(__name__))
+        multi_line = pages.get('meta_styles/multi_line')
+        self.assertEqual(multi_line.body, 'Foo')
+        self.assertIn('multi_line_string', multi_line.meta)
+        self.assertIn('\n', multi_line.meta['multi_line_string'])
