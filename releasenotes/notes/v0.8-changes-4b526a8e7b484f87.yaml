@@ -1,0 +1,23 @@
+---
+prelude: >
+  This release includes three PRs. One adds a new attribute to the
+  ``Page`` class, one improves our documentation, and the third improves the
+  metadata parsing to make it consistent with other 'FlatPage' style libraries,
+  and less fussy for cases like no page metadata.
+features:
+  - |
+    Added ``Page.folder`` as a convencience attribute to the
+    ``Page`` class.
+  - |
+    Improved metadata parsing, documented above.
+upgrade:
+  - |
+    This version adds a new method for parsing Metadata. While it passes
+    new and existing tests, there may still be bugs. As well as reporting
+    issues, you can use the ``FLATPAGES_LEGACY_META_PARSER`` setting to
+    revert to the old behaviour.
+fixes:
+  - |
+    Resolves issue
+    `#59 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/59>`_, by updating
+    our metadata parser.
