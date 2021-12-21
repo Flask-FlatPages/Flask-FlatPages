@@ -140,8 +140,20 @@ are optional.
     `See the Markdown 3 documentation for more details <https://python-markdown.github.io/reference/#extension_configs>`_
 
 ``FLATPAGES_AUTO_RELOAD``
-    Wether to reload pages at each request. See :ref:`laziness-and-caching`
+    Whether to reload pages at each request. See :ref:`laziness-and-caching`
     for more details.  The default is to reload in ``DEBUG`` mode only.
+
+``FLATPAGES_LEGACY_META_PARSER``
+    .. versionadded:: 0.8
+
+    Controls whether to use the newer parser based on tokenising metadata
+    with libyaml.
+
+    Setting this to true reverts to the simpler method of parsing metadata
+    used in versions <0.8, which requires the metadata block be terminated
+    by a newline, or else if there's no metadata that a leading newline be
+    present. Intended to provide a fallback in case of bugs with the newer
+    parser.
 
 Please note that multiple FlatPages instances can be configured by using a
 name for the FlatPages instance at initializaton time:
@@ -167,7 +179,7 @@ relative to the pages root, and excluding the extension. For example, for
 an app in ``C:\myapp`` with the default configuration, the path for the
 ``C:\myapp\pages\lorem\ipsum.html`` is ``lorem/ipsum``.
 
-Each file is made of a `YAML`_ mapping of metadata, a blank line, and the
+Each file is made of a `YAML`_ mapping of metadata, and the
 page body::
 
     title: Hello
@@ -196,6 +208,59 @@ and in templates:
 .. code-block:: html+jinja
 
     <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
+
+Delimiting YAML Metadata
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.8
+
+In previous versions, YAML metadata was terminated by a newline. This meant it
+was impossible to use multi-line strings in the metadata, or worse that if
+your page had no metadata at all it needed to start with an empty line.
+
+Starting with v0.8, YAML can now be delimited in 'Jekyll' style, by wrapping
+it with ``---``::
+
+    ---
+    title: Hello World
+    author: J.L Coolman
+    ---
+    Hello, world!
+
+Or using YAML 'end document' specifiers like::
+
+    ---
+    title: Hello Again
+    author: J.L Coolman
+    ...
+    Hello, world!
+
+Or by terminating with a newline, in a backwards compatible way.
+
+In all cases, the leading ``---`` is optional.
+
+With this change, it's now possible to have pages with no-metadata
+by starting them with::
+
+    ---
+    ---
+    Hello, this is my page
+
+Or::
+
+    ---
+    ...
+    Hello, this is a page too
+
+Or even just launching in to the body::
+    
+    Hello, this is also a page!
+
+.. warning:: 
+    If you want to use multiline strings in metadatia you **must** use
+    a start and end delimiter, or else the parser may cut the metadata
+    at the first blank line.
+
 
 Using custom Markdown extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
