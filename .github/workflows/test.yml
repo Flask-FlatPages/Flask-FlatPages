@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python: [2.7, 3.6, 3.7, 3.8, 3.9, '3.10', '3.11']
+        python: [2.7, 3.7, 3.8, 3.9, '3.10', '3.11']
         pygments: [with, without]
         include:
           - python: 2.7
@@ -36,12 +36,6 @@ jobs:
           - python: 2.7
             pygments: without
             env: py27-pygmentsno
-          - python: 3.6
-            pygments: with
-            env: py36-pygmentsyes
-          - python: 3.6
-            pygments: without
-            env: py36-pygmentsno
           - python: 3.7
             pygments: with
             env: py37-pygmentsyes
