@@ -23,7 +23,7 @@ jobs:
           tox -e lint
   test:
     name: Test (Python ${{matrix.python}} - ${{matrix.pygments}} Pygments)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: False
       matrix:
