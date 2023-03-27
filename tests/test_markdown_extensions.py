@@ -10,6 +10,8 @@ Test proper work of various Markdown extensions.
 import sys
 import unittest
 
+
+import markdown
 import pytest
 from flask import Flask
 from flask_flatpages import FlatPages
@@ -35,21 +37,12 @@ class TestMarkdownExtensions(unittest.TestCase):
     @pytest.mark.skipif(PygmentsHtmlFormatter is None,
                         reason='Pygments not installed')
     def check_default_codehilite_page(self, pages):
-        codehilite = pages.get('codehilite') #Test codehilite loaded by default
-                                             #by pygmented_markdown
-        fixture = (
-            '<div class="codehilite"><pre><span></span>'
-            '<code><span class="nb">print</span>'
-            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-            '</span><span class="p">)</span>\n</code></pre></div>'
+        codehilite = pages.get('codehilite')
+        body = codehilite.body
+        fixture = markdown.markdown(
+            body,
+            extensions=['codehilite'],
         )
-        if not PY3:
-            fixture = (
-                '<div class="codehilite"><pre><span></span>'
-                '<span class="nb">print</span>'
-                '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-                '</span><span class="p">)</span>\n</pre></div>'
-            )
         self.assertEqual(
             codehilite.html,
             fixture
@@ -59,26 +52,16 @@ class TestMarkdownExtensions(unittest.TestCase):
                         reason='Pygments not installed')
     def check_codehilite_with_linenums(self, pages):
         codehilite = pages.get('codehilite')
-        fixture = (
-            '<table class="codehilitetable"><tr><td class="linenos">'
-            '<div class="linenodiv"><pre><span class="normal">1</span>'
-            '</pre></div></td><td class="code">'
-            '<div class="codehilite"><pre><span></span><code>'
-            '<span class="nb">print</span>'
-            '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-            '</span><span class="p">)</span>\n'
-            '</code></pre></div>\n</td></tr></table>'
+        body = codehilite.body
+        fixture = markdown.markdown(
+            body,
+            extensions=['codehilite'],
+            extension_configs={
+                'codehilite': {
+                    'linenums': True
+                }
+            }
         )
-        if not PY3:
-            fixture = (
-                '<table class="codehilitetable"><tr><td class="linenos">'
-                '<div class="linenodiv"><pre>1</pre></div></td><td class="code">'
-                '<div class="codehilite"><pre><span></span>'
-                '<span class="nb">print</span>'
-                '<span class="p">(</span><span class="s1">&#39;Hello, world!&#39;'
-                '</span><span class="p">)</span>\n'
-                '</pre></div>\n</td></tr></table>'
-            )
         self.assertEqual(
             codehilite.html,
             fixture

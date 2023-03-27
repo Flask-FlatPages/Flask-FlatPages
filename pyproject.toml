@@ -7,14 +7,12 @@ legacy_tox_ini = """
 
 [tox]
 envlist =
-  py{27,36,37,38,39,310}-pygments{yes,no}
-requires=
-  setuptools==44.1.1;python_version=="2.7"
+  py{27,36,37,38,39,310,311}-pygments{yes,no}
 
 [testenv]
 deps =
   py27-pygments{yes,no}: mock==3.0.5
-  py{27,36,37,38,39,310}-pygmentsyes: Pygments>=2.0.2
+  py{27,36,37,38,39,310,311}-pygmentsyes: Pygments>=2.0.2
   coverage>=3.7.1
   docutils>=0.12
   flake8>=2.3.0
@@ -28,7 +26,7 @@ deps =
   pytest
   pytest-cov
 commands =
-  - pytest -v tests/ --cov=flask_flatpages --cov-branch --cov-report term
+  - python -m pytest -v --cov=flask_flatpages --cov-branch --cov-report term {posargs}
 
 [testenv:docs]
 deps = -rdocs/requirements.txt
