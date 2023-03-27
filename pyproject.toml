@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools > 40.6.0", "wheel"]
+requires = ["setuptools < 45 ; python_version < '3'", "setuptools ; python_version > '2.7'", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.tox]
