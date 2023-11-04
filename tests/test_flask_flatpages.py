@@ -18,6 +18,7 @@ from contextlib import contextmanager
 
 
 import six
+import yaml
 import pytest
 from flask import Flask
 from flask_flatpages import FlatPages, pygments_style_defs
@@ -33,8 +34,6 @@ else:
     import pytz
     utc = pytz.utc
     from mock import patch
-
-
 
 
 @contextmanager
@@ -578,3 +577,12 @@ class TestFlatPages(unittest.TestCase):
         self.assertEqual(multi_line.body, 'Foo')
         self.assertIn('multi_line_string', multi_line.meta)
         self.assertIn('\n', multi_line.meta['multi_line_string'])
+    
+    def test_parser_error(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            with open(os.path.join(pages.root, 'bad_file_test.html'), 'w') as f:
+                f.write("Hello World \u000B")
+            with pytest.raises(yaml.reader.ReaderError, match=r".*bad_file_test.*") as excinfo:
+                pages.get('bad_file_test')
+

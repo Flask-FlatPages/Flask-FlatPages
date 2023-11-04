@@ -6,6 +6,15 @@ from markdown.extensions import codehilite
 
 from .imports import PygmentsHtmlFormatter
 
+if six.PY3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
+
+class NamedStringIO(StringIO):
+    def __init__(self, content: str, name: str) -> None:
+        super().__init__(content)
+        self.name = name
 
 def force_unicode(value, encoding='utf-8', errors='strict'):
     """Convert bytes or any other Python instance to string."""

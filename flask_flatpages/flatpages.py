@@ -21,15 +21,13 @@ from yaml import (
 
 
 from .page import Page
-from .utils import force_unicode, pygmented_markdown
+from .utils import force_unicode, pygmented_markdown, NamedStringIO
 
 
 if six.PY3:
     from inspect import getfullargspec
-    from io import StringIO
 else:
     from inspect import getargspec as getfullargspec
-    from StringIO import StringIO
 
 
 START_TOKENS = (BlockMappingStartToken, BlockSequenceStartToken,
@@ -286,10 +284,10 @@ class FlatPages(object):
             pages[path] = self._load_file(path, full_name, rel_path)
         return pages
 
-    def _libyaml_parser(self, content):
+    def _libyaml_parser(self, content, path):
         if not six.PY3:
             content = force_unicode(content)
-        yaml_loader = SafeLoader(StringIO(content))
+        yaml_loader = SafeLoader(NamedStringIO(content, path))
         yaml_loader.get_token()  # Get stream start token
         token = yaml_loader.get_token()
         if not isinstance(token, START_TOKENS):
@@ -343,7 +341,7 @@ class FlatPages(object):
         if self.config('legacy_meta_parser'):
             meta, content = self._legacy_parser(content)
         else:
-            meta, content = self._libyaml_parser(content)
+            meta, content = self._libyaml_parser(content, path)
 
         # Now we ready to get HTML renderer function
         html_renderer = self.config('html_renderer')
