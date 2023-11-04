@@ -7,7 +7,7 @@ legacy_tox_ini = """
 
 [tox]
 envlist =
-  py{27,36,37,38,39,310,311}-pygments{yes,no}
+  py{27,36,37,38,39,310,311,312}-pygments{yes,no}
 
 [testenv]
 deps =
