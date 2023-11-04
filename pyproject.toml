@@ -7,7 +7,7 @@ legacy_tox_ini = """
 
 [tox]
 envlist =
-  py{27,37,38,39,310,311}-pygments{yes,no}
+  py{27,36,37,38,39,310,311}-pygments{yes,no}
 
 [testenv]
 deps =
@@ -36,5 +36,17 @@ commands=
 [testenv:lint]
 commands=
   flake8 --statistics flask_flatpages/
+
+[testenv:fmt]
+skip_install = true
+deps =
+  black
+commands=
+  black {posargs}
 """
+
+[tool.black]
+line-length = 79
+target-version = ["py36", "py37", "py38", "py39", "py310", "py311", "py312"]
+skip-line-normalization = false
 

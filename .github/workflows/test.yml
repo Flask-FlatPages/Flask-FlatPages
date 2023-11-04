@@ -9,11 +9,11 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
       - name: Install Tox
         run: |
           python -m pip install -U pip
@@ -24,18 +24,13 @@ jobs:
   test:
     name: Test (Python ${{matrix.python}} - ${{matrix.pygments}} Pygments)
     runs-on: ubuntu-20.04
+    needs: lint
     strategy:
       fail-fast: False
       matrix:
-        python: [2.7, 3.6, 3.7, 3.8, 3.9, '3.10', '3.11']
+        python: [3.6, 3.7, 3.8, 3.9, '3.10', '3.11', '3.12']
         pygments: [with, without]
         include:
-          - python: 2.7
-            pygments: with
-            env: py27-pygmentsyes
-          - python: 2.7
-            pygments: without
-            env: py27-pygmentsno
           - python: 3.6
             pygments: with
             env: py36-pygmentsyes
@@ -73,7 +68,7 @@ jobs:
             pygments: without
             env: py311-pygmentsno
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Python@${{matrix.python}}
         uses: actions/setup-python@v4
         with:
