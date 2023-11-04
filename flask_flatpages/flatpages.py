@@ -16,12 +16,12 @@ from yaml import (
     FlowSequenceStartToken,
     KeyToken,
     SafeLoader,
-    ScalarToken
+    ScalarToken,
 )
 
 
 from .page import Page
-from .utils import force_unicode, pygmented_markdown, NamedStringIO
+from .utils import force_unicode, NamedStringIO, pygmented_markdown
 
 
 if six.PY3:
@@ -30,25 +30,28 @@ else:
     from inspect import getargspec as getfullargspec
 
 
-START_TOKENS = (BlockMappingStartToken, BlockSequenceStartToken,
-                DocumentStartToken, FlowMappingStartToken,
-                FlowSequenceStartToken, KeyToken)
+START_TOKENS = (
+    BlockMappingStartToken,
+    BlockSequenceStartToken,
+    DocumentStartToken,
+    FlowMappingStartToken,
+    FlowSequenceStartToken,
+    KeyToken,
+)
 
 
 def _check_newline_token(token):
     return (
-        isinstance(token, ScalarToken) and
-        token.style is None and
-        '\n' in token.value
+        isinstance(token, ScalarToken)
+        and token.style is None
+        and "\n" in token.value
     )
 
 
 def _check_continue_parsing_tokens(token):
     return not (
-        isinstance(
-            token,
-            (DocumentStartToken, DocumentEndToken)
-        ) or token is None
+        isinstance(token, (DocumentStartToken, DocumentEndToken))
+        or token is None
     )
 
 
@@ -57,16 +60,16 @@ class FlatPages(object):
 
     #: Default configuration for FlatPages extension
     default_config = (
-        ('root', 'pages'),
-        ('extension', '.html'),
-        ('encoding', 'utf-8'),
-        ('html_renderer', pygmented_markdown),
-        ('markdown_extensions', ['codehilite']),
-        ('extension_configs', {}),
-        ('auto_reload', 'if debug'),
-        ('case_insensitive', False),
-        ('instance_relative', False),
-        ('legacy_meta_parser', False),
+        ("root", "pages"),
+        ("extension", ".html"),
+        ("encoding", "utf-8"),
+        ("html_renderer", pygmented_markdown),
+        ("markdown_extensions", ["codehilite"]),
+        ("extension_configs", {}),
+        ("auto_reload", "if debug"),
+        ("case_insensitive", False),
+        ("instance_relative", False),
+        ("legacy_meta_parser", False),
     )
 
     def __init__(self, app=None, name=None):
@@ -93,9 +96,9 @@ class FlatPages(object):
         self.name = name
 
         if name is None:
-            self.config_prefix = 'FLATPAGES'
+            self.config_prefix = "FLATPAGES"
         else:
-            self.config_prefix = '_'.join(('FLATPAGES', name.upper()))
+            self.config_prefix = "_".join(("FLATPAGES", name.upper()))
 
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
@@ -112,7 +115,7 @@ class FlatPages(object):
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
-        return self.app.config['_'.join((self.config_prefix, key.upper()))]
+        return self.app.config["_".join((self.config_prefix, key.upper()))]
 
     def get(self, path, default=None):
         """
@@ -149,7 +152,7 @@ class FlatPages(object):
         """
         # Store default config to application
         for key, value in self.default_config:
-            config_key = '_'.join((self.config_prefix, key.upper()))
+            config_key = "_".join((self.config_prefix, key.upper()))
             app.config.setdefault(config_key, value)
 
         # Register function to forget all pages if necessary
@@ -157,9 +160,9 @@ class FlatPages(object):
 
         # And finally store application to current instance and current
         # instance to application
-        if 'flatpages' not in app.extensions:
-            app.extensions['flatpages'] = {}
-        app.extensions['flatpages'][self.name] = self
+        if "flatpages" not in app.extensions:
+            app.extensions["flatpages"] = {}
+        app.extensions["flatpages"][self.name] = self
         self.app = app
 
     def reload(self):
@@ -170,7 +173,7 @@ class FlatPages(object):
         try:
             # This will "unshadow" the cached_property.
             # The property will be re-executed on next access.
-            del self.__dict__['_pages']
+            del self.__dict__["_pages"]
         except KeyError:
             pass
 
@@ -184,17 +187,18 @@ class FlatPages(object):
         is set to `True`.
 
         """
-        if self.config('instance_relative'):
-            root_dir = os.path.join(self.app.instance_path,
-                                    self.config('root'))
+        if self.config("instance_relative"):
+            root_dir = os.path.join(
+                self.app.instance_path, self.config("root")
+            )
         else:
-            root_dir = os.path.join(self.app.root_path, self.config('root'))
+            root_dir = os.path.join(self.app.root_path, self.config("root"))
         return force_unicode(root_dir)
 
     def _conditional_auto_reset(self):
         """Reset if configured to do so on new requests."""
-        auto = self.config('auto_reload')
-        if auto == 'if debug':
+        auto = self.config("auto_reload")
+        if auto == "if debug":
             auto = self.app.debug
         if auto:
             self.reload()
@@ -211,7 +215,7 @@ class FlatPages(object):
         if cached and cached[1] == mtime:
             page = cached[0]
         else:
-            encoding = self.config('encoding')
+            encoding = self.config("encoding")
 
             if six.PY3:
                 with open(filename, encoding=encoding) as handler:
@@ -232,6 +236,7 @@ class FlatPages(object):
 
         Returns a dictionary of pages keyed by their path.
         """
+
         def _walker():
             """
             Walk over directory and find all possible flatpages.
@@ -240,7 +245,7 @@ class FlatPages(object):
             ``FLATPAGES_%(name)s_EXTENSION``.
             """
             for cur_path, _, filenames in os.walk(self.root):
-                rel_path = cur_path.replace(self.root, '').lstrip(os.sep)
+                rel_path = cur_path.replace(self.root, "").lstrip(os.sep)
                 path_prefix = tuple(rel_path.split(os.sep)) if rel_path else ()
 
                 for name in filenames:
@@ -248,39 +253,43 @@ class FlatPages(object):
                         continue
 
                     full_name = os.path.join(cur_path, name)
-                    name_without_extension = [name[:-len(item)]
-                                              for item in extension
-                                              if name.endswith(item)][0]
-                    path = u'/'.join(path_prefix + (name_without_extension, ))
-                    if self.config('case_insensitive'):
+                    name_without_extension = [
+                        name[: -len(item)]
+                        for item in extension
+                        if name.endswith(item)
+                    ][0]
+                    path = "/".join(path_prefix + (name_without_extension,))
+                    if self.config("case_insensitive"):
                         path = path.lower()
                     yield (path, full_name, rel_path)
 
         # Read extension from config
-        extension = self.config('extension')
+        extension = self.config("extension")
 
         # Support for multiple extensions
         if isinstance(extension, six.string_types):
-            if ',' in extension:
-                extension = tuple(extension.split(','))
+            if "," in extension:
+                extension = tuple(extension.split(","))
             else:
-                extension = (extension, )
+                extension = (extension,)
         elif isinstance(extension, (list, set)):
             extension = tuple(extension)
 
         # FlatPage extension should be a string or a sequence
         if not isinstance(extension, tuple):
             raise ValueError(
-                'Invalid value for FlatPages extension. Should be a string or '
-                'a sequence, got {0} instead: {1}'.
-                format(type(extension).__name__, extension)
+                "Invalid value for FlatPages extension. Should be a string or "
+                "a sequence, got {0} instead: {1}".format(
+                    type(extension).__name__, extension
+                )
             )
         pages = {}
         for path, full_name, rel_path in _walker():
             if path in pages:
                 raise ValueError(
-                    'Multiple pages found which correspond to the same path. '
-                    'This error can arise when using multiple extensions.')
+                    "Multiple pages found which correspond to the same path. "
+                    "This error can arise when using multiple extensions."
+                )
             pages[path] = self._load_file(path, full_name, rel_path)
         return pages
 
@@ -291,46 +300,43 @@ class FlatPages(object):
         yaml_loader.get_token()  # Get stream start token
         token = yaml_loader.get_token()
         if not isinstance(token, START_TOKENS):
-            meta = ''
-            content = content.lstrip('\n')
+            meta = ""
+            content = content.lstrip("\n")
         else:
-            lines = content.split('\n')
+            lines = content.split("\n")
             if isinstance(token, DocumentStartToken):
                 token = yaml_loader.get_token()
             newline_token = None
             while _check_continue_parsing_tokens(token):
                 try:
                     token = yaml_loader.get_token()
-                    if (
-                        _check_newline_token(token) and
-                        newline_token is None
-                    ):
+                    if _check_newline_token(token) and newline_token is None:
                         newline_token = token
                 except Exception:
                     break
             if token is None and newline_token is None:
                 meta = content
-                content = ''
+                content = ""
             else:
                 if token is not None:
                     meta_end_line = token.end_mark.line + 1
                 else:
                     meta_end_line = newline_token.start_mark.line
-                    meta_end_line += lines[meta_end_line:].index('')
-                meta = '\n'.join(lines[:meta_end_line])
-                content = '\n'.join(lines[meta_end_line:]).lstrip('\n')
+                    meta_end_line += lines[meta_end_line:].index("")
+                meta = "\n".join(lines[:meta_end_line])
+                content = "\n".join(lines[meta_end_line:]).lstrip("\n")
         if not six.PY3:
             return force_unicode(meta), force_unicode(content)
         return meta, content
 
     def _legacy_parser(self, content):
-        lines = iter(content.split('\n'))
+        lines = iter(content.split("\n"))
 
         # Read lines until an empty line is encountered.
-        meta = '\n'.join(takewhile(operator.methodcaller('strip'), lines))
+        meta = "\n".join(takewhile(operator.methodcaller("strip"), lines))
         # The rest is the content. `lines` is an iterator so it continues
         # where `itertools.takewhile` left it.
-        content = '\n'.join(lines)
+        content = "\n".join(lines)
         return meta, content
 
     def _parse(self, content, path, rel_path):
@@ -338,13 +344,13 @@ class FlatPages(object):
 
         :return: initialized :class:`Page` instance.
         """
-        if self.config('legacy_meta_parser'):
+        if self.config("legacy_meta_parser"):
             meta, content = self._legacy_parser(content)
         else:
             meta, content = self._libyaml_parser(content, path)
 
         # Now we ready to get HTML renderer function
-        html_renderer = self.config('html_renderer')
+        html_renderer = self.config("html_renderer")
 
         # If function is not callable yet, import it
         if not callable(html_renderer):
@@ -380,6 +386,7 @@ class FlatPages(object):
            :class:`FlatPages`.
 
         """
+
         def wrapper(page):
             """Wrap HTML renderer function.
 
@@ -404,8 +411,10 @@ class FlatPages(object):
                 return html_renderer(body, self, page)
 
             raise ValueError(
-                'HTML renderer function {0!r} not supported by '
-                'Flask-FlatPages, wrong number of arguments: {1}.'.
-                format(html_renderer, args_length)
+                "HTML renderer function {0!r} not supported by "
+                "Flask-FlatPages, wrong number of arguments: {1}.".format(
+                    html_renderer, args_length
+                )
             )
+
         return wrapper

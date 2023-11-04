@@ -20,6 +20,7 @@ class Page(object):
         :param meta: Page meta data in YAML format.
         :param body: Page body.
         :param html_renderer: HTML renderer function.
+        :param folder: The folder the page is contained in.
         """
         #: Path this page was obtained from, as in ``pages.get(path)``
         self.path = path
@@ -50,7 +51,7 @@ class Page(object):
 
     def __repr__(self):
         """Machine representation of :class:`Page` instance."""
-        return '<Page %r>' % self.path
+        return "<Page %r>" % self.path
 
     @cached_property
     def html(self):
@@ -71,6 +72,9 @@ class Page(object):
         if not meta:
             return {}
         if not isinstance(meta, dict):
-            raise ValueError("Expected a dict in metadata for '{0}', got {1}".
-                             format(self.path, type(meta).__name__))
+            raise ValueError(
+                "Expected a dict in metadata for '{0}', got {1}".format(
+                    self.path, type(meta).__name__
+                )
+            )
         return meta

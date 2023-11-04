@@ -12,6 +12,6 @@ from .flatpages import FlatPages  # noqa
 from .page import Page  # noqa
 from .utils import pygmented_markdown, pygments_style_defs  # noqa
 
-__author__ = 'Simon Sapin, Igor Davydenko, Padraic Calpin'
-__license__ = 'BSD License'
-__version__ = '0.7.2'
+__author__ = "Simon Sapin, Igor Davydenko, Padraic Calpin"
+__license__ = "BSD License"
+__version__ = "0.7.2"
