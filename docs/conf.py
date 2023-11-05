@@ -53,9 +53,7 @@ copyright = u'2010-2015, Simon Sapin. 2013-2015, Igor Davydenko'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# The full version, including alpha/beta/rc tags.
-#release = '0.1dev'
-release = re.search("__version__ = '([^']+)'", open(os.path.join(
+release = re.search('__version__ = "([^\']+)"', open(os.path.join(
     os.path.dirname(__file__), '..', 'flask_flatpages', '__init__.py'))
     .read()).group(1)
 
