@@ -7,12 +7,9 @@
 /docs/_build
 /.tox
 
-Pipfile
-Pipfile.lock
-
 env*
 .coverage
+htmlcov/
 
 .DS_Store
-
 .vscode/*
