@@ -5,7 +5,7 @@ build:
     python: "3.12"
   jobs:
     pre_build:
-      - "git fetch --unshallow"
+      - "git fetch --unshallow --tags"
 
 sphinx:
   configuration: docs/conf.py
