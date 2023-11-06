@@ -80,7 +80,7 @@ Releasing
 Releases are automatically handled using a Github Actions pipeline
 defined in ``.github/workflows/release.yml``. To make a relase
 
-1. Update the version in `setup.cfg`. ``reno`` can help to generate the
+1. Update the version in `flask_flatpages/__init__.py`. ``reno`` can help to generate the
    next version using::
 
      reno -q semver-next
