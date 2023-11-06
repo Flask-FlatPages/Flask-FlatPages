@@ -8,7 +8,7 @@ deprecations:
     Python 2.7 is still currently supported, however due to end of support
     we will no longer automatically test changes against Python 2.7. At present,
     according to pypi-stats, Python  2.7 accounts for ~3% of users. Support will be
-    dropped for the eventual 1.0 release.
+    dropped for the eventual 1.0 release. 
   - >
     Python 3.6 and 3.7 are still supported and tested against, but are considered
     End-Of-Life. Future releases will drop support for these versions. If you are still
@@ -18,4 +18,4 @@ fixes:
     Incoporated a suggestion from Issue
     `#85 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/85>`_,
     ensuring that paths are displayed if an error is encountered parsing the
-    metadat with the updated metadata parser.
+    metadata with the updated metadata parser.
