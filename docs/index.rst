@@ -4,16 +4,16 @@ Flask-FlatPages
 Flask-FlatPages provides a collection of pages to your `Flask`_ application.
 Pages are built from “flat” text files as opposed to a relational database.
 
-* Works on Python 2.7 and 3.4+
+* Works on Python 2.7 and 3.6+
 * BSD licensed
-* Latest documentation `on Read the Docs`_
-* Source, issues and pull requests `on Github`_
-* Releases `on PyPI`_
+* Latest documentation on `Read the Docs`_
+* Source, issues and pull requests `Github`_
+* Releases on `PyPI`_
 
 .. _Flask: http://flask.pocoo.org/
-.. _on Read the Docs: http://flask-flatpages.readthedocs.org/
-.. _on Github: https://github.com/SimonSapin/Flask-FlatPages/
-.. _on PyPI: http://pypi.python.org/pypi/Flask-FlatPages
+.. _Read the Docs: http://flask-flatpages.readthedocs.org/
+.. _Github: https://github.com/SimonSapin/Flask-FlatPages/
+.. _PyPI: http://pypi.python.org/pypi/Flask-FlatPages
 
 
 Installation
@@ -184,7 +184,7 @@ page body::
 
     title: Hello
     published: 2010-12-22
-
+    ---
     Hello, *World*!
 
     Lorem ipsum dolor sit amet, …
@@ -209,16 +209,23 @@ and in templates:
 
     <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
 
+.. highlight:: YAML
+
 Delimiting YAML Metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionadded:: 0.8
 
+.. note::
+    The ``FLATPAGES_LEGACY_META_PARSER`` flag can be used to re-enable
+    the legacy metadata behaviour.
+
 In previous versions, YAML metadata was terminated by a newline. This meant it
-was impossible to use multi-line strings in the metadata, or worse that if
+was impossible to use e.g. multi-line strings in the metadata, to import files
+from other markdown tools like Obsidian, or worse that if
 your page had no metadata at all it needed to start with an empty line.
 
-Starting with v0.8, YAML can now be delimited in 'Jekyll' style, by wrapping
+Starting with v0.8, YAML can now be delimited by wrapping
 it with ``---``::
 
     ---
@@ -234,8 +241,6 @@ Or using YAML 'end document' specifiers like::
     author: J.L Coolman
     ...
     Hello, world!
-
-Or by terminating with a newline, in a backwards compatible way.
 
 In all cases, the leading ``---`` is optional.
 
@@ -256,11 +261,22 @@ Or even just launching in to the body::
     
     Hello, this is also a page!
 
-.. warning:: 
-    If you want to use multiline strings in metadatia you **must** use
-    a start and end delimiter, or else the parser may cut the metadata
+.. warning::
+    In previous versions, metadata was terminated with a new line. The updated
+    metadata parser attempts to preserve backwards compatability as much as
+    possible, but unexpected behaviour can occur if the page starts with text
+    that looks ambiguously 'YAML-like'. For example::
+
+        hello: world
+
+        This is my blog:
+
+    We strongly advise using an explicit delimiter. In addition, if
+    your metadata features multi-line blocks, you **must** specify
+    an start and end delimiter, or else the parser may cut the metadata
     at the first blank line.
 
+.. highlight:: python
 
 Using custom Markdown extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -397,7 +413,9 @@ API
 .. autoclass:: Page()
     :members:
 
-    With the ``hello.html`` page defined earlier::
+    With the ``hello.html`` page defined earlier
+
+    .. code-block:: YAML
 
         # hello.html
         title: Hello
