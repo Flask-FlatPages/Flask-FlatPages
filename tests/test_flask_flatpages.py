@@ -172,6 +172,7 @@ class TestFlatPages(unittest.TestCase):
                  'foo/lorem/ipsum',
                  'headerid',
                  'hello',
+                 'meta_styles/closing_block_only',
                  'meta_styles/yaml_style',
                  'meta_styles/jekyll_style',
                  'meta_styles/multi_line',
@@ -218,6 +219,7 @@ class TestFlatPages(unittest.TestCase):
                      'foo/lorem/ipsum',
                      'headerid',
                      'hello',
+                     'meta_styles/closing_block_only',
                      'meta_styles/yaml_style',
                      'meta_styles/jekyll_style',
                      'meta_styles/multi_line',
@@ -253,6 +255,7 @@ class TestFlatPages(unittest.TestCase):
                  'foo/lorem/ipsum',
                  'headerid',
                  'hello',
+                 'meta_styles/closing_block_only',
                  'meta_styles/yaml_style',
                  'meta_styles/jekyll_style',
                  'meta_styles/multi_line',
@@ -333,6 +336,7 @@ class TestFlatPages(unittest.TestCase):
                  'foo/lorem/ipsum',
                  'headerid',
                  'hello',
+                 'meta_styles/closing_block_only',
                  'meta_styles/yaml_style',
                  'meta_styles/jekyll_style',
                  'meta_styles/multi_line',
@@ -473,6 +477,7 @@ class TestFlatPages(unittest.TestCase):
                      'foo/lorem/ipsum',
                      'headerid',
                      'hello',
+                     'meta_styles/closing_block_only',
                      'meta_styles/yaml_style',
                      'meta_styles/jekyll_style',
                      'meta_styles/multi_line',
@@ -494,6 +499,7 @@ class TestFlatPages(unittest.TestCase):
                      'foo/bar',
                      'headerid',
                      'hello',
+                     'meta_styles/closing_block_only',
                      'meta_styles/yaml_style',
                      'meta_styles/jekyll_style',
                      'meta_styles/multi_line',
@@ -550,6 +556,19 @@ class TestFlatPages(unittest.TestCase):
             pages.reload()
             no_meta = pages.get('meta_styles/no_meta')
             self.assertEqual(no_meta.meta, {})
+
+    def test_meta_closing_only(self):
+        app = Flask(__name__)
+        with temp_pages(app) as pages:
+            page = pages.get('meta_styles/closing_block_only')
+            self.assertEqual(page.meta, {'hello': 'world'})
+            filename = os.path.join(pages.root, 'meta_styles', 'closing_block_only.html')
+            with open(filename, 'w') as f:
+                f.write('hello: world\n...\nFoo')
+            pages.reload()
+            page = pages.get('meta_styles/closing_block_only')
+            self.assertEqual(page.meta, {'hello': 'world'})
+
 
     def test_jekyll_style_meta(self):
         app = Flask(__name__)
