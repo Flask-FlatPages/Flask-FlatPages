@@ -1,0 +1,4 @@
+---
+upgrade:
+  - >
+    Move metadata parsing logic to new parsers package.
