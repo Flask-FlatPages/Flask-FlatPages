@@ -22,13 +22,15 @@ Linting and Style
 =================
 
 We use ``flake8`` to ensure code in the project conforms to a common
-style. The config can be found in ``setup.cfg``. Broadly, the project
+style. The config can be found in ``pyproject.toml``. Broadly, the project
 uses `smarkets import style <https://github.com/PyCQA/flake8-import-order/blob/master/tests/test_cases/complete_smarkets.py>`_,
 and we prefer breaking lines after a binary opertor.
 
 To check the style of any contributions, simply run ``tox -e lint``.
 
 Code is linted as part of the CI pipeline, which runs on push and on opening a pull request.
+
+Auto-formatting is handled using Black, and can be run using ``tox -e fmt``.
 
 Tests
 =====
@@ -53,7 +55,7 @@ of the documentation is generated automatically using `autodoc <https://www.sphi
 Similarly, the Changelog is automatically generated using `reno <https://docs.openstack.org/reno/latest/user/index.html>`_. When opening a pull request, please create a new
 release note by running::
 
-reno new <your-note-name-here>
+tox -e reno new <your-note-name-here>
 
 And then editing the resulting file in ``releasenotes/notes``.
 
@@ -83,11 +85,11 @@ defined in ``.github/workflows/release.yml``. To make a relase
 1. Update the version in `flask_flatpages/__init__.py`. ``reno`` can help to generate the
    next version using::
 
-     reno -q semver-next
+     tox -e reno -q semver-next
 
 2. Commit the changes, and tag the commit e.g.::
 
-   git add setup.cfg && git commit && git tag v$(reno -q semver-next)
+   git add pyproject.toml && git commit && git tag v$(reno -q semver-next)
 
 3. Push the tag and commit to the master branch
 

@@ -99,6 +99,13 @@ deps =
   black
 commands=
   black {posargs}
+
+[testenv:reno]
+skip_install = true
+deps =
+  reno
+commands =
+  reno {posargs}
 """
 
 [tool.flake8]
