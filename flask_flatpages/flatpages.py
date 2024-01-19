@@ -2,6 +2,7 @@
 import operator
 import os
 from itertools import takewhile
+import warnings
 
 
 import six
@@ -163,7 +164,27 @@ class FlatPages(object):
         if "flatpages" not in app.extensions:
             app.extensions["flatpages"] = {}
         app.extensions["flatpages"][self.name] = self
-        self.app = app
+        self._app = app
+
+    @property
+    def app(self):
+        warnings.warn(
+            "Flask recommends accessing the app instance via "
+            "`flask.current_app`. In future releases, this will wrap "
+            "current_app, and raise a RuntimeError if there is no "
+            "application context present.",
+            DeprecationWarning
+        )
+        return self._app
+
+    @app.setter
+    def app(self, app_instance):
+        warnings.warn(
+            "This attribute should be managed by self.init_app instead. "
+            "This will raise an AttributeError from version 0.9 onwards.",
+            DeprecationWarning
+        )
+        self._app = app_instance
 
     def reload(self):
         """Forget all pages.
