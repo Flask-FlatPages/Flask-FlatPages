@@ -177,8 +177,6 @@ class TestFlatPages(unittest.TestCase):
                  'meta_styles/jekyll_style',
                  'meta_styles/multi_line',
                  'meta_styles/no_meta',
-                 'meta_styles/edge_cases/colon_heading',
-                 'meta_styles/edge_cases/link_heading',
                  'not_a_page',
                  'toc'])
         )
@@ -224,8 +222,6 @@ class TestFlatPages(unittest.TestCase):
                      'meta_styles/jekyll_style',
                      'meta_styles/multi_line',
                      'meta_styles/no_meta',
-                     'meta_styles/edge_cases/colon_heading',
-                     'meta_styles/edge_cases/link_heading',
                      'not_a_page',
                      'toc'])
             )
@@ -260,8 +256,6 @@ class TestFlatPages(unittest.TestCase):
                  'meta_styles/jekyll_style',
                  'meta_styles/multi_line',
                  'meta_styles/no_meta',
-                 'meta_styles/edge_cases/colon_heading',
-                 'meta_styles/edge_cases/link_heading',
                  'toc'])
         )
 
@@ -341,8 +335,6 @@ class TestFlatPages(unittest.TestCase):
                  'meta_styles/jekyll_style',
                  'meta_styles/multi_line',
                  'meta_styles/no_meta',
-                 'meta_styles/edge_cases/colon_heading',
-                 'meta_styles/edge_cases/link_heading',
                  'toc'])
         )
         libyaml_mock.assert_not_called()
@@ -482,8 +474,6 @@ class TestFlatPages(unittest.TestCase):
                      'meta_styles/jekyll_style',
                      'meta_styles/multi_line',
                      'meta_styles/no_meta',
-                     'meta_styles/edge_cases/colon_heading',
-                     'meta_styles/edge_cases/link_heading',
                      'toc'])
             )
 
@@ -504,8 +494,6 @@ class TestFlatPages(unittest.TestCase):
                      'meta_styles/jekyll_style',
                      'meta_styles/multi_line',
                      'meta_styles/no_meta',
-                     'meta_styles/edge_cases/colon_heading',
-                     'meta_styles/edge_cases/link_heading',
                      'toc',
                      u'Unïcôdé']))
 
