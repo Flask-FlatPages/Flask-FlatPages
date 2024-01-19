@@ -179,3 +179,4 @@ python_files = "*test*.py"
 line-length = 79
 target-version = ["py37", "py38", "py39", "py310", "py311", "py312", "py313"]
 skip-line-normalization = false
+extend-exclude = "docs/conf.py"

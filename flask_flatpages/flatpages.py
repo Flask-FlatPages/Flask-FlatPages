@@ -1,5 +1,5 @@
 """Flatpages extension."""
-
+from __future__ import annotations
 import operator
 import os
 import warnings
@@ -7,7 +7,7 @@ from itertools import takewhile
 
 
 import six
-from flask import abort
+from flask import abort, current_app, Flask
 from werkzeug.utils import cached_property, import_string
 from yaml import (
     BlockMappingStartToken,
@@ -74,7 +74,7 @@ class FlatPages(object):
         ("legacy_meta_parser", False),
     )
 
-    def __init__(self, app=None, name=None):
+    def __init__(self, app: Flask | None = None, name: str | None = None):
         """Initialize FlatPages extension.
 
         :param app: Your application. Can be omitted if you call
@@ -104,6 +104,7 @@ class FlatPages(object):
 
         #: dict of filename: (page object, mtime when loaded)
         self._file_cache = {}
+        self._root = None
 
         if app:
             self.init_app(app)
@@ -112,12 +113,21 @@ class FlatPages(object):
         """Iterate on all :class:`Page` objects."""
         return six.itervalues(self._pages)
 
+    @property
+    def app(self) -> Flask:
+        warnings.warn(
+            'Accesing the app via the Pages instance is deprecated. '
+            'Please use the flask.current_app proxy instead.',
+            DeprecationWarning
+        )
+        return current_app
+
     def config(self, key):
         """Read actual configuration from Flask application config.
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
-        return self.app.config["_".join((self.config_prefix, key.upper()))]
+        return current_app.config["_".join((self.config_prefix, key.upper()))]
 
     def get(self, path, default=None):
         """
@@ -143,7 +153,7 @@ class FlatPages(object):
             abort(404)
         return page
 
-    def init_app(self, app):
+    def init_app(self, app: Flask):
         """
         Use to initialize an application.
 
@@ -219,11 +229,12 @@ class FlatPages(object):
         """
         if self.config("instance_relative"):
             root_dir = os.path.join(
-                self.app.instance_path, self.config("root")
+                current_app.instance_path, self.config("root")
             )
         else:
-            root_dir = os.path.join(self.app.root_path, self.config("root"))
+            root_dir = os.path.join(current_app.root_path, self.config("root"))
         return force_unicode(root_dir)
+
 
     def _conditional_auto_reset(self):
         """Reset if configured to do so on new requests."""

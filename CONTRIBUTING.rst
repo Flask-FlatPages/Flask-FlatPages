@@ -72,7 +72,9 @@ PR Checklist
 
 + Are appropriate tests added? Do they pass with ``tox``?
 
-+ Does the PR need a release note? Include one with ``reno``.
++ Does the PR need a release note? Include one with ``reno``, via ``tox -e reno -- new``.
+
++ Has the code been formatted? Check with ``tox -e fmt -- --check .``
 
 
 *************
@@ -85,7 +87,7 @@ defined in ``.github/workflows/release.yml``. To make a relase
 1. Update the version in `flask_flatpages/__init__.py`. ``reno`` can help to generate the
    next version using::
 
-     tox -e reno -q semver-next
+     tox -e reno -- -q semver-next
 
 2. Commit the changes, and tag the commit e.g.::
 

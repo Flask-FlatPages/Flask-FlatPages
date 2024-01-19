@@ -58,7 +58,8 @@ def temp_pages(app=None, name=None):
         else:
             config_root = 'FLATPAGES_%s_ROOT' % str(name).upper()
         app.config[config_root] = temp
-        yield FlatPages(app, name)
+        with app.app_context():
+            yield FlatPages(app, name)
 
 
 class TestFlatPages(unittest.TestCase):
@@ -141,9 +142,11 @@ class TestFlatPages(unittest.TestCase):
             self.assert_no_auto_reset(pages)
 
     def test_consistency(self):
-        pages = FlatPages(Flask(__name__))
-        for page in pages:
-            assert pages.get(page.path) is page
+        app = Flask(__name__)
+        with app.app_context():
+            pages = FlatPages(app)
+            for page in pages:
+                assert pages.get(page.path) is page
 
     def test_debug_auto_reset(self):
         app = Flask(__name__)
@@ -162,24 +165,25 @@ class TestFlatPages(unittest.TestCase):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSION'] = extension or ['.html', '.txt']
         pages = FlatPages(app)
-        self.assertEqual(
-            set(page.path for page in pages),
-            set(['codehilite',
-                 'extra',
-                 'foo',
-                 'foo/42/not_a_page',
-                 'foo/bar',
-                 'foo/lorem/ipsum',
-                 'headerid',
-                 'hello',
-                 'meta_styles/closing_block_only',
-                 'meta_styles/yaml_style',
-                 'meta_styles/jekyll_style',
-                 'meta_styles/multi_line',
-                 'meta_styles/no_meta',
-                 'not_a_page',
-                 'toc'])
-        )
+        with app.app_context():
+            self.assertEqual(
+                set(page.path for page in pages),
+                set(['codehilite',
+                    'extra',
+                    'foo',
+                    'foo/42/not_a_page',
+                    'foo/bar',
+                    'foo/lorem/ipsum',
+                    'headerid',
+                    'hello',
+                    'meta_styles/closing_block_only',
+                    'meta_styles/yaml_style',
+                    'meta_styles/jekyll_style',
+                    'meta_styles/multi_line',
+                    'meta_styles/no_meta',
+                    'not_a_page',
+                    'toc'])
+            )
 
     def test_extension_set(self):
         self.test_extension_sequence(set(['.html', '.txt']))
@@ -230,34 +234,40 @@ class TestFlatPages(unittest.TestCase):
             self.assertRaises(ValueError, pages.get, 'hello')
 
     def test_get(self):
-        pages = FlatPages(Flask(__name__))
-        self.assertEqual(pages.get('foo/bar').path, 'foo/bar')
-        self.assertEqual(pages.get('nonexistent'), None)
-        self.assertEqual(pages.get('nonexistent', 42), 42)
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            self.assertEqual(pages.get('foo/bar').path, 'foo/bar')
+            self.assertEqual(pages.get('nonexistent'), None)
+            self.assertEqual(pages.get('nonexistent', 42), 42)
 
     def test_get_or_404(self):
-        pages = FlatPages(Flask(__name__))
-        self.assertEqual(pages.get_or_404('foo/bar').path, 'foo/bar')
-        self.assertRaises(NotFound, pages.get_or_404, 'nonexistent')
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            self.assertEqual(pages.get_or_404('foo/bar').path, 'foo/bar')
+            self.assertRaises(NotFound, pages.get_or_404, 'nonexistent')
 
     def test_iter(self):
-        pages = FlatPages(Flask(__name__))
-        self.assertEqual(
-            set(page.path for page in pages),
-            set(['codehilite',
-                 'extra',
-                 'foo',
-                 'foo/bar',
-                 'foo/lorem/ipsum',
-                 'headerid',
-                 'hello',
-                 'meta_styles/closing_block_only',
-                 'meta_styles/yaml_style',
-                 'meta_styles/jekyll_style',
-                 'meta_styles/multi_line',
-                 'meta_styles/no_meta',
-                 'toc'])
-        )
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            self.assertEqual(
+                set(page.path for page in pages),
+                set(['codehilite',
+                    'extra',
+                    'foo',
+                    'foo/bar',
+                    'foo/lorem/ipsum',
+                    'headerid',
+                    'hello',
+                    'meta_styles/closing_block_only',
+                    'meta_styles/yaml_style',
+                    'meta_styles/jekyll_style',
+                    'meta_styles/multi_line',
+                    'meta_styles/no_meta',
+                    'toc'])
+            )
 
     def test_lazy_loading(self):
         with temp_pages() as pages:
@@ -277,10 +287,12 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(bar.body, 'c')
 
     def test_markdown(self):
-        pages = FlatPages(Flask(__name__))
-        foo = pages.get('foo')
-        self.assertEqual(foo.body, 'Foo *bar*\n')
-        self.assertEqual(foo.html, '<p>Foo <em>bar</em></p>')
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            foo = pages.get('foo')
+            self.assertEqual(foo.body, 'Foo *bar*\n')
+            self.assertEqual(foo.html, '<p>Foo <em>bar</em></p>')
 
     def test_instance_relative(self):
         with temp_directory() as temp:
@@ -290,8 +302,9 @@ class TestFlatPages(unittest.TestCase):
             app = Flask(__name__, instance_path=os.path.join(temp, 'instance'))
             app.config['FLATPAGES_INSTANCE_RELATIVE'] = True
             pages = FlatPages(app)
-            bar = pages.get('foo/bar')
-            self.assertTrue(bar is not None)
+            with app.app_context():
+                bar = pages.get('foo/bar')
+                self.assertTrue(bar is not None)
 
     def test_multiple_instance(self):
         """
@@ -321,24 +334,25 @@ class TestFlatPages(unittest.TestCase):
         app.config['FLATPAGES_LEGACY_META_PARSER'] = True
         
         pages = FlatPages(app)
-        self.assertEqual(
-            set(page.path for page in pages),
-            set(['codehilite',
-                 'extra',
-                 'foo',
-                 'foo/bar',
-                 'foo/lorem/ipsum',
-                 'headerid',
-                 'hello',
-                 'meta_styles/closing_block_only',
-                 'meta_styles/yaml_style',
-                 'meta_styles/jekyll_style',
-                 'meta_styles/multi_line',
-                 'meta_styles/no_meta',
-                 'toc'])
-        )
-        libyaml_mock.assert_not_called()
-        assert legacy_mock.call_count == len(list(pages))
+        with app.app_context():
+            self.assertEqual(
+                set(page.path for page in pages),
+                set(['codehilite',
+                    'extra',
+                    'foo',
+                    'foo/bar',
+                    'foo/lorem/ipsum',
+                    'headerid',
+                    'hello',
+                    'meta_styles/closing_block_only',
+                    'meta_styles/yaml_style',
+                    'meta_styles/jekyll_style',
+                    'meta_styles/multi_line',
+                    'meta_styles/no_meta',
+                    'toc'])
+            )
+            libyaml_mock.assert_not_called()
+            assert legacy_mock.call_count == len(list(pages))
 
 
     def test_other_encoding(self):
@@ -346,16 +360,18 @@ class TestFlatPages(unittest.TestCase):
         app.config['FLATPAGES_ENCODING'] = 'shift_jis'
         app.config['FLATPAGES_ROOT'] = 'pages_shift_jis'
         pages = FlatPages(app)
-        self.assert_unicode(pages)
+        with app.app_context():
+            self.assert_unicode(pages)
 
     def test_other_extension(self):
         app = Flask(__name__)
         app.config['FLATPAGES_EXTENSION'] = '.txt'
         pages = FlatPages(app)
-        self.assertEqual(
-            set(page.path for page in pages),
-            set(['not_a_page', 'foo/42/not_a_page'])
-        )
+        with app.app_context():
+            self.assertEqual(
+                set(page.path for page in pages),
+                set(['not_a_page', 'foo/42/not_a_page'])
+            )
 
     def test_other_html_renderer(self):
         def body_renderer(body):
@@ -376,12 +392,14 @@ class TestFlatPages(unittest.TestCase):
         ))
 
         for renderer in (renderers):
-            pages = FlatPages(Flask(__name__))
-            pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
-            hello = pages.get('hello')
-            self.assertEqual(hello.body, u'Hello, *世界*!\n')
-            # Upper-case, markdown not interpreted
-            self.assertEqual(hello.html, u'HELLO, *世界*!\n')
+            app = Flask(__name__)
+            pages = FlatPages(app)
+            with app.app_context():
+                pages.app.config['FLATPAGES_HTML_RENDERER'] = renderer
+                hello = pages.get('hello')
+                self.assertEqual(hello.body, u'Hello, *世界*!\n')
+                # Upper-case, markdown not interpreted
+                self.assertEqual(hello.html, u'HELLO, *世界*!\n')
 
     @pytest.mark.skipif(PygmentsHtmlFormatter is None,
                         reason='Pygments not installed')
@@ -448,8 +466,10 @@ class TestFlatPages(unittest.TestCase):
             pages.reload()
 
     def test_unicode(self):
-        pages = FlatPages(Flask(__name__))
-        self.assert_unicode(pages)
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            self.assert_unicode(pages)
 
     def test_unicode_filenames(self):
         def safe_unicode(sequence):
@@ -498,25 +518,27 @@ class TestFlatPages(unittest.TestCase):
                      u'Unïcôdé']))
 
     def test_yaml_meta(self):
-        pages = FlatPages(Flask(__name__))
-        foo = pages.get('foo')
-        self.assertEqual(foo.meta, {
-            'title': 'Foo > bar',
-            'created': datetime.date(2010, 12, 11),
-            'updated': datetime.datetime(2015, 2, 9, 10, 59, 0),
-            'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0,
-                                             tzinfo=utc),
-            'versions': [3.14, 42],
-        })
-        self.assertEqual(foo['title'], 'Foo > bar')
-        self.assertEqual(foo['created'], datetime.date(2010, 12, 11))
-        self.assertEqual(foo['updated'],
-                         datetime.datetime(2015, 2, 9, 10, 59, 0))
-        self.assertEqual(foo['updated_iso'],
-                         datetime.datetime(2015, 2, 9, 10, 59, 0,
-                                           tzinfo=utc))
-        self.assertEqual(foo['versions'], [3.14, 42])
-        self.assertRaises(KeyError, lambda: foo['nonexistent'])
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            foo = pages.get('foo')
+            self.assertEqual(foo.meta, {
+                'title': 'Foo > bar',
+                'created': datetime.date(2010, 12, 11),
+                'updated': datetime.datetime(2015, 2, 9, 10, 59, 0),
+                'updated_iso': datetime.datetime(2015, 2, 9, 10, 59, 0,
+                                                tzinfo=utc),
+                'versions': [3.14, 42],
+            })
+            self.assertEqual(foo['title'], 'Foo > bar')
+            self.assertEqual(foo['created'], datetime.date(2010, 12, 11))
+            self.assertEqual(foo['updated'],
+                            datetime.datetime(2015, 2, 9, 10, 59, 0))
+            self.assertEqual(foo['updated_iso'],
+                            datetime.datetime(2015, 2, 9, 10, 59, 0,
+                                            tzinfo=utc))
+            self.assertEqual(foo['versions'], [3.14, 42])
+            self.assertRaises(KeyError, lambda: foo['nonexistent'])
 
     def test_no_meta(self):
         app = Flask(__name__)
@@ -591,11 +613,13 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(yaml_style.body, 'Foo')
 
     def test_multi_line(self):
-        pages = FlatPages(Flask(__name__))
-        multi_line = pages.get('meta_styles/multi_line')
-        self.assertEqual(multi_line.body, 'Foo')
-        self.assertIn('multi_line_string', multi_line.meta)
-        self.assertIn('\n', multi_line.meta['multi_line_string'])
+        app = Flask(__name__)
+        pages = FlatPages(app)
+        with app.app_context():
+            multi_line = pages.get('meta_styles/multi_line')
+            self.assertEqual(multi_line.body, 'Foo')
+            self.assertIn('multi_line_string', multi_line.meta)
+            self.assertIn('\n', multi_line.meta['multi_line_string'])
     
     def test_parser_error(self):
         app = Flask(__name__)
