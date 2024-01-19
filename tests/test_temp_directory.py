@@ -29,16 +29,15 @@ def temp_directory():
 
 
 class TestTempDirectory(unittest.TestCase):
-
     def test_exception(self):
         try:
             with temp_directory() as temp:
                 assert os.path.isdir(temp)
-                1/0
+                1 / 0
         except ZeroDivisionError:
             pass
         else:
-            assert False, 'Exception did not propagate'
+            assert False, "Exception did not propagate"
         assert not os.path.exists(temp)
 
     def test_removed(self):
@@ -49,9 +48,9 @@ class TestTempDirectory(unittest.TestCase):
 
     def test_writing(self):
         with temp_directory() as temp:
-            filename = os.path.join(temp, 'foo')
-            with open(filename, 'w') as fd:
-                fd.write('foo')
+            filename = os.path.join(temp, "foo")
+            with open(filename, "w") as fd:
+                fd.write("foo")
             assert os.path.isfile(filename)
         assert not os.path.exists(temp)
         assert not os.path.exists(filename)

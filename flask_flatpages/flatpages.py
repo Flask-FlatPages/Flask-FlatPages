@@ -116,9 +116,9 @@ class FlatPages(object):
     @property
     def app(self) -> Flask:
         warnings.warn(
-            'Accesing the app via the Pages instance is deprecated. '
-            'Please use the flask.current_app proxy instead.',
-            DeprecationWarning
+            "Accesing the app via the Pages instance is deprecated. "
+            "Please use the flask.current_app proxy instead.",
+            DeprecationWarning,
         )
         return current_app
 
@@ -234,7 +234,6 @@ class FlatPages(object):
         else:
             root_dir = os.path.join(current_app.root_path, self.config("root"))
         return force_unicode(root_dir)
-
 
     def _conditional_auto_reset(self):
         """Reset if configured to do so on new requests."""
