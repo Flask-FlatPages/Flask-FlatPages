@@ -1,0 +1,13 @@
+---
+deprecations:
+  - |
+    In line with the `Flask Extension Guidelines`_, this release deprecates
+    accessing the configured application instance via the FlatPages instance.
+
+    In versions 0.9 and up, the .app property will instead wrap ``flask.current_app``,
+    and thus raise a RuntimeError if it's accessed without an Application Context
+    pushed. Please see the `Flask docs`_` for more details on managing this
+    context
+
+    .. _Flask Extension Guidelines: https://flask.palletsprojects.com/en/3.0.x/extensiondev/
+    .. _Flask Docs: https://flask.palletsprojects.com/en/3.0.x/appcontext/

@@ -1,4 +1,4 @@
-name: Upload release objects
+name: Create a New Release
 on:
   push:
     tags:

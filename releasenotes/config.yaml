@@ -1,2 +1,5 @@
 ---
 add_release_date: True
+semver_patch:
+  - fixes
+  - deprecations
