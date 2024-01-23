@@ -1,59 +1,19 @@
 """Flatpages extension."""
-import operator
 import os
-from itertools import takewhile
 import warnings
-
 
 import six
 from flask import abort
 from werkzeug.utils import cached_property, import_string
-from yaml import (
-    BlockMappingStartToken,
-    BlockSequenceStartToken,
-    DocumentEndToken,
-    DocumentStartToken,
-    FlowMappingStartToken,
-    FlowSequenceStartToken,
-    KeyToken,
-    SafeLoader,
-    ScalarToken,
-)
-
 
 from .page import Page
-from .utils import force_unicode, NamedStringIO, pygmented_markdown
-
+from .parsers.yaml import legacy_parser, libyaml_parser
+from .utils import force_unicode, pygmented_markdown
 
 if six.PY3:
     from inspect import getfullargspec
 else:
     from inspect import getargspec as getfullargspec
-
-
-START_TOKENS = (
-    BlockMappingStartToken,
-    BlockSequenceStartToken,
-    DocumentStartToken,
-    FlowMappingStartToken,
-    FlowSequenceStartToken,
-    KeyToken,
-)
-
-
-def _check_newline_token(token):
-    return (
-        isinstance(token, ScalarToken)
-        and token.style is None
-        and "\n" in token.value
-    )
-
-
-def _check_continue_parsing_tokens(token):
-    return not (
-        isinstance(token, (DocumentStartToken, DocumentEndToken))
-        or token is None
-    )
 
 
 class FlatPages(object):
@@ -314,61 +274,15 @@ class FlatPages(object):
             pages[path] = self._load_file(path, full_name, rel_path)
         return pages
 
-    def _libyaml_parser(self, content, path):
-        if not six.PY3:
-            content = force_unicode(content)
-        yaml_loader = SafeLoader(NamedStringIO(content, path))
-        yaml_loader.get_token()  # Get stream start token
-        token = yaml_loader.get_token()
-        if not isinstance(token, START_TOKENS):
-            meta = ""
-            content = content.lstrip("\n")
-        else:
-            lines = content.split("\n")
-            if isinstance(token, DocumentStartToken):
-                token = yaml_loader.get_token()
-            newline_token = None
-            while _check_continue_parsing_tokens(token):
-                try:
-                    token = yaml_loader.get_token()
-                    if _check_newline_token(token) and newline_token is None:
-                        newline_token = token
-                except Exception:
-                    break
-            if token is None and newline_token is None:
-                meta = content
-                content = ""
-            else:
-                if token is not None:
-                    meta_end_line = token.end_mark.line + 1
-                else:
-                    meta_end_line = newline_token.start_mark.line
-                    meta_end_line += lines[meta_end_line:].index("")
-                meta = "\n".join(lines[:meta_end_line])
-                content = "\n".join(lines[meta_end_line:]).lstrip("\n")
-        if not six.PY3:
-            return force_unicode(meta), force_unicode(content)
-        return meta, content
-
-    def _legacy_parser(self, content):
-        lines = iter(content.split("\n"))
-
-        # Read lines until an empty line is encountered.
-        meta = "\n".join(takewhile(operator.methodcaller("strip"), lines))
-        # The rest is the content. `lines` is an iterator so it continues
-        # where `itertools.takewhile` left it.
-        content = "\n".join(lines)
-        return meta, content
-
     def _parse(self, content, path, rel_path):
         """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
         """
         if self.config("legacy_meta_parser"):
-            meta, content = self._legacy_parser(content)
+            meta, content = legacy_parser(content)
         else:
-            meta, content = self._libyaml_parser(content, path)
+            meta, content = libyaml_parser(content, path)
 
         # Now we ready to get HTML renderer function
         html_renderer = self.config("html_renderer")

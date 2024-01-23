@@ -310,10 +310,10 @@ class TestFlatPages(unittest.TestCase):
             self.assertEqual(pages.config('DUMMY'),
                              app.config['FLATPAGES_FUBAR_DUMMY'])
 
-    @patch('flask_flatpages.flatpages.FlatPages._legacy_parser',
+    @patch('flask_flatpages.parsers.yaml.legacy_parser',
            return_value=(dict(), 'Foo')
     )
-    @patch('flask_flatpages.flatpages.FlatPages._libyaml_parser',
+    @patch('flask_flatpages.parsers.yaml.libyaml_parser',
            side_effect=ValueError('Cannot happen')
     )
     def test_legacy_parser(self, libyaml_mock, legacy_mock):
@@ -339,7 +339,6 @@ class TestFlatPages(unittest.TestCase):
         )
         libyaml_mock.assert_not_called()
         assert legacy_mock.call_count == len(list(pages))
-
 
     def test_other_encoding(self):
         app = Flask(__name__)
