@@ -1,6 +1,6 @@
 """Utility functions to render Markdown text to HTML."""
 
-from typing import Callable, TypeAlias
+from typing import Callable, TypeVar
 import markdown
 import six
 from markdown.extensions import codehilite
@@ -11,16 +11,14 @@ from .imports import PygmentsHtmlFormatter
 from io import StringIO
 
 
-FlatPagesApp: TypeAlias = "FlatPages"
-PageInstance: TypeAlias = "Page"
+T = TypeVar("T")
+V = TypeVar("V")
 
 
 HtmlRendererFunc = (
-    Callable[[str], str]
-    | Callable[[str, FlatPagesApp], str]
-    | Callable[[str, FlatPagesApp, PageInstance], str]
+    Callable[[str], str] | Callable[[str, T], str] | Callable[[str, T, V], str]
 )
-WrappedRenderer = Callable[[PageInstance], str]
+WrappedRenderer = Callable[[V], str]
 
 
 class NamedStringIO(StringIO, object):
@@ -48,7 +46,7 @@ def force_unicode(value, encoding="utf-8", errors="strict"):
     return value.decode(encoding, errors)
 
 
-def pygmented_markdown(text: str, flatpages: FlatPagesApp = None):
+def pygmented_markdown(text: str, flatpages=None):
     """Render Markdown text to HTML.
 
     Uses the `CodeHilite`_ extension only if `Pygments`_ is available. If

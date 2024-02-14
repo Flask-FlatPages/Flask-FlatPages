@@ -21,7 +21,7 @@ class Page(object):
         path: str,
         meta: str,
         body: str,
-        html_renderer: WrappedRenderer,
+        html_renderer: WrappedRenderer["Page"],
         folder: str,
     ):
         """Initialize Page instance.
