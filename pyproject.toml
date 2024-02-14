@@ -53,7 +53,13 @@ codehilite = ["Pygments>=2.5.2"]
 
 
 [dependency-groups]
-test = ["pytest", "pytest-cov", "reno", "ruff"]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock>=3.14.1",
+    "reno",
+    "ruff",
+]
 codehilite = ["Pygments"]
 
 [tool.uv]

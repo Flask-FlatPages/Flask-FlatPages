@@ -405,8 +405,8 @@ class FlatPages(object):
         return Page(path, meta, content, html_renderer, folder)
 
     def _smart_html_renderer(
-        self, html_renderer: HtmlRendererFunc
-    ) -> WrappedRenderer:
+        self, html_renderer: HtmlRendererFunc["FlatPages", Page]
+    ) -> WrappedRenderer[Page]:
         """
         Wrappper to enable  rendering functions with differing signatures.
 
