@@ -1,8 +1,8 @@
 """Flatpages extension."""
 import operator
 import os
-from itertools import takewhile
 import warnings
+from itertools import takewhile
 
 
 import six
@@ -168,6 +168,14 @@ class FlatPages(object):
 
     @property
     def app(self):
+        """
+        The Flask Application associated with this extension.
+
+        Accessing the application instance this way is not advised. This
+        property exists to ensure backwards compatability, and in future
+        will wrap `flask.current_app`, the recommended way to access
+        the app instance.
+        """
         warnings.warn(
             "Flask recommends accessing the app instance via "
             "`flask.current_app`. In future releases, this will wrap "
