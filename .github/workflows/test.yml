@@ -1,9 +1,9 @@
 name: Test
 
-on: 
+on:
   push:
-      tags-ignore:
-        - 'v*.*.*'
+    tags-ignore:
+      - "v*.*.*"
   pull_request:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.12
+          python-version: 3.13
       - name: Install Tox
         run: |
           python -m pip install -U pip
@@ -48,8 +48,8 @@ jobs:
             ${{matrix.python}}
       - name: Install Tox
         run: |
-         python -m pip install -U pip
-         python -m pip install tox
+          python -m pip install -U pip
+          python -m pip install tox
       - name: Test
         run: tox -e ${{ matrix.env }}
   test:
@@ -59,7 +59,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python: [3.7, 3.8, 3.9, '3.10', '3.11', '3.12']
+        python: [3.7, 3.8, 3.9, "3.10", "3.11", "3.12", "3.13"]
         pygments: [with, without]
         include:
           - python: 3.7
@@ -80,24 +80,30 @@ jobs:
           - python: 3.9
             pygments: without
             env: py39-pygmentsno
-          - python: '3.10'
+          - python: "3.10"
             pygments: with
             env: py310-pygmentsyes
-          - python: '3.10'
+          - python: "3.10"
             pygments: without
             env: py310-pygmentsno
-          - python: '3.11'
+          - python: "3.11"
             pygments: with
             env: py311-pygmentsyes
-          - python: '3.11'
+          - python: "3.11"
             pygments: without
             env: py311-pygmentsno
-          - python: '3.12'
+          - python: "3.12"
             pygments: with
             env: py312-pygmentsyes
-          - python: '3.12'
+          - python: "3.12"
             pygments: without
             env: py312-pygmentsno
+          - python: "3.13"
+            pygments: with
+            env: py313-pygmentsyes
+          - python: "3.13"
+            pygments: without
+            env: py313-pygmentsno
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python@${{matrix.python}}
