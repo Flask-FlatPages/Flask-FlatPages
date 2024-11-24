@@ -1,4 +1,5 @@
 """Define flatpage instance."""
+
 from io import StringIO
 
 

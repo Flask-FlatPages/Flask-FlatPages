@@ -1,4 +1,5 @@
 """Flatpages extension."""
+
 import operator
 import os
 import warnings
@@ -181,7 +182,7 @@ class FlatPages(object):
             "`flask.current_app`. In future releases, this will wrap "
             "current_app, and raise a RuntimeError if there is no "
             "application context present.",
-            DeprecationWarning
+            DeprecationWarning,
         )
         return self._app
 
@@ -190,7 +191,7 @@ class FlatPages(object):
         warnings.warn(
             "This attribute should be managed by self.init_app instead. "
             "This will raise an AttributeError from version 0.9 onwards.",
-            DeprecationWarning
+            DeprecationWarning,
         )
         self._app = app_instance
 
