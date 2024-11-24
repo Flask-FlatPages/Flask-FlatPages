@@ -11,3 +11,11 @@ deprecations:
 
     .. _Flask Extension Guidelines: https://flask.palletsprojects.com/en/3.0.x/extensiondev/
     .. _Flask Docs: https://flask.palletsprojects.com/en/3.0.x/appcontext/
+fixes:
+  - |
+    Correct a typo in the optional-dependencies block. The test suite has also been updated
+    to use the project dependencies directly rather than a hardcoded list in the tox config.
+other:
+  - |
+    This release includes explicit testing for Python 3.13, and drops support for Python 3.6.
+    As off November 2024, PyPI Stats reports no installations on Python 3.6.

@@ -23,35 +23,6 @@ jobs:
       - name: Lint with Flake8
         run: |
           tox -e lint
-  test_legacy:
-    name: Test (Python ${{matrix.python}} - ${{matrix.pygments}} Pygments)
-    runs-on: ubuntu-20.04
-    needs: lint
-    strategy:
-      fail-fast: False
-      matrix:
-        python: [3.6]
-        pygments: [with, without]
-        include:
-          - python: 3.6
-            pygments: with
-            env: py36-pygmentsyes
-          - python: 3.6
-            pygments: without
-            env: py36-pygmentsno
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python@${{matrix.python}}
-        uses: actions/setup-python@v4
-        with:
-          python-version: |
-            ${{matrix.python}}
-      - name: Install Tox
-        run: |
-          python -m pip install -U pip
-          python -m pip install tox
-      - name: Test
-        run: tox -e ${{ matrix.env }}
   test:
     name: Test (Python ${{matrix.python}} - ${{matrix.pygments}} Pygments)
     runs-on: ubuntu-latest
@@ -64,46 +35,46 @@ jobs:
         include:
           - python: 3.7
             pygments: with
-            env: py37-pygmentsyes
+            env: py37-pygments
           - python: 3.7
             pygments: without
-            env: py37-pygmentsno
+            env: py37
           - python: 3.8
             pygments: with
-            env: py38-pygmentsyes
+            env: py38-pygments
           - python: 3.8
             pygments: without
-            env: py38-pygmentsno
+            env: py38
           - python: 3.9
             pygments: with
-            env: py39-pygmentsyes
+            env: py39-pygments
           - python: 3.9
             pygments: without
-            env: py39-pygmentsno
+            env: py39
           - python: "3.10"
             pygments: with
-            env: py310-pygmentsyes
+            env: py310-pygments
           - python: "3.10"
             pygments: without
-            env: py310-pygmentsno
+            env: py310
           - python: "3.11"
             pygments: with
-            env: py311-pygmentsyes
+            env: py311-pygments
           - python: "3.11"
             pygments: without
-            env: py311-pygmentsno
+            env: py311
           - python: "3.12"
             pygments: with
-            env: py312-pygmentsyes
+            env: py312-pygments
           - python: "3.12"
             pygments: without
-            env: py312-pygmentsno
+            env: py312
           - python: "3.13"
             pygments: with
-            env: py313-pygmentsyes
+            env: py313-pygments
           - python: "3.13"
             pygments: without
-            env: py313-pygmentsno
+            env: py313
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python@${{matrix.python}}
