@@ -17,7 +17,6 @@ import unicodedata
 import flask
 
 
-import six
 import yaml
 import pytest
 from flask import Flask
@@ -26,14 +25,8 @@ from flask_flatpages.imports import PygmentsHtmlFormatter
 from werkzeug.exceptions import NotFound
 
 
-if six.PY3:
-    utc = datetime.timezone.utc
-    from unittest.mock import patch
-else:
-    import pytz
-
-    utc = pytz.utc
-    from mock import patch
+utc = datetime.timezone.utc
+from unittest.mock import patch
 
 
 @pytest.fixture
@@ -333,7 +326,7 @@ def test_other_html_renderer():
         None,
         (
             operator.methodcaller("upper"),
-            "string.upper" if not six.PY3 else None,
+            None,
             body_renderer,
             page_renderer,
             pages_renderer,
@@ -546,9 +539,6 @@ def test_multi_line(app_with_context, flatpages_factory):
 def test_parser_error(app_with_context, temp_pages):
     pages = temp_pages(app_with_context)
     with open(os.path.join(pages.root, "bad_file_test.html"), "w") as f:
-        if six.PY3:
-            f.write("Hello World \u000b")
-        else:
-            f.write("\x0b".decode("utf-8"))
+        f.write("Hello World \u000b")
     with pytest.raises(yaml.reader.ReaderError, match=r".*bad_file_test.*"):
         pages.get("bad_file_test")

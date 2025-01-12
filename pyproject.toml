@@ -42,7 +42,6 @@ dependencies = [
     "Markdown >= 2.5",
     "PyYAML > 5.3.1",
     "pytz; python_version=='2.7'",
-    "six",
 ]
 [project.urls]
 Repository = "https://github.com/Flask-FlatPages/Flask-FlatPages"
