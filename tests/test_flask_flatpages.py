@@ -17,7 +17,6 @@ import unittest
 from contextlib import contextmanager
 
 
-import six
 import yaml
 import pytest
 from flask import Flask
@@ -27,13 +26,8 @@ from werkzeug.exceptions import NotFound
 
 from .test_temp_directory import temp_directory
 
-if six.PY3:
-    utc = datetime.timezone.utc
-    from unittest.mock import patch
-else:
-    import pytz
-    utc = pytz.utc
-    from mock import patch
+utc = datetime.timezone.utc
+from unittest.mock import patch
 
 
 @contextmanager
@@ -369,7 +363,7 @@ class TestFlatPages(unittest.TestCase):
 
         renderers = filter(None, (
             operator.methodcaller('upper'),
-            'string.upper' if not six.PY3 else None,
+            None,
             body_renderer,
             page_renderer,
             pages_renderer
@@ -601,10 +595,7 @@ class TestFlatPages(unittest.TestCase):
         app = Flask(__name__)
         with temp_pages(app) as pages:
             with open(os.path.join(pages.root, 'bad_file_test.html'), 'w') as f:
-                if six.PY3:
-                    f.write("Hello World \u000B")
-                else:
-                    f.write("\x0b".decode('utf-8'))
+                f.write("Hello World \u000B")
             with pytest.raises(yaml.reader.ReaderError, match=r".*bad_file_test.*") as excinfo:
                 pages.get('bad_file_test')
 

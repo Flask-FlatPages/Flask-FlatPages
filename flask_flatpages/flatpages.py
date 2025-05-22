@@ -3,10 +3,10 @@
 import operator
 import os
 import warnings
+from inspect import getfullargspec
 from itertools import takewhile
 
 
-import six
 from flask import abort
 from werkzeug.utils import cached_property, import_string
 from yaml import (
@@ -24,12 +24,6 @@ from yaml import (
 
 from .page import Page
 from .utils import force_unicode, NamedStringIO, pygmented_markdown
-
-
-if six.PY3:
-    from inspect import getfullargspec
-else:
-    from inspect import getargspec as getfullargspec
 
 
 START_TOKENS = (
@@ -110,7 +104,7 @@ class FlatPages(object):
 
     def __iter__(self):
         """Iterate on all :class:`Page` objects."""
-        return six.itervalues(self._pages)
+        return iter(self._pages.values())
 
     def config(self, key):
         """Read actual configuration from Flask application config.
@@ -247,12 +241,8 @@ class FlatPages(object):
         else:
             encoding = self.config("encoding")
 
-            if six.PY3:
-                with open(filename, encoding=encoding) as handler:
-                    content = handler.read()
-            else:
-                with open(filename) as handler:
-                    content = handler.read().decode(encoding)
+            with open(filename, encoding=encoding) as handler:
+                content = handler.read()
 
             page = self._parse(content, path, rel_path)
             self._file_cache[filename] = (page, mtime)
@@ -297,7 +287,7 @@ class FlatPages(object):
         extension = self.config("extension")
 
         # Support for multiple extensions
-        if isinstance(extension, six.string_types):
+        if isinstance(extension, str):
             if "," in extension:
                 extension = tuple(extension.split(","))
             else:
@@ -324,8 +314,6 @@ class FlatPages(object):
         return pages
 
     def _libyaml_parser(self, content, path):
-        if not six.PY3:
-            content = force_unicode(content)
         yaml_loader = SafeLoader(NamedStringIO(content, path))
         yaml_loader.get_token()  # Get stream start token
         token = yaml_loader.get_token()
@@ -355,8 +343,6 @@ class FlatPages(object):
                     meta_end_line += lines[meta_end_line:].index("")
                 meta = "\n".join(lines[:meta_end_line])
                 content = "\n".join(lines[meta_end_line:]).lstrip("\n")
-        if not six.PY3:
-            return force_unicode(meta), force_unicode(content)
         return meta, content
 
     def _legacy_parser(self, content):
