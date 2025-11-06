@@ -1,4 +1,5 @@
 """Flatpages extension."""
+
 from __future__ import annotations
 import operator
 import os
@@ -26,10 +27,7 @@ from .page import Page
 from .utils import force_unicode, NamedStringIO, pygmented_markdown
 
 
-if six.PY3:
-    from inspect import getfullargspec
-else:
-    from inspect import getargspec as getfullargspec
+from inspect import getfullargspec
 
 
 START_TOKENS = (
@@ -112,15 +110,6 @@ class FlatPages(object):
     def __iter__(self):
         """Iterate on all :class:`Page` objects."""
         return six.itervalues(self._pages)
-
-    @property
-    def app(self) -> Flask:
-        warnings.warn(
-            "Accesing the app via the Pages instance is deprecated. "
-            "Please use the flask.current_app proxy instead.",
-            DeprecationWarning,
-        )
-        return current_app
 
     def config(self, key):
         """Read actual configuration from Flask application config.
