@@ -1,6 +1,5 @@
 [build-system]
 requires = [
-    "setuptools < 45 ; python_version < '3'",
     "setuptools ; python_version > '2.7'",
     "wheel",
 ]
@@ -26,18 +25,17 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*"
+requires-python = ">=3.8"
 dependencies = [
     "Flask > 1.0",
     "Jinja2 >= 2.10.2",
@@ -55,7 +53,11 @@ codehilite = ["Pygments>=2.5.2"]
 
 
 [dependency-groups]
-test = ["pytest", "pytest-cov"]
+test = ["pytest", "pytest-cov", "reno", "ruff"]
+codehilite = ["Pygments"]
+
+[tool.uv]
+default-groups = "all"
 
 [tool.setuptools]
 packages = ["flask_flatpages"]
@@ -68,10 +70,6 @@ envlist = [
     "docs",
     "lint",
     "fmt",
-    "py27",
-    "py27-pygments",
-    "py37",
-    "py37-pygments",
     "py38",
     "py38-pygments",
     "py39",
@@ -84,7 +82,10 @@ envlist = [
     "py312-pygments",
     "py313",
     "py313-pygments",
+    "py314",
+    "py314-pygments",
 ]
+
 
 [tool.tox.env_run_base]
 dependency_groups = ["test"]
@@ -101,12 +102,6 @@ commands = [
         "{posargs}",
     ],
 ]
-
-[tool.tox.env.py27-pygments]
-extras = ["codehilite"]
-
-[tool.tox.env.py37-pygments]
-extras = ["codehilite"]
 
 [tool.tox.env.py38-pygments]
 extras = ["codehilite"]
@@ -126,6 +121,10 @@ extras = ["codehilite"]
 [tool.tox.env.py313-pygments]
 extras = ["codehilite"]
 
+[tool.tox.env.py314-pygments]
+extras = ["codehilite"]
+
+
 [tool.tox.env.docs]
 commands = [
     [
@@ -143,23 +142,17 @@ commands = [
 deps = ["-r docs/requirements.txt"]
 
 [tool.tox.env.lint]
-deps = [
-    "flake8>=2.3.0",
-    "flake8-docstrings>=0.2.1.post1",
-    "flake8-import-order>=0.5.3",
-    "flake8-pyproject",
-    "mccabe>=0.3.0",
-    "pep257>=0.5.0",
-    "pep8>=1.6.2",
-    "pep8-naming>=0.2.2",
-    "pyflakes>=0.8.1",
+skip_install = true
+deps = ["ruff"]
+commands = [
+    ["ruff", "check", "flask_flatpages/"],
+    ["ruff", "format", "--check", "flask_flatpages/"],
 ]
-commands = [["flake8", "--statistics", "flask_flatpages/"]]
 
 [tool.tox.env.fmt]
 skip_install = true
-deps = ["black"]
-commands = [["black", "{posargs:flask_flatpages}"]]
+deps = ["ruff"]
+commands = [["ruff", "format", "{posargs:flask_flatpages}"]]
 
 [tool.tox.env.reno]
 skip_install = true
@@ -175,8 +168,10 @@ max-complexity = 20
 [tool.pytest]
 python_files = "*test*.py"
 
-[tool.black]
+[tool.ruff]
 line-length = 79
-target-version = ["py37", "py38", "py39", "py310", "py311", "py312", "py313"]
-skip-line-normalization = false
-extend-exclude = "docs/conf.py"
+target-version = "py310"
+
+[tool.ruff.format]
+quote-style = "double"
+exclude = ["docs/conf.py"]

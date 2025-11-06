@@ -6,10 +6,8 @@ from markdown.extensions import codehilite
 
 from .imports import PygmentsHtmlFormatter
 
-if six.PY3:
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from io import StringIO
+
 
 
 class NamedStringIO(StringIO, object):
