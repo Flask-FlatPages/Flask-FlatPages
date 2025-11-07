@@ -1,15 +1,16 @@
 """Flatpages extension."""
 
-from __future__ import annotations
 import operator
 import os
 import warnings
+from collections.abc import Iterator
+from functools import cached_property
 from itertools import takewhile
 
 
 import six
 from flask import abort, current_app, Flask
-from werkzeug.utils import cached_property, import_string
+from werkzeug.utils import import_string
 from yaml import (
     BlockMappingStartToken,
     BlockSequenceStartToken,
@@ -20,11 +21,18 @@ from yaml import (
     KeyToken,
     SafeLoader,
     ScalarToken,
+    Token,
 )
 
 
 from .page import Page
-from .utils import force_unicode, NamedStringIO, pygmented_markdown
+from .utils import (
+    HtmlRendererFunc,
+    WrappedRenderer,
+    force_unicode,
+    NamedStringIO,
+    pygmented_markdown,
+)
 
 
 from inspect import getfullargspec
@@ -40,7 +48,7 @@ START_TOKENS = (
 )
 
 
-def _check_newline_token(token):
+def _check_newline_token(token: Token) -> bool:
     return (
         isinstance(token, ScalarToken)
         and token.style is None
@@ -48,7 +56,7 @@ def _check_newline_token(token):
     )
 
 
-def _check_continue_parsing_tokens(token):
+def _check_continue_parsing_tokens(token: Token) -> bool:
     return not (
         isinstance(token, (DocumentStartToken, DocumentEndToken))
         or token is None
@@ -107,18 +115,18 @@ class FlatPages(object):
         if app:
             self.init_app(app)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Page, None, None]:
         """Iterate on all :class:`Page` objects."""
         return six.itervalues(self._pages)
 
-    def config(self, key):
+    def config(self, key: str):
         """Read actual configuration from Flask application config.
 
         :param key: Lowercase config key from :attr:`default_config` tuple
         """
         return current_app.config["_".join((self.config_prefix, key.upper()))]
 
-    def get(self, path, default=None):
+    def get(self, path: str, default: Page | None = None) -> Page:
         """
         Return the :class:`Page` object at ``path``.
 
@@ -131,7 +139,7 @@ class FlatPages(object):
         except KeyError:
             return default
 
-    def get_or_404(self, path):
+    def get_or_404(self, path: str) -> Page:
         """
         Return the :class:`Page` object at ``path``.
 
@@ -167,7 +175,7 @@ class FlatPages(object):
         self._app = app
 
     @property
-    def app(self):
+    def app(self) -> Flask:
         """
         The Flask Application associated with this extension.
 
@@ -186,10 +194,10 @@ class FlatPages(object):
         return self._app
 
     @app.setter
-    def app(self, app_instance):
+    def app(self, app_instance: Flask):
         warnings.warn(
             "This attribute should be managed by self.init_app instead. "
-            "This will raise an AttributeError from version 0.9 onwards.",
+            "This will raise an AttributeError from version 1.0 onwards.",
             DeprecationWarning,
         )
         self._app = app_instance
@@ -207,7 +215,7 @@ class FlatPages(object):
             pass
 
     @property
-    def root(self):
+    def root(self) -> str:
         """Full path to the directory where pages are looked for.
 
         This corresponds to the `FLATPAGES_%(name)s_ROOT` config value,
@@ -232,7 +240,7 @@ class FlatPages(object):
         if auto:
             self.reload()
 
-    def _load_file(self, path, filename, rel_path):
+    def _load_file(self, path: str, filename: str, rel_path: str):
         """
         Load file from file system and cache it.
 
@@ -259,7 +267,7 @@ class FlatPages(object):
         return page
 
     @cached_property
-    def _pages(self):
+    def _pages(self) -> dict[str, Page]:
         """
         Walk the page root directory and return a dict of pages.
 
@@ -322,7 +330,8 @@ class FlatPages(object):
             pages[path] = self._load_file(path, full_name, rel_path)
         return pages
 
-    def _libyaml_parser(self, content, path):
+    @staticmethod
+    def _libyaml_parser(content: str, path: str) -> tuple[str, str]:
         if not six.PY3:
             content = force_unicode(content)
         yaml_loader = SafeLoader(NamedStringIO(content, path))
@@ -358,7 +367,8 @@ class FlatPages(object):
             return force_unicode(meta), force_unicode(content)
         return meta, content
 
-    def _legacy_parser(self, content):
+    @staticmethod
+    def _legacy_parser(content: str) -> tuple[str, str]:
         lines = iter(content.split("\n"))
 
         # Read lines until an empty line is encountered.
@@ -368,7 +378,7 @@ class FlatPages(object):
         content = "\n".join(lines)
         return meta, content
 
-    def _parse(self, content, path, rel_path):
+    def _parse(self, content: str, path: str, rel_path: str) -> Page:
         """Parse a flatpage file, i.e. read and parse its meta data and body.
 
         :return: initialized :class:`Page` instance.
@@ -394,7 +404,9 @@ class FlatPages(object):
         # Initialize and return Page instance
         return Page(path, meta, content, html_renderer, folder)
 
-    def _smart_html_renderer(self, html_renderer):
+    def _smart_html_renderer(
+        self, html_renderer: HtmlRendererFunc
+    ) -> WrappedRenderer:
         """
         Wrappper to enable  rendering functions with differing signatures.
 
@@ -416,7 +428,7 @@ class FlatPages(object):
 
         """
 
-        def wrapper(page):
+        def wrapper(page: Page) -> str:
             """Wrap HTML renderer function.
 
             Pass arguments to the renderer based on the number of arguments.
