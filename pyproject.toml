@@ -171,9 +171,6 @@ ignore = ["W503"]
 import-order-style = "smarkets"
 max-complexity = 20
 
-[tool.pytest]
-python_files = "*test*.py"
-
 [tool.ruff]
 line-length = 79
 target-version = "py310"
