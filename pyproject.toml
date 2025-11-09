@@ -59,6 +59,7 @@ test = [
     "pytest-mock>=3.14.1",
     "reno",
     "ruff",
+    "typing-extensions; python_version < '3.10'",
 ]
 codehilite = ["Pygments"]
 
