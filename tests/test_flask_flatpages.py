@@ -7,13 +7,13 @@ Tests for Flask-FlatPages
 :license: BSD, see LICENSE for more details.
 """
 
+from __future__ import annotations
 import datetime
 import operator
 import os
 import shutil
 import sys
 import unicodedata
-import unittest
 import flask
 
 

@@ -11,14 +11,10 @@ from .imports import PygmentsHtmlFormatter
 from io import StringIO
 
 
-T = TypeVar("T")
-V = TypeVar("V")
+P = TypeVar("P")
 
 
-HtmlRendererFunc = (
-    Callable[[str], str] | Callable[[str, T], str] | Callable[[str, T, V], str]
-)
-WrappedRenderer = Callable[[V], str]
+WrappedRenderer = Callable[[P], str]
 
 
 class NamedStringIO(StringIO, object):

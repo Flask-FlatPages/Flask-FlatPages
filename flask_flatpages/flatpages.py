@@ -1,5 +1,6 @@
 """Flatpages extension."""
 
+from __future__ import annotations
 import operator
 import os
 import warnings
@@ -27,7 +28,6 @@ from yaml import (
 
 from .page import Page
 from .utils import (
-    HtmlRendererFunc,
     WrappedRenderer,
     force_unicode,
     NamedStringIO,
@@ -404,9 +404,7 @@ class FlatPages(object):
         # Initialize and return Page instance
         return Page(path, meta, content, html_renderer, folder)
 
-    def _smart_html_renderer(
-        self, html_renderer: HtmlRendererFunc["FlatPages", Page]
-    ) -> WrappedRenderer[Page]:
+    def _smart_html_renderer(self, html_renderer) -> WrappedRenderer[Page]:
         """
         Wrappper to enable  rendering functions with differing signatures.
 

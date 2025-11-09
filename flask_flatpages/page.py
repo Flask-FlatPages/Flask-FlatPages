@@ -1,5 +1,6 @@
 """Define flatpage instance."""
 
+from __future__ import annotations
 from functools import cached_property
 from io import StringIO
 from typing import Any
