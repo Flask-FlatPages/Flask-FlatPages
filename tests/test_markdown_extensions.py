@@ -7,6 +7,7 @@ Test proper work of various Markdown extensions.
 
 """
 
+from __future__ import annotations
 import sys
 
 
