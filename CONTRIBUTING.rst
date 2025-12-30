@@ -12,7 +12,7 @@ Tools
 
 We use ``tox`` as a general-purpose tool for automating style-checking,
 testing and building documentation of the project. So in principle,
-contributing is as simple as 
+contributing is as simple as
 
 ``python -m pip install tox``
 
@@ -21,23 +21,21 @@ and opening your editor of choice.
 Linting and Style
 =================
 
-We use ``flake8`` to ensure code in the project conforms to a common
-style. The config can be found in ``pyproject.toml``. Broadly, the project
-uses `smarkets import style <https://github.com/PyCQA/flake8-import-order/blob/master/tests/test_cases/complete_smarkets.py>`_,
-and we prefer breaking lines after a binary opertor.
+We use ``ruff`` to ensure code in the project conforms to a common
+style. The config can be found in ``pyproject.toml``.
 
 To check the style of any contributions, simply run ``tox -e lint``.
 
 Code is linted as part of the CI pipeline, which runs on push and on opening a pull request.
 
-Auto-formatting is handled using Black, and can be run using ``tox -e fmt``.
+Auto-formatting is handled using ruff, and can be run using ``tox -e fmt``.
 
 Tests
 =====
 
 Any contributions to Flask-Flatpages will require corresponding test cases. Tests can be found
-in the ``tests`` directory in the project root. We use ``unittest`` classes to define tests,
-and ``pytest`` as the test runner.
+in the ``tests`` directory in the project root. We use classes to define groups of related tests,
+and ``pytest`` as the test runner. Common fixtures can be found in `conftest.py`.
 
 To run the full test suite, simply run ``tox``, which will test against all supported
 Python versions present on your machine.
@@ -91,7 +89,6 @@ defined in ``.github/workflows/release.yml``. To make a relase
 
 2. Commit the changes, and tag the commit e.g.::
 
-   git add pyproject.toml && git commit && git tag v$(reno -q semver-next)
+   git add flask_flatpages/__init__.py && git commit && git tag v$(reno -q semver-next)
 
 3. Push the tag and commit to the master branch
-
