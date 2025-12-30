@@ -79,6 +79,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           body_path: notes/notes.md
+          draft: true
       - name: Upload assets to release
         uses: svenstaro/upload-release-action@v2
         with:
