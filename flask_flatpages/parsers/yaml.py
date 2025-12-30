@@ -1,4 +1,5 @@
 """Module for YAML metadata parser."""
+
 import operator
 from itertools import takewhile
 
