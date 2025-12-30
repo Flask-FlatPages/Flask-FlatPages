@@ -283,10 +283,10 @@ def test_legacy_parser(
     yaml_mock = mocker.Mock(side_effect=ValueError("CannotHappen"))
     legacy_mock = mocker.Mock(return_value=(dict(), "Foo"))
     mocker.patch(
-        "flask_flatpages.flatpages.FlatPages._legacy_parser", legacy_mock
+        "flask_flatpages.flatpages.legacy_parser", legacy_mock
     )
     mocker.patch(
-        "flask_flatpages.flatpages.FlatPages._libyaml_parser", yaml_mock
+        "flask_flatpages.flatpages.libyaml_parser", yaml_mock
     )
     pages = flatpages_factory(app_with_context)
     assert {page.path for page in pages} == default_paths
@@ -420,7 +420,7 @@ def test_unicode_filenames(app_with_context, temp_pages, default_paths):
     def safe_unicode(sequence):
         if sys.platform != "darwin":
             return sequence
-        return map(lambda item: unicodedata.normalize("NFC", item), sequence)
+        return ''.join(unicodedata.normalize("NFC", item) for item in sequence)
 
     pages = temp_pages(app_with_context)
     assert {page.path for page in pages} == default_paths
