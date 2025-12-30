@@ -105,7 +105,7 @@ commands = [
         "--cov-branch",
         "--cov-report",
         "term",
-        "{posargs}",
+        { replace = "posargs", extend = true }
     ],
 ]
 
@@ -158,12 +158,12 @@ commands = [
 [tool.tox.env.fmt]
 skip_install = true
 deps = ["ruff"]
-commands = [["ruff", "format", "{posargs:flask_flatpages}"]]
+commands = [["ruff", "format", {replace = "posargs", default="flask_flatpages", extend=true}]]
 
 [tool.tox.env.reno]
 skip_install = true
 deps = ["reno"]
-commands = [["reno", "{posargs}"]]
+commands = [["reno", { replace = "posargs", extend = true }]]
 
 [tool.flake8]
 application-import-names = "flask_flatpages"
