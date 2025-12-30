@@ -1,5 +1,20 @@
 ---
 add_release_date: True
+sections:
+  - ['features', 'New Features']
+  - ['issues', 'Known Issues']
+  - ['upgrade', 'Upgrade Notes']
+  - ['major_upgrade', 'Breaking API Changes']
+  - ['deprecations', 'Deprecation Notes']
+  - ['critical', 'Critical Issues']
+  - ['security', 'Security Issues']
+  - ['fixes', 'Bug Fixes']
+  - ['other', 'Other Notes']
 semver_patch:
   - fixes
   - deprecations
+semver_minor:
+  - 'features'
+  - 'upgrade'
+semver_major:
+  - 'major_upgrade'
