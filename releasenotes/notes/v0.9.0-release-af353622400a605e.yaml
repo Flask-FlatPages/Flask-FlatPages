@@ -1,0 +1,21 @@
+---
+prelude: >
+    This is another maintenance release, preparing for work to add new features
+    in the new year. It includes some small changes to private APIs. Breaking changes
+    will be reserved for an eventual 1.0 release.
+features:
+  - |
+    This release includes small imrpovements to developer experience enabled
+    by dropping support for earlier Python versions. This includes type-hinting
+    for most methods, with the exception of the renderer functions.
+deprecations:
+  - |
+    This release drops support for Python <3.8; as well as these versions being EoL
+    for at least 2 years, they also represent minimal fractions of usage according
+    to PyPI stats (e.g. <0.25% of downloads were from Python 2.7). v0.8.3 will remain
+    available for those unable to upgrade in the short term.
+other:
+  - |
+    Removing access to the app instance via ``FlatPages.app`` will be delayed to a future
+    release. The warning remains in place, to encourage users to update their code to avoid
+    this pattern.

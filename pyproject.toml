@@ -64,8 +64,8 @@ codehilite = ["Pygments"]
 [tool.uv]
 default-groups = "all"
 
-[tool.setuptools]
-packages = ["flask_flatpages"]
+[tool.setuptools.package-dir]
+flask_flatpages = "flask_flatpages"
 
 [tool.setuptools.dynamic]
 version = { attr = "flask_flatpages.__version__" }

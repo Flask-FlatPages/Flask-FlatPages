@@ -11,7 +11,7 @@ from flask import abort, current_app, Flask
 from werkzeug.utils import import_string
 
 from .page import Page
-from .parsers.yaml import legacy_parser, libyaml_parser
+from .parsers import legacy_parser, libyaml_parser
 from .utils import (
     WrappedRenderer,
     force_unicode,
@@ -71,7 +71,7 @@ class FlatPages:
         if app:
             self.init_app(app)
 
-    def __iter__(self) -> Iterator[Page, None, None]:
+    def __iter__(self) -> Iterator[Page]:
         """Iterate on all :class:`Page` objects."""
         return iter(self._pages.values())
 

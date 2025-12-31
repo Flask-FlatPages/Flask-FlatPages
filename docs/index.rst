@@ -63,7 +63,7 @@ are optional.
     .. versionadded:: 0.7
 
     If `True`, Flask-Flatpages will interpret the root as relative to the
-    application's 
+    application's
     `instance folder <http://flask.pocoo.org/docs/1.0/config/#instance-folders>`_.
     Defaults to `False`.
 
@@ -116,7 +116,7 @@ are optional.
     .. versionchanged:: 0.7
 
     Markdown 2.5 changed the syntax for passing extensions, and for configuring
-    extensions. 
+    extensions.
     In particular, configuring an extension by passing keyword arguments along
     with the import string is now deprecated. Instead, these options need to be
     passed in a dict. For more information, see ``FLATPAGES_EXTENSION_CONFIGS``.
@@ -258,7 +258,7 @@ Or::
     Hello, this is a page too
 
 Or even just launching in to the body::
-    
+
     Hello, this is also a page!
 
 .. warning::
@@ -457,15 +457,15 @@ Bug Fixes
 ^^^^^^^^^
 
 - Fixed a bug arising when the user overrides the default markdown extensions, but does not use Pygments. Apologies to anyone who didn't want codehiliting!
-  (`#73 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/73>`_) 
+  (`#73 <https://github.com/Flask-FlatPages/Flask-FlatPages/issues/73>`_)
 
 Documentation Changes
 ^^^^^^^^^^^^^^^^^^^^^
 
 - Update documentation to use the latest version of the Flask template.
-   
+
 - Add towncrier config for auto-generating release notes
-   
+
 
 Other Notes
 ^^^^^^^^^^^
@@ -481,7 +481,7 @@ v0.7.1
 v0.7.0
 ~~~~~~~~~~~~~
 
-* Update to Markdown 3.0 with new extension loading syntax. 
+* Update to Markdown 3.0 with new extension loading syntax.
 * Added `FLATPAGES_EXTENSION_CONFIGS` for configuring extensions specified by import string.
 * Add support for loading pages from Flask instance folder
 * Add a case insensitive loading option

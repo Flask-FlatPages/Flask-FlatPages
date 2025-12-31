@@ -11,14 +11,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, re
+import os
+import re
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
-sys.path.append(os.path.abspath('..'))
-sys.path.append(os.path.abspath('_themes'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -34,7 +29,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx',
 intersphinx_mapping = {'flask': ('http://flask.pocoo.org/docs/', None)}
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+# templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'

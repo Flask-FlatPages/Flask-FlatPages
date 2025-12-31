@@ -2,3 +2,6 @@
 upgrade:
   - >
     Move metadata parsing logic to new parsers package.
+
+    This change only impacts a private API, and paves the way to adding new metadata parsers in the future
+    such as TOML.
