@@ -1,0 +1,4 @@
+---
+upgrade:
+  - >
+    Refactor Page to accept meta as a dict.
