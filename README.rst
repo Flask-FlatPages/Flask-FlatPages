@@ -11,7 +11,7 @@ Flask-FlatPages
 Provides flat static pages to a Flask_ application, based on text files
 as opposed to a relational database.
 
-* Works on Python 2.7 and 3.6+
+* Works on Python 3.8+
 * BSD licensed
 * Latest documentation `on Read the Docs`_
 * Source, issues and pull requests `on Github`_

@@ -4,7 +4,7 @@ Flask-FlatPages
 Flask-FlatPages provides a collection of pages to your `Flask`_ application.
 Pages are built from “flat” text files as opposed to a relational database.
 
-* Works on Python 2.7 and 3.6+
+* Works on Python 3.8+
 * BSD licensed
 * Latest documentation on `Read the Docs`_
 * Source, issues and pull requests `Github`_
@@ -429,13 +429,13 @@ API
 
         >>> page = pages.get('hello')
         >>> page.meta # PyYAML converts YYYY-MM-DD to a date object
-        {'title': u'Hello', 'published': datetime.date(2010, 12, 22)}
+        {'title': 'Hello', 'published': datetime.date(2010, 12, 22)}
         >>> page['title']
-        u'Hello'
+        'Hello'
         >>> page.body
-        u'Hello, *World*!\n\nLorem ipsum dolor sit amet, \u2026'
+        'Hello, *World*!\n\nLorem ipsum dolor sit amet, \u2026'
         >>> page.html
-        u'<p>Hello, <em>World</em>!</p>\n<p>Lorem ipsum dolor sit amet, \u2026</p>'
+        '<p>Hello, <em>World</em>!</p>\n<p>Lorem ipsum dolor sit amet, \u2026</p>'
 
     .. automethod:: __getitem__
     .. automethod:: __html__
@@ -470,12 +470,7 @@ Documentation Changes
 Other Notes
 ^^^^^^^^^^^
 
-- This project currently supports Python versions 2.7, and 3.4+.
-
-  Some dependencies, particularly PyYAML, do not support Python 3.4 in the most recent versions. Thus, for security reasons,
-  we strongly advise using Python 2.7 if no newer version of Python 3 is available.
-
-  Support for Python 3.4 will be dropped in June 2020.
+- This project currently supports Python 3.8 and newer.
 
 
 v0.7.1

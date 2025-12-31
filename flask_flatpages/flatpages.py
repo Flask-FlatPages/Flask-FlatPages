@@ -19,7 +19,7 @@ from .utils import (
 )
 
 
-class FlatPages(object):
+class FlatPages:
     """A collection of :class:`Page` objects."""
 
     #: Default configuration for FlatPages extension
