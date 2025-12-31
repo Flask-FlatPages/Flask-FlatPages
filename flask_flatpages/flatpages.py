@@ -11,7 +11,7 @@ from flask import abort, current_app, Flask
 from werkzeug.utils import import_string
 
 from .page import Page
-from .parsers import legacy_parser, libyaml_parser
+from .parsers import legacy_parser, libyaml_parser, toml_parser
 from .utils import (
     WrappedRenderer,
     force_unicode,
@@ -34,6 +34,7 @@ class FlatPages:
         ("case_insensitive", False),
         ("instance_relative", False),
         ("legacy_meta_parser", False),
+        ("meta_parser", "yaml"),
     )
 
     def __init__(self, app: Flask | None = None, name: str | None = None):
@@ -290,7 +291,12 @@ class FlatPages:
         if self.config("legacy_meta_parser"):
             meta, content = legacy_parser(content, path)
         else:
-            meta, content = libyaml_parser(content, path)
+            meta_parser = self.config("meta_parser")
+
+            if meta_parser == "toml":
+                meta, content = toml_parser(content, path)
+            elif meta_parser == "yaml":
+                meta, content = libyaml_parser(content, path)
 
         # Now we ready to get HTML renderer function
         html_renderer = self.config("html_renderer")
