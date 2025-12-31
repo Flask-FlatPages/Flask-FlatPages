@@ -1,7 +1,11 @@
 """Module for YAML metadata parser."""
 
+from __future__ import annotations
+
 import operator
+from io import StringIO
 from itertools import takewhile
+from typing import Any
 
 from yaml import (
     BlockMappingStartToken,
@@ -11,6 +15,7 @@ from yaml import (
     FlowMappingStartToken,
     FlowSequenceStartToken,
     KeyToken,
+    safe_load_all,
     SafeLoader,
     ScalarToken,
 )
@@ -43,12 +48,33 @@ def _check_newline_token(token):
     )
 
 
-def legacy_parser(content):
+def load_meta(meta_yaml: str, path: str) -> dict[str, Any]:
+    """Store a dict of metadata parsed from the YAML header of the file."""
+    meta = {}
+    for doc in safe_load_all(StringIO(meta_yaml)):
+        if doc is not None:
+            meta.update(doc)
+    # YAML documents can be any type but we want a dict
+    # eg. yaml.safe_load('') -> None
+    #     yaml.safe_load('- 1\n- a') -> [1, 'a']
+    if not meta:
+        return {}
+    if not isinstance(meta, dict):
+        raise ValueError(
+            "Expected a dict in metadata for '{0}', got {1}".format(
+                path, type(meta).__name__
+            )
+        )
+    return meta
+
+
+def legacy_parser(content, path):
     """Legacy YAML parser."""
     lines = iter(content.split("\n"))
 
     # Read lines until an empty line is encountered.
-    meta = "\n".join(takewhile(operator.methodcaller("strip"), lines))
+    meta_yaml = "\n".join(takewhile(operator.methodcaller("strip"), lines))
+    meta = load_meta(meta_yaml, path)
     # The rest is the content. `lines` is an iterator so it continues
     # where `itertools.takewhile` left it.
     content = "\n".join(lines)
@@ -86,4 +112,5 @@ def libyaml_parser(content, path):
                 meta_end_line += lines[meta_end_line:].index("")
             meta = "\n".join(lines[:meta_end_line])
             content = "\n".join(lines[meta_end_line:]).lstrip("\n")
-    return meta, content
+    meta_dict = load_meta(meta, path)
+    return meta_dict, content

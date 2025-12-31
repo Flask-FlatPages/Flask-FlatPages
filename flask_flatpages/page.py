@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 from functools import cached_property
-from io import StringIO
-from typing import Any
-
-import yaml
 
 from .utils import WrappedRenderer
 
@@ -20,7 +16,7 @@ class Page:
     def __init__(
         self,
         path: str,
-        meta: str,
+        meta: dict,
         body: str,
         html_renderer: WrappedRenderer["Page"],
         folder: str,
@@ -36,7 +32,7 @@ class Page:
         #: Path this page was obtained from, as in ``pages.get(path)``
         self.path = path
         #: Content of the page
-        self._meta = meta
+        self.meta = meta
         self.body = body
         #: Renderer function
         self.html_renderer = html_renderer
@@ -68,23 +64,3 @@ class Page:
     def html(self) -> str:
         """Content of the page, rendered as HTML by the configured renderer."""
         return self.html_renderer(self)
-
-    @cached_property
-    def meta(self) -> dict[str, Any]:
-        """Store a dict of metadata parsed from the YAML header of the file."""
-        meta = {}
-        for doc in yaml.safe_load_all(StringIO(self._meta)):
-            if doc is not None:
-                meta.update(doc)
-        # YAML documents can be any type but we want a dict
-        # eg. yaml.safe_load('') -> None
-        #     yaml.safe_load('- 1\n- a') -> [1, 'a']
-        if not meta:
-            return {}
-        if not isinstance(meta, dict):
-            raise ValueError(
-                "Expected a dict in metadata for '{0}', got {1}".format(
-                    self.path, type(meta).__name__
-                )
-            )
-        return meta

@@ -288,7 +288,7 @@ class FlatPages:
         :return: initialized :class:`Page` instance.
         """
         if self.config("legacy_meta_parser"):
-            meta, content = legacy_parser(content)
+            meta, content = legacy_parser(content, path)
         else:
             meta, content = libyaml_parser(content, path)
 
