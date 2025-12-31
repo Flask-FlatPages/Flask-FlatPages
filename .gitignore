@@ -1,5 +1,4 @@
-*.py[co]
-*.egg
+*.pyc
 *.egg-info
 
 /build

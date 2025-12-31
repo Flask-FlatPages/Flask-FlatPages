@@ -10,7 +10,7 @@ import yaml
 from .utils import WrappedRenderer
 
 
-class Page(object):
+class Page:
     """Simple class to store all necessary information about a flatpage.
 
     Main purpose is to render the page's content with a ``html_renderer``
