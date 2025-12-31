@@ -17,4 +17,10 @@ __author__ = "Simon Sapin, Igor Davydenko, Padraic Calpin"
 __license__ = "BSD License"
 __version__ = "0.9.0"
 
-__all__ = ["FlatPages", "Page", "parsers", "pygmented_markdown", "pygments_style_defs"]
+__all__ = [
+    "FlatPages",
+    "Page",
+    "parsers",
+    "pygmented_markdown",
+    "pygments_style_defs",
+]

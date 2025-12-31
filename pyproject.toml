@@ -157,7 +157,7 @@ commands = [
 [tool.tox.env.fmt]
 skip_install = true
 deps = ["ruff"]
-commands = [["ruff", "format", {replace = "posargs", default="flask_flatpages", extend=true}]]
+commands = [["ruff", "format", {replace = "posargs", default=["flask_flatpages",], extend=true}]]
 
 [tool.tox.env.reno]
 skip_install = true
