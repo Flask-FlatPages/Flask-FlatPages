@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools ; python_version > '2.7'",
+    "setuptools",
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
@@ -41,7 +41,6 @@ dependencies = [
     "Jinja2 >= 2.10.2",
     "Markdown >= 2.5",
     "PyYAML > 5.3.1",
-    "pytz; python_version=='2.7'",
 ]
 [project.urls]
 Repository = "https://github.com/Flask-FlatPages/Flask-FlatPages"
