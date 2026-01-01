@@ -192,7 +192,7 @@ class FlatPages:
         """Reset if configured to do so on new requests."""
         auto = self.config("auto_reload")
         if auto == "if debug":
-            auto = self.app.debug
+            auto = current_app.debug
         if auto:
             self.reload()
 
