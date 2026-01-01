@@ -1,0 +1,4 @@
+fixes:
+  - >
+    Updated `_conditional_auto_reset` to access the Flask application context 
+    via `current_app` instead of `self.app`. This resolves a `DeprecationWarning`.
