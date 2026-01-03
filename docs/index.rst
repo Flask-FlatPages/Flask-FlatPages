@@ -155,6 +155,17 @@ are optional.
     present. Intended to provide a fallback in case of bugs with the newer
     parser.
 
+``FLATPAGES_META_PARSER``
+    .. versionadded:: 0.10.0
+
+    Controls which metadata parser to use when parsing pages.
+
+    Possible values are ``'toml'``, or ``'yaml'``. The default if not set
+    is ``'yaml'``.
+
+    If ``FLATPAGES_LEGACY_META_PARSER`` is ``True``, the legacy parser is
+    used regardless of this setting.
+
 Please note that multiple FlatPages instances can be configured by using a
 name for the FlatPages instance at initializaton time:
 
