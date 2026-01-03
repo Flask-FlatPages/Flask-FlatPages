@@ -15,7 +15,7 @@ class Page:
 
     def __init__(
         self,
-        path: str,
+        url_path: str,
         meta: dict,
         body: str,
         html_renderer: WrappedRenderer["Page"],
@@ -23,14 +23,14 @@ class Page:
     ):
         """Initialize Page instance.
 
-        :param path: Page path.
+        :param path: Page url path.
         :param meta: Page meta data in YAML format.
         :param body: Page body.
         :param html_renderer: HTML renderer function.
         :param folder: The folder the page is contained in.
         """
         #: Path this page was obtained from, as in ``pages.get(path)``
-        self.path = path
+        self.path = url_path
         #: Content of the page
         self.meta = meta
         self.body = body
