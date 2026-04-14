@@ -1,8 +1,10 @@
 Flask-FlatPages
 ===============
 
-Flask-FlatPages provides a collection of pages to your `Flask`_ application.
-Pages are built from “flat” text files as opposed to a relational database.
+Flask-FlatPages provides a collection of static pages to your `Flask`_ application.
+
+Pages are built from “flat” objects, which can be stored in any preferred backend.
+The package provides a default implementation, where pages are loaded from disk.
 
 * Works on Python 3.8+
 * BSD licensed
@@ -19,9 +21,11 @@ Pages are built from “flat” text files as opposed to a relational database.
 Installation
 ------------
 
-Install the extension with `pip <http://pip.pypa.org/>`_::
+Install the extension with `pip <http://pip.pypa.org/>`_ or `uv <https://docs.astral.sh/uv>`_ ::
 
     $ pip install Flask-FlatPages
+
+    $ uv add Flask-Flatpages
 
 or you can get the `source code from github
 <https://github.com/SimonSapin/Flask-FlatPages>`_.
@@ -54,37 +58,16 @@ you can also pass the Flask application object later, by calling
 Flask-FlatPages accepts the following configuration values. All of them
 are optional.
 
-``FLATPAGES_ROOT``
-    Path to the directory where to look for page files. If relative,
-    interpreted as relative to the application root, next to the ``static`` and
-    ``templates`` directories. Defaults to ``pages``.
+.. tip:: 
+    Please note that multiple FlatPages instances can be configured by using a
+    name for the FlatPages instance at initializaton time e.g.:
 
-``FLATPAGES_INSTANCE_RELATIVE``
-    .. versionadded:: 0.7
+    .. code-block:: python
 
-    If `True`, Flask-Flatpages will interpret the root as relative to the
-    application's
-    `instance folder <http://flask.pocoo.org/docs/1.0/config/#instance-folders>`_.
-    Defaults to `False`.
+       flatpages = FlatPages(name="blog")
 
-``FLATPAGES_EXTENSION``
-    Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
-    without this suffix are ignored. Defaults to ``.html``.
-
-    .. versionchanged:: 0.6
-
-       Support multiple file extensions via sequences, e.g.:
-       ``['.htm', '.html']`` or via comma-separated strings: ``.htm,.html``.
-
-``FLATPAGES_CASE_INSENSITIVE``
-    .. versionadded:: 0.7
-
-    If `True`, the path property of each :class:`Page` instance will be all
-    lower case. Flask-Flatpages will throw a `ValueError` if multiple pages
-    would correspond to the same path.
-
-``FLATPAGES_ENCODING``
-    Encoding of the pages files. Defaults to ``utf8``.
+    To configure this instance, you must use modified configuration keys, by adding
+    the uppercase name to the configuration variable names: ``FLATPAGES_BLOG_*``
 
 ``FLATPAGES_HTML_RENDERER``
     Callable or import string for a callable that takes at least the unicode
@@ -146,7 +129,7 @@ are optional.
 ``FLATPAGES_LEGACY_META_PARSER``
     .. versionadded:: 0.8
 
-    Controls whether to use the newer parser based on tokenising metadata
+    Controls whether to use the YAML metadata parser based on tokenising 
     with libyaml.
 
     Setting this to true reverts to the simpler method of parsing metadata
@@ -155,27 +138,57 @@ are optional.
     present. Intended to provide a fallback in case of bugs with the newer
     parser.
 
-Please note that multiple FlatPages instances can be configured by using a
-name for the FlatPages instance at initializaton time:
+The following config settings apply to the default :class:`FlatPages` implementation
+(and any subclasses) as they are used when loading pages from the filesystem.
 
-.. code-block:: python
+``FLATPAGES_ROOT``
+    Path to the directory where to look for page files. If relative,
+    interpreted as relative to the application root, next to the ``static`` and
+    ``templates`` directories. Defaults to ``pages``.
 
-   flatpages = FlatPages(name="blog")
+``FLATPAGES_INSTANCE_RELATIVE``
+    .. versionadded:: 0.7
 
-To configure this instance, you must use modified configuration keys, by adding
-the uppercase name to the configuration variable names: ``FLATPAGES_BLOG_*``
+    If `True`, Flask-Flatpages will interpret the root as relative to the
+    application's
+    `instance folder <http://flask.pocoo.org/docs/1.0/config/#instance-folders>`_.
+    Defaults to `False`.
+
+``FLATPAGES_EXTENSION``
+    Filename extension for pages. Files in the ``FLATPAGES_ROOT`` directory
+    without this suffix are ignored. Defaults to ``.html``.
+
+    .. versionchanged:: 0.6
+
+       Support multiple file extensions via sequences, e.g.:
+       ``['.htm', '.html']`` or via comma-separated strings: ``.htm,.html``.
+
+``FLATPAGES_CASE_INSENSITIVE``
+    .. versionadded:: 0.7
+
+    If `True`, the path property of each :class:`Page` instance will be all
+    lower case. Flask-Flatpages will throw a `ValueError` if multiple pages
+    would correspond to the same path.
+
+``FLATPAGES_ENCODING``
+    Encoding of the pages files. Defaults to ``utf8``.
 
 How it works
 ------------
+
+
+.. seealso:: 
+    The following describes the default behavour of :class`FlatPages`, which
+    loads pages from the filesystem. For more information on how to customise
+    this bheaviour, or load pages from other backends, read :ref:`customising-flatpages`.
 
 When first needed (see :ref:`laziness-and-caching` for more about this),
 the extension loads all pages from the filesystem: a :class:`Page` object is
 created for all files in ``FLATPAGES_ROOT`` whose name ends with
 ``FLATPAGES_EXTENSION``.
 
-Each of these objects is associated to a path:
-the slash-separated (whatever the OS) name of the file it was loaded from,
-relative to the pages root, and excluding the extension. For example, for
+Each Page gets a url path, obtained from the filename relative to the pages root,
+minus the file extension. For example, for
 an app in ``C:\myapp`` with the default configuration, the path for the
 ``C:\myapp\pages\lorem\ipsum.html`` is ``lorem/ipsum``.
 
@@ -190,24 +203,26 @@ page body::
     Lorem ipsum dolor sit amet, …
 
 The body format defaults to `Markdown`_ with `Pygments`_ baked in if available,
-but depends on the ``FLATPAGES_HTML_RENDERER`` configuration value.
+depending on the ``FLATPAGES_HTML_RENDERER`` configuration value.
 
 .. _YAML: http://www.yaml.org/
 .. _Markdown: http://daringfireball.net/projects/markdown/
 .. _Pygments: http://pygments.org/
 
-To use Pygments, you need to include the style declarations separately.
-You can get them with :func:`.pygments_style_defs`::
 
-    @app.route('/pygments.css')
-    def pygments_css():
-        return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
+.. tip:: 
+    To use Pygments, your app needs to include the style declarations separately.
+    You can get them with :func:`.pygments_style_defs`::
 
-and in templates:
+        @app.route('/pygments.css')
+        def pygments_css():
+            return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
 
-.. code-block:: html+jinja
+    and in templates:
 
-    <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
+    .. code-block:: html+jinja
+
+        <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
 
 .. highlight:: YAML
 
@@ -216,16 +231,7 @@ Delimiting YAML Metadata
 
 .. versionadded:: 0.8
 
-.. note::
-    The ``FLATPAGES_LEGACY_META_PARSER`` flag can be used to re-enable
-    the legacy metadata behaviour.
-
-In previous versions, YAML metadata was terminated by a newline. This meant it
-was impossible to use e.g. multi-line strings in the metadata, to import files
-from other markdown tools like Obsidian, or worse that if
-your page had no metadata at all it needed to start with an empty line.
-
-Starting with v0.8, YAML can now be delimited by wrapping
+YAML front atter can now be delimited by wrapping
 it with ``---``::
 
     ---
@@ -244,7 +250,7 @@ Or using YAML 'end document' specifiers like::
 
 In all cases, the leading ``---`` is optional.
 
-With this change, it's now possible to have pages with no-metadata
+Tt's ossible to have pages with no-metadata
 by starting them with::
 
     ---
@@ -262,7 +268,8 @@ Or even just launching in to the body::
     Hello, this is also a page!
 
 .. warning::
-    In previous versions, metadata was terminated with a new line. The updated
+
+    In previous versions (<0.8), metadata **had to be terminated with a new line**. The updated
     metadata parser attempts to preserve backwards compatability as much as
     possible, but unexpected behaviour can occur if the page starts with text
     that looks ambiguously 'YAML-like'. For example::
@@ -275,6 +282,9 @@ Or even just launching in to the body::
     your metadata features multi-line blocks, you **must** specify
     an start and end delimiter, or else the parser may cut the metadata
     at the first blank line.
+
+    The ``FLATPAGES_LEGACY_META_PARSER`` flag can be used to re-enable
+    the legacy metadata behaviour, if required.
 
 .. highlight:: python
 
@@ -301,7 +311,7 @@ Or disabling default approach::
 Using custom HTML renderers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As pointed above, by default Flask-FlatPages expects that flatpage body
+By default Flask-FlatPages expects that flatpage body
 contains `Markdown`_ markup, so uses ``markdown.markdown`` function to render
 its content. But due to ``FLATPAGES_HTML_RENDERER`` setting you can specify
 different approach for rendering flatpage body.
@@ -351,17 +361,55 @@ ReStructuredText flatpages
     app.config['FLATPAGES_HTML_RENDERER'] = rst_renderer
     pages = FlatPages(app)
 
+
+Flatpages Internals
+===================
+
+As of version 1.0, Flask-Flatpages aims to provide easy subclassing
+support, making it possible to modify how pages are loaded and cached.
+
+The core idea is that your backend defines a collection of pages,
+each identified by an ID and with data containing the front matter and the body.
+
+E.g. for a filesystem, the `id` of a :class:`.Page` is it's path, and the data is the
+file contents.
+
+A FlatPages app interacts with the backend using four key functions, defined as abstract
+methods in the class :class:`.FlatPagesBase`:
+
+* `_walk_pages`: Iterate over pages from the backend
+* `_load_page`: Load the content of a given page, and return the :class:`Page` object
+* `_cache_page`: Cache the loaded page, given it's url_path, backend id and :class:`Page` object
+* `_retrieve_page`: Fetch a page and it's backend id from the cache
+
 .. _laziness-and-caching:
 
 Laziness and caching
 --------------------
 
-:class:`.FlatPages` does not hit the filesystem until needed but when it does,
-it reads all pages from the disk at once.
+Whatever our backend, we can assume that scanning for a page will likely be
+an expensive operation, and so `Flask-Flatpages` tries to keep `get` requests
+fast by including a mechanism for caching known pages.
 
-Then, pages are not loaded again unless you explicitly ask for it with
-:meth:`.FlatPages.reload`, or on new requests depending on the configuration.
+Loading pages is also kept fast, by delaying the rendering of any markdown
+content until requested, and storing the result until the page is reloaded.
+
+Default Implementation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+:class:`.FlatPages` does not hit the filesystem until needed but when it does,
+it reads all pages from the disk at once. This is designed to keep the calls to
+:meth:`.get` and :meth:`.get_or_404` as fast as possible.
+
+The disk is not scanned for new pages again, unless you explicitly ask for it
+with the reload flag, drop all known pages with :meth:`.FlatPages.reload`,
+or on new requests depending on the configuration.
 (See ``FLATPAGES_AUTO_RELOAD``.)
+
+The default implementation also caches the 'page index', and 'page content',
+separetely. This means that reloading a page
+pages will only read files that have been modified.
+
 
 This design was decided with `Frozen-Flask`_ in mind but should work even if
 you don’t use it: you already restart your production server on code changes,
@@ -380,11 +428,15 @@ Loading everything every time may seem wasteful, but the impact is mitigated
 by caching: if a file’s modification time hasn’t changed, it is not read again
 and the previous :class:`.Page` object is re-used.
 
-Likewise, the YAML and Markdown parsing is both lazy and cached: not done
-until needed, and not done again if the file did not change.
 
-API
----
+.. _customising-flatpages:
+
+Customizing Flatpages
+---------------------
+
+
+API Reference
+=============
 
 .. module:: flask_flatpages
 
@@ -443,6 +495,8 @@ API
 .. autofunction:: pygmented_markdown
 
 .. autofunction:: pygments_style_defs
+
+.. autoclass:: FlatPagesBase
 
 Changelog
 ---------

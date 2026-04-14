@@ -8,7 +8,7 @@ Pages are built from "flat" text files as opposed to a relational database.
 :license: BSD, see LICENSE for more details.
 """
 
-from .flatpages import FlatPages
+from .flatpages import FlatPagesBase, FlatPages
 from .page import Page
 from .utils import pygmented_markdown, pygments_style_defs
 from . import parsers
@@ -18,6 +18,7 @@ __license__ = "BSD License"
 __version__ = "0.9.0"
 
 __all__ = [
+    "FlatPagesBase",
     "FlatPages",
     "Page",
     "parsers",
